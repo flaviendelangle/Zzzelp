@@ -459,7 +459,7 @@ function Uploader_smileys() {
 			location.reload();
 		}*/
 	}
-	xdr.open('POST', url_zzzelp + '/compte/smileys?mode=' + document.querySelector('#titre_creation_pack').dataset.mode, true);
+	xdr.open('POST', ZzzelpScript.url + '/compte/smileys?mode=' + document.querySelector('#titre_creation_pack').dataset.mode, true);
 	xdr.send(donnees);
 }
 

@@ -51,7 +51,6 @@ function Chargement_armee() {
 	var releve = document.querySelector('#releve_armee').value;
 	if(releve != "") {
 		var armee = ze_Analyse_armee(releve);
-		console.log(armee);
 		for(var i=0;i<14;i++) {
 			document.querySelector('#unite_' +  (i+1)).value = ze_Nombre(armee[i]);
 		}
@@ -486,3 +485,251 @@ function Creation_liens(valeurs) {
 	valeurs.URL = 'http://' + document.querySelector('#serveur').value + '.fourmizzz.fr/AcquerirTerrain.php?v=' + valeurs.valeur + '&c=[' + chasses + ']&retour=' + (time() + parseInt((Recuperation_TDC_actuel() + valeurs.valeur)*Math.pow(0.9, Recuperation_VC()))) + '&nlc';
 	return valeurs;
 }
+
+
+/*
+ * Tente a part d'une chaine de caractère d'extraire les unités du joueur. 
+ * Pour l'instant gère les copies de la page armée et de RC
+ * str -> array
+*/
+function ze_Analyse_armee(texte, type) {
+    if(typeof type == "undefined") {
+		type = 'armee';
+	}
+	var armee = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+	texte = texte.replace(/(Vers le Terrain de Chasse)|(Vers la Fourmilière)|(Vers la Loge Impériale)/gi, '');
+	texte = texte.replace(/(Vers le TDC)|(Vers le Fourmilière)|(Vers la Loge)/gi, '');
+	texte = texte.replace(/(Vos raiders.*secondes?)|(Vos chasseuses.*secondes?)|(Vous allez attaquer.*secondes?)|(inflige.*\.)|(Arriv.*[0-9]{2}h[0-9]{2})|(\\(s\\))/gi, '');
+	texte = texte.replace(/\]/gi, '\n').replace(/\[/gi, '\n');
+	texte = texte.split("\n").join(',').split(',');	
+	for(var i=0; i<texte.length; i++) {
+		var ligne = texte[i].trim();
+		if(isNaN(ligne.replace(/ /g, ''))) {
+			var id_unite = ze_IDunite(ligne);
+			if(~id_unite) {
+				unite_tampon = id_unite;
+			}
+			else if(!isNaN(ligne.replace(/ /g, '').replace(/	/g, ''))) {
+				ligne = ligne.split('	');
+				console.log(ligne);
+				for(var k=0; k<ligne.length; k++) {
+					if(ligne[k] != '') {
+						armee[unite_tampon] += parseInt(ligne[k].replace(/ /g, ''));
+					}
+				}
+			}
+			else if(ligne.match(new RegExp('([0-9 ]+) ([^.]+)'))) {
+				var valeurs = new RegExp('([0-9 ]+) ([^.]+)').exec(ligne),
+					unite = ze_IDunite(valeurs[2]); 
+				armee[unite] += parseInt(valeurs[1].replace(/ /g, ''));
+			}
+		}
+		else if(ligne.length > 0 && ~unite_tampon) {
+			armee[unite_tampon] += parseInt(ligne.replace(/ /g, ''));
+		}
+	}
+	return (type == 'armee') ? armee.slice(0,14) : armee;
+}
+
+function ze_IDunite(unite) {
+	var index = new Array(unites.noms_singulier, unites.noms_pluriel, unites.ex_noms_singulier, unites.ex_noms_pluriel, unites.TAGs);
+	for(var n=0; n<index.length; n++) {
+		if(in_array(unite, index[n])) {
+			return index[n].indexOf(unite);
+		}
+	}
+	return -1;
+}
+
+
+
+/*
+ * Renvoi l'armée d'un joueur a partir de son armée initiale et du nombre de morts qu'il a subi (aucune XP comptée ici)
+ * (array, int) -> array
+*/
+function ze_Extraction_armee(armee, n) {
+	var armee_2 = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+		i = 0,
+		k = 0;
+	while (i<n) {
+		if(i + armee[13-k] <= n) {
+			i += armee[13-k];
+			armee_2[13-k] = armee[13-k];
+		}
+		else {
+			armee_2[13-k] = n - i;
+			i = n;
+		}
+		k++;
+	}
+	return armee_2;
+}
+
+/* 
+ * Renvoi l'armée une fois toute XP y compris les JSN (aucune perte prise en compte) 
+ * array -> array
+*/
+function ze_Full_XP_avec_JSN(armee) {
+	return [0,0,armee[0]+armee[1]+armee[2],0,0,0,armee[5]+armee[6],0,armee[7]+armee[8],armee[3]+armee[4]+armee[9],0,armee[10]+armee[11],0,armee[12]+armee[13]]
+}
+
+/* 
+ * Renvoi l'armée une fois toute XP en dehors des JSN (aucune perte prise en compte)
+ * array -> array
+*/
+function ze_Full_XP_sans_JSN(armee) {
+	return [armee[0],0,armee[1]+armee[2],0,0,0,armee[5]+armee[6],0,armee[7]+armee[8],armee[3]+armee[4]+armee[9],0,armee[10]+armee[11],0,armee[12]+armee[13]]
+}
+
+/*
+ * Renvoi la Force de Frappe de l'armée sans compter les bonus (attaque à Armes 0)
+ * array -> int
+*/
+function ze_Calcul_attaque_HB(armee) {
+	var attaque = 0,
+		coeffs = [3,5,7,10,15,1,1,30,35,24,55,80,50,55];
+	for(var i=0;i<14;i++) {
+		attaque += armee[i]*coeffs[i];
+	}
+	return attaque;
+}
+
+/*
+ * Renvoi la Vie de l'armée sans compter les bonus (vie en TDC à Bouclier 0)
+ * array -> int
+*/
+function ze_Calcul_vie_HB(armee) {
+	var vie = 0,
+		coeffs = [8,10,13,16,20,30,40,10,12,27,35,50,50,55];
+	for(var i=0;i<14;i++) {
+		vie += armee[i]*coeffs[i];
+	}
+	return vie;
+}
+
+/*
+ * Renvoi la Défense de l'armée sans compter les bonus (défense à Armes 0)
+ * array -> int
+*/
+function ze_Calcul_defense_HB(armee) {
+	var defense = 0,
+		coeffs = [2,4,6,9,14,25,35,15,18,23,1,1,50,55];
+	for(var i=0;i<14;i++) {
+		defense += armee[i]*coeffs[i];
+	}
+	return defense;
+}
+
+/*
+ * Renvoi le nombre d'unités de l'armée (équivalent array_sum)
+ * array -> int
+*/
+function ze_Calcul_capa_flood(armee) {
+	var capa_flood = 0;
+	for(var i=0;i<14;i++) {
+		capa_flood += armee[i];
+	}
+	return capa_flood;
+}
+
+/*
+ * Renvoi la consommation de l'armée en pommes par jour (0 -> TDC, 1 -> Dôme, 2 -> Loge)
+ * (array, int) -> int
+*/
+function ze_Calcul_consommation_armee(armee, lieu) {
+	var consommation = 0,
+		coeffs = [16,20,26,30,36,70,100,30,34,44,100,150,80,90],
+		pourcentages = [0.05,0.1,0.15];
+	for(var i=0;i<14;i++) {
+		consommation += armee[i]*coeffs[i]*pourcentages[lieu];
+	}
+	return parseInt(consommation);
+}
+
+/*
+ * Renvoi le nombre de secondes de ponte à tdp 0 d'une armée (diviser par 31 536 000 pour avoir le nombre d'années)
+ * array -> int
+*/
+function ze_Calcul_annees_HOF(armee) {
+	var secondes = 0,
+		coeffs = [300,450,570,740,1000,1410,1410,1440,1520,1450,1860,1860,2740,2740];
+	for(var i=0;i<14;i++) {
+		secondes += armee[i]*coeffs[i];
+	}
+	return secondes;
+}
+
+/*
+ * Renvoi la Vie de l'armée en fonction du lieu et de niveaux de lieu et bouclier (utilise ze_Calcul_vie_HB)
+ * (array, int, int, int) -> int
+*/
+function ze_Calcul_vie_AB(armee, lieu, niveau_lieu, bouclier) {
+	if(lieu == 0) {
+		return parseInt(ze_Calcul_vie_HB(armee) * (1+0.1*bouclier));
+	}
+	else if(lieu == 1) {
+		return parseInt(ze_Calcul_vie_HB(armee) * (1+0.05*(niveau_lieu+2) + 0.1*bouclier));
+	}
+	else {
+		return parseInt(ze_Calcul_vie_HB(armee) * (1+0.15*(niveau_lieu+2) + 0.1*bouclier));
+	}	
+}
+
+/*
+ * Renvoi la Force de Frappe de l'armée en fonction du niveau d'Armes (utilise ze_Calcul_attaque_HB)
+ * (array, int) -> int
+*/
+function ze_Calcul_attaque_AB(armee, armes) {
+	return parseInt(ze_Calcul_attaque_HB(armee) * (1+armes*0.1));
+}
+
+/*
+ * Renvoi la Défense de l'armée en fonction du niveau d'Armes (utilise ze_Calcul_defense_HB)
+ * (array, int) -> int
+*/
+function ze_Calcul_defense_AB(armee, armes) {
+	return parseInt(ze_Calcul_defense_HB(armee) * (1+armes*0.1));
+}
+
+/*
+ * Renvoi la Force de Frappe de l'armée rencontrée en chasse
+ * array -> int
+*/
+function ze_Calcul_degats_chasse(armee) {
+	var attaque = 0,
+		coeffs = [13,19,30,42,50,70,70,115,140,230,700,1200,1400,3000,10000,50000,1000000];
+	for(var i=0;i<17;i++) {
+		attaque += armee[i]*coeffs[i];
+	}
+	return attaque;
+}
+
+/* Renvoi la Vie de l'armée rencontrée en chasse
+ * array -> int
+*/
+function ze_Calcul_vie_chasse(armee) {
+	var vie = 0,
+		coeffs = [50,90,100,105,140,200,700,220,450,1000,5000,900,4800,8400,13000,105000,6600000];
+	for(var i=0;i<17;i++) {
+		vie += armee[i]*coeffs[i];
+	}
+	return vie;
+}
+
+var 		unites = {
+			noms_singulier : new Array("Jeune Soldate Naine", "Soldate Naine", "Naine d’Elite", "Jeune Soldate", "Soldate", "Concierge", "Concierge d’élite", "Artilleuse", "Artilleuse d’élite", "Soldate d’élite", "Tank", "Tank d’élite", "Tueuse",  "Tueuse d’élite"),
+			noms_pluriel : new Array("Jeunes Soldates Naines", "Soldates Naines", "Naines d’Elites", "Jeunes Soldates", "Soldates", "Concierges", "Concierges d’élites", "Artilleuses", "Artilleuses d’élites", "Soldates d’élites", "Tanks", "Tanks d’élites", "Tueuses",  "Tueuses d’élites"),
+			ex_noms_singulier : new Array("Jeune Soldate Naine", "Soldate Naine", "Naine d'Elite", "Jeune Soldate", "Soldate", "Concierge", "Concierge d'élite", "Artilleuse", "Artilleuse d'élite", "Soldate d'élite", "Tank", "Tank d'élite", "Tueuse",  "Tueuse d'élite"),
+			ex_noms_pluriel : new Array("Jeunes Soldates Naines", "Soldates Naines", "Naines d'Elites", "Jeunes Soldates", "Soldates", "Concierges", "Concierges d'élites", "Artilleuses", "Artilleuses d'élites", "Soldates d'élites", "Tanks", "Tanks d'élites", "Tueuses",  "Tueuses d'élites"),
+			TAGs : new Array('JSN', 'SN', 'NE', 'JS', 'S', 'C', 'CE', 'A', 'AE', 'SE', 'Tk', 'TkE', 'T', 'TE'),
+			ordre : new Array('unite1', 'unite2', 'unite3', 'unite4', 'unite5', 'unite6', 'unite14', 'unite7', 'unite8', 'unite9', 'unite10', 'unite13', 'unite11', 'unite12'),
+			attaque : new Array(3,5,7,10,15,1,1,30,35,24,55,80,50,55), 
+			vie : new Array(8,10,13,16,20,30,40,10,12,27,35,50,50,55), 
+			defense : new Array(2,4,6,9,14,25,35,15,18,23,1,1,50,55),
+			HOF : new Array(300,450,570,740,1000,1410,1410,1440,1520,1450,1860,1860,2740,2740),
+			ID : new Array(1,2,3,4,5,6,14,7,8,9,10,13,11,12)
+				};
+		unites_chasses = {
+			noms_singulier : new Array('Petite araignée', 'Araignée', 'Chenille', 'Criquet', 'Guèpe', 'Cigale', 'Dionée', 'Abeille', 'Hanneton', 'Scarabée', 'Lezard', 'Mante religieuse', 'Souris', 'Mulot', 'Alouette', 'Rat', 'Tamanoir'),
+			noms_pluriel : new Array('Petites araignées', 'Araignées', 'Chenilles', 'Criquets', 'Guèpes', 'Cigales', 'Dionées', 'Abeilles', 'Hannetons', 'Scarabées', 'Lezards', 'Mantes religieuses', 'Souris', 'Mulots', 'Alouettes', 'Rats', 'Tamanoirs')
+		};

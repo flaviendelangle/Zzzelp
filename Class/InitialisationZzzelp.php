@@ -42,7 +42,6 @@ class InitialisationZzzelp {
 		'rapport_script'			=> array('disponible' => true , 'section' => ''					, 'mode' => 'externe'), 
 		'RC_script'					=> array('disponible' => true , 'section' => ''					, 'mode' => 'externe'), 
 		'resume'					=> array('disponible' => true , 'section' => ''					, 'mode' => 'publique'),
-		'CV'						=> array('disponible' => true , 'section' => ''					, 'mode' => 'publique'),
 		'script' 					=> array('disponible' => true , 'section' => ''					, 'mode' => 'global'), 
 		'script_beta'				=> array('disponible' => true , 'section' => ''					, 'mode' => 'externe'), 
 		'statistiques' 				=> array('disponible' => true , 'section' => 'outils_alliance'	, 'mode' => 'serveur'), 
@@ -327,6 +326,7 @@ class InitialisationZzzelp {
 
 
 	private function load_Pages_Externes() {
+		header('Content-Type: application/json');
 		$script = new ZzzelpScript(htmlentities($_GET['pseudo']), htmlentities($_GET['serveur']), htmlentities($_GET['token']));
 		if($script->autorise) {
 			$this->pseudo = $script->utilisateur->get_PseudoZzzelp();
@@ -521,7 +521,6 @@ class InitialisationZzzelp {
 				$script->show_results(Guerre::save_RCAuto($script));
 			}
 
-
 			/*
 				Stockage des TDC envoyés par le traceur
 			*/
@@ -606,11 +605,6 @@ class InitialisationZzzelp {
 			Affiche des exemples de codes intéressants
 		*/
 		elseif(Zzzelp::$page == 'resume') {
-			$menu = new MenuZzzelp($this, 'global');
-			require("Vue/Vue_CV.php");
-		}
-
-		elseif(Zzzelp::$page == 'CV') {
 			$menu = new MenuZzzelp($this, 'global');
 			require("Vue/Vue_CV.php");
 		}
@@ -1209,7 +1203,10 @@ class InitialisationZzzelp {
 			*/
 			elseif(Zzzelp::$page == 'traceur_data') {
 				$traceur = new Traceur($compte);
-				$traceur->get_Data();
+				echo json_encode(array(
+					'etat' => 2,
+					'resultats' => $traceur->get_Data()
+				));
 			}
 
 			/*

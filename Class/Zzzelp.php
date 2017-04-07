@@ -6,7 +6,7 @@ class Zzzelp {
 	public static $IP;
 	public static $page;
 	public static $onglet;
-	public static $url_site = 'http://zzzelp.fr/';
+	public static $url_site = 'http://test.zzzelp.fr/';
 	public static $url_page;
 	public static $post_FG = 'http://fourmizzz.cforum.info/t14457-Zzzelp.htm';
 

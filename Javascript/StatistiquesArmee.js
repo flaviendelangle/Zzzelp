@@ -18,7 +18,7 @@ function Creation_graphiques(section, n) {
 	for(var pseudo in armees) {
 		if(alliances.length === 0 || in_array(armees[pseudo].alliance, alliances)) {
 			var armee = JSON.parse(JSON.stringify(armees[pseudo]));
-			armee.armee = new ZzzelpScriptArmee(armees[pseudo].armee, { armes : 0, bouclier : 0, lieu : 0, niveau_lieu : 0 });
+			armee.armee = new ZzzelpArmy(armees[pseudo].armee, { armes : 0, bouclier : 0, lieu : 0, niveau_lieu : 0 });
 			armees2[pseudo] = armee;
 		}
 	}
@@ -227,9 +227,9 @@ function Interface_composition_armee(armees) {
 }
 
 function Graphique_composition_joueur(pseudo, mode, n) {
-	var armee = (n === 0) ? armees[pseudo].armee.noXP() : ((n == 1) ? armees[pseudo].armee : ze_Full_XP_avec_JSN(armees[pseudo].armee)),
-		statistiques = Statistiques_armee_categories(armee, mode);
-	console.log(statistiques);
+	var armee = new ZzzelpArmy(armees[pseudo].armee);
+	 armee = (n === 0) ? armee.noXP() : (n == 1) ? armee : armee.XPavecJSN();
+	var statistiques = Statistiques_armee_categories(armee, mode);
 	$('#graphe_composition_joueur').highcharts({
 		chart: {
 			plotBackgroundColor: null,
@@ -264,13 +264,13 @@ function Graphique_composition_joueur(pseudo, mode, n) {
 
 function Statistiques_armee_categories(armee, mode) {
 	var categories = new Array(
-						{ name : 'Naines', unites : [0,1,2] }, 
-						{ name : 'Soldates', unites : [3,4,9] }, 
-						{ name : 'Concierges', unites : [5,6] }, 
-						{ name : 'Artilleuses', unites : [7,8] }, 
-						{ name : 'Tanks', unites : [10,11] }, 
-						{ name : 'Tueuses', unites : [12,13] }
-					),
+			{ name : 'Naines', unites : [0,1,2] }, 
+			{ name : 'Soldates', unites : [3,4,9] }, 
+			{ name : 'Concierges', unites : [5,6] }, 
+			{ name : 'Artilleuses', unites : [7,8] }, 
+			{ name : 'Tanks', unites : [10,11] }, 
+			{ name : 'Tueuses', unites : [12,13] }
+		),
 		statistiques = [], valeur;
 	for(var i=0; i<categories.length; i++) {
 		var armee2 = armee.new_armee();

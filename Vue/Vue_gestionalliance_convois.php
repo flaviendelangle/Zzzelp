@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -150,7 +150,7 @@
 										<span>Formule : </span>			
 										<select name="formule_repartition" id="formule_repartition" onchange="Affichage_parametres()">
 											<?php if ($alliance->alliance == 'ZOO') { ?><option value=0 <?php if($alliance->parametres_convois['formule_repartition'] == 0) { echo 'selected';} ?>>Méthode ZOO</option> <?php } ?>
-											<?php if ($alliance->alliance == 'SMURF') { ?><option value=2 <?php if($alliance->parametres_convois['formule_repartition'] == 2) { echo 'selected';} ?>>Méthode SMURF</option> <?php } ?>
+											<?php if ($alliance->alliance == '-VIP-') { ?><option value=2 <?php if($alliance->parametres_convois['formule_repartition'] == 2) { echo 'selected';} ?>>Méthode -VIP-</option> <?php } ?>
 											<?php if ($alliance->alliance == 'MRG') { ?><option value=3 <?php if($alliance->parametres_convois['formule_repartition'] == 3) { echo 'selected';} ?>>Méthode MRG</option> <?php } ?>
 											<option value=1 <?php if($alliance->parametres_convois['formule_repartition'] == 1) { echo 'selected';} ?>>Méthode Temps de Ponte</option>
 										</select>
@@ -265,7 +265,7 @@
 									</tr>
 									<?php } ?>
 									<tr>
-										<td id="td" colspan="4"><a onclick="Ajout_ligne_convois('priorites')">Nouvelle ligne</a></td>
+										<td id="td" colspan="4"><a onclick="Ajout_ligne_convois('priorites');return false;">Nouvelle ligne</a></td>
 									</tr>
 								</table>
 							<br><br>
@@ -273,11 +273,11 @@
 						</div>
 					</div>
 					<div class="grid grid-pad">
-						<?php if($alliance->alliance == 'SkY' AND $alliance->serveur == 's4') { ?>
+						<?php if($alliance->alliance == '-VIP-' AND $alliance->serveur == 's1') { ?>
 						<div class="col-1-2">
 							<br>
 							<div class="zone_invisible">
-								<div class="entete_cadre">Compte +</div>
+								<div class="entete_cadre">TDC perso</div>
 								<br>
 								<div class="zone_tableau_vertical tableau_ombre">
 									<table id="compte_plus">
@@ -289,15 +289,21 @@
 											</tr>
 										</thead>
 										<tbody>
-											<?php $n=0;foreach($alliance->compteplus as $joueur) { ?>
+											<?php $n=0;foreach($alliance->TDCpersos as $joueur) { ?>
 											<tr>
-												<td id="td"><input type="text" class="input_semi_court" name="pseudo_compte_plus[]" value="<?php echo $joueur['pseudo'] ?>"></td>
-												<td id="td"><input type="text" class="input_semi_court" id="valeur_compte_plus_<?php echo $n ?>" name="valeur_compte_plus[]" onchange="Modification_bonus(<?php echo $n ?>)" onkeyup="Ajout_espaces('valeur_compte_plus_<?php echo $n ?>')" value="<?php echo number_format($joueur['valeur'], 0, '.' , ' ') ?>"></td>
-												<td id="td"><a href="#" onClick="Ajout_compte_plus('valeur_compte_plus_<?php echo $n ?>')"><input type="image" src="/Images/plus.png" width="25"/></a></td>
+												<td id="td">
+													<input type="text" class="input_semi_court" name="pseudo_compte_plus[]" value="<?php echo $joueur['pseudo'] ?>">
+												</td>
+												<td id="td">
+													<input type="text" class="input_semi_court" name="valeur_compte_plus[]" onkeyup="ze_Ajout_espaces(this)" 
+														value="<?php echo number_format($joueur['valeur'], 0, '.' , ' ') ?>">
+												</td>
 											</tr>
 											<?php  $n++;} ?>
 											<tr>
-												<td id="td" colspan="4"><a class="button button-flat-primary" href="#" onClick="Ajout_ligne_convois('compte_plus')">Nouvelle ligne</a></td>
+												<td id="td" colspan="2">
+													<a class="bouton" href="#" onclick="Ajout_ligne_convois('compte_plus');return false;">Nouvelle ligne</a>
+												</td>
 											</tr>
 										</tbody>
 									</table>

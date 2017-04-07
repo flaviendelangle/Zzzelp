@@ -136,7 +136,8 @@ class Admin {
 		Fonctions de validation
 	*/
 	public function validation_pseudo() {
-		if(empty($this->instance->pseudos[$_GET['serveur']]['pseudo']) AND ZzzelpScript::is_token_fourmizzz_valid(htmlentities($_GET['serveur']), htmlentities($_GET['pseudo']), htmlentities($_GET['token']))) {
+		$token_valid =  ZzzelpScript::is_token_fourmizzz_valid(htmlentities($_GET['serveur']), htmlentities($_GET['pseudo']), htmlentities($_GET['token']));
+		if($token_valid) {
 			$this->supprimer_pseudo();
 			$this->validate_Joueur('zzzelpscript', $this->instance->pseudo);
 			header('Location:http://'.$_GET['serveur'].'.fourmizzz.fr/Reine.php?force_zzzelp');
@@ -182,14 +183,10 @@ class Admin {
 		$serveur = $_GET['serveur'];
 		if(in_array($serveur, Fourmizzz::$serveurs)) {
 			$bdd = Zzzelp::Connexion_BDD('Donnees_site');
-			$requete = $bdd->prepare('UPDATE membres SET verif_pseudo_'.$serveur.' = 0, pseudo_'.$serveur.' = "" WHERE pseudo'.$serveur.' = :pseudo_serveur LIMIT 1');
-			$requete->bindValue(':pseudo_serveur', htmlentities($_GET['pseudo']), PDO::PARAM_STR);
-			$requete->execute();
 			if($methode == 'admin') {
 				$requete = $bdd->prepare('UPDATE membres SET verif_pseudo_'.$serveur.' = 1 WHERE pseudo_'.$serveur.' = :pseudo_serveur LIMIT 1');
 			}
 			elseif($methode == 'zzzelpscript') {
-				// Ajout du nouveau propriétaire
 				$requete = $bdd->prepare('UPDATE membres SET verif_pseudo_'.$serveur.' = 1, pseudo_'.$serveur.' = :pseudo_serveur WHERE pseudo = :pseudo LIMIT 1');
 				$requete->bindValue(':pseudo', $this->instance->pseudo, PDO::PARAM_STR);
 			}
@@ -331,7 +328,7 @@ class Admin {
 
 	public function dumps_FI() {
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
-		$requete = $bdd->prepare('SELECT * FROM releves_FI ORDER BY date_synchro DESC LIMIT 50');
+		$requete = $bdd->prepare('SELECT * FROM releves_FI ORDER BY date_synchro DESC LIMIT 200');
 		$requete->execute();
 		return $requete->fetchAll(PDO::FETCH_ASSOC);
 	}
@@ -405,7 +402,6 @@ class Admin {
 		echo $contenu;
 	}
 
-
 	public function get_Analyses_RC() {
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
 		$requete = $bdd->prepare('SELECT ID_RC, RC FROM RC_guerre WHERE mode = "RC"');
@@ -429,12 +425,13 @@ class Admin {
 	}
 
 	public function fonction_test() {
+		$puissances = array(464, 686, 996, 1178, 1521, 2151, 4025, 2892, 4564, 8720, 34015, 17814, 48105, 89072, 314918, 1285649, 40655781);
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
-		$requete = $bdd->prepare('SELECT * FROM SimulationsChasse WHERE TDC_lancement = 50 AND TDC_conquis = 1000000000');
+		$requete = $bdd->prepare('SELECT * FROM SimulationsChasse WHERE TDC_lancement = 0 AND TDC_conquis = 1000000000 AND Petite_araignee > 0');
 		$requete->execute();
 		while($ligne = $requete->fetch(PDO::FETCH_ASSOC)) {
 			$armee = array(
-				'Petite_araignee' => $ligne['Petite_araignee'],
+				'Petite_araignee' => $ligne['Petite_araignee'] - 6465518,
 				'Araignee' => $ligne['Araignee'],
 				'Chenille' => $ligne['Chenille'],
 				'Criquet' => $ligne['Criquet'],
@@ -452,7 +449,19 @@ class Admin {
 				'Rat' => $ligne['Rat'],
 				'Tamanoir' => $ligne['Tamanoir']
 			);
-			var_dump($armee);
+			$n = 0;
+			$puissances_chasse = array();
+			foreach($armee as $unite => $valeur) {
+				if((int)$valeur > 100) {
+					$puissance = (int)$valeur*$puissances[$n];
+					$puissances_chasse[] = $puissance;
+					$n++;
+				}
+			}
+			if(count($puissances_chasse) == 2) {
+				var_dump($puissances_chasse);
+				echo '<br>';
+			}
 		}
 	}
 }

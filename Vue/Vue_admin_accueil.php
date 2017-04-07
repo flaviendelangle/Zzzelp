@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -36,14 +36,12 @@
 			</div>
 		</div>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
-		<script src="/ZzzelpScript/Analyseurs.js"></script>
-		<script src="/ZzzelpScript/Armee.js"></script>
 		<script>
 
 Initialisation_admin(ze_Analyser_URL('mode'));
 
 function Initialisation_admin(mode) {
-	window.history.pushState('', '', url_zzzelp + 'admin/accueil?mode=' + mode);
+	window.history.pushState('', '', ZzzelpScript.url + 'admin/accueil?mode=' + mode);
 	var xdr = ze_getXDomainRequest(),
 		modes = {
 			validations : { fonction : Onglet_validations, ajax : true },
@@ -245,7 +243,7 @@ function Onglet_releves(valeurs) {
 			}
 		}
 		catch(e) {
-			
+			console.log(releve);
 		}
 
 		entete.onclick = function onclick(event) {this.nextSibling.style.display = (this.nextSibling.style.display == 'none' ? '' : 'none');}
@@ -285,7 +283,7 @@ function Lancement_nettoyage() {
 			}
 			Lancement_nettoyage();
 		}
-		xdr.open("GET", url_zzzelp + "/admin/nettoyage?donnee=" + donnee,true);
+		xdr.open("GET", ZzzelpScript.url + "/admin/nettoyage?donnee=" + donnee,true);
 		xdr.send(null);	
 	}
 }
@@ -315,7 +313,7 @@ function Afficher_profil_joueur(pseudo_zzzelp, pseudo_fourmizzz, serveur) {
 			bouton = document.createElement('a');
 		ligne.className = 'ligne_cadre_structure';
 		bouton.className = 'bouton';
-		bouton.href = url_zzzelp + 'admin/authentification?pseudo=' + valeurs.utilisateur.pseudo;
+		bouton.href = ZzzelpScript.url + 'admin/authentification?pseudo=' + valeurs.utilisateur.pseudo;
 		bouton.innerHTML = 'Accéder au compte';
 		bouton.setAttribute('target', '_BLANK');
 		ligne.appendChild(bouton);
@@ -393,7 +391,7 @@ function Afficher_profil_joueur(pseudo_zzzelp, pseudo_fourmizzz, serveur) {
 			}
 		}
 	}
-	xdr.open("GET", url_zzzelp + '/admin/data?mode=profil&serveur=' + serveur + '&pseudo_fourmizzz=' + pseudo_fourmizzz + '&pseudo_zzzelp=' + pseudo_zzzelp, true);
+	xdr.open("GET", ZzzelpScript.url + '/admin/data?mode=profil&serveur=' + serveur + '&pseudo_fourmizzz=' + pseudo_fourmizzz + '&pseudo_zzzelp=' + pseudo_zzzelp, true);
 	xdr.send(null);	
 }
 

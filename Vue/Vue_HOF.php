@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -11,23 +11,24 @@
 			<div class="main">
 				<div class="grid grid-pad">
 					<div class="col-1-1">
-						<div class="zone_contenu zone_largeur_courte">
+						<div class="zone_contenu zone_invisible">
 							<div class="ligne_cadre_structure" style="height:auto">
-								<textarea id="contenu_RC"></textarea>
+								<textarea id="contenu_RC" style="height: 300px;width: 600px;max-width: 80%;"></textarea>
 							</div>
 							<div class="ligne_cadre_structure">
 								<a onclick="Lancer_analyse();return false;" class="bouton">Analyser</a>
 							</div>
 						</div>
 						<br><br>
-						<div class="zone_contenu zone_invisible" id="zone_analyses" style="width: 770px;max-width:100%">
+						<div class="zone_contenu zone_invisible" id="zone_analyses" style="width: 770px;max-width:100%;margin:auto;">
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<script type="text/javascript" src="/ZzzelpScript/Analyseurs.js"></script>	
-		<script type="text/javascript" src="/ZzzelpScript/Armee.js"></script>	
+		<script type="text/javascript" src="/ZzzelpScript/analysers/combat.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/analysers/textoutput.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/analysers/graphicoutput.js"></script>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
 		<script>
 

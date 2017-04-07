@@ -31,8 +31,11 @@ class HTMLGenerique {
 		<link rel="stylesheet" type="text/css" href="/Style/fonts.css" />
 		<link rel="stylesheet" href="/Style/popupwindow.css">
 		<link rel="stylesheet" type="text/css" href="/Style/Style_2015.php'.(($_GET['page'] == 'login') ? '?mode=auto' : '').'">
-		<script > var url_site = "'.Zzzelp::$url_site.'";</script>
+		<script > var url_site = "'.Zzzelp::$url_site.'/";</script>
 		<script type="text/javascript" src="/Javascript/base_zzzelp.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/lib/ajax.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/lib/army.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/zzzelp/help.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 		<script src="/Javascript/modernizr.custom.js"></script>'.$o;		
 	}

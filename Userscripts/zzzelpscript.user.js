@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name          ZzzelpScript
+// @name          ZzzelpScript (test)
 //
 // @include       http://*.fourmizzz.fr/*
 // @include       http://zzzelp.fr/*
@@ -13,6 +13,6 @@
 // ==/UserScript==
 
     var ZzzelpScript = document.createElement('script');
-    ZzzelpScript.src = 'http://zzzelp.fr/Userscripts/zzzelpscript.js';
+    ZzzelpScript.src = 'http://test.zzzelp.fr/Userscripts/zzzelpscript.js';
     ZzzelpScript.type = 'text/javascript';
     document.getElementsByTagName('head')[0].appendChild(ZzzelpScript);

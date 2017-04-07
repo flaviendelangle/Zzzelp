@@ -11,6 +11,15 @@ class Traceur {
 	public $alliances_diff; 
 	public $variations_inconnues;
 
+	public $modes = array(
+		'correspondances', 
+		'variations', 
+		'joueurs', 
+		'alliances'
+	);
+
+
+
 
 	public function __construct($utilisateur) {
 		$this->utilisateur = $utilisateur;
@@ -38,61 +47,77 @@ class Traceur {
 					$TDC_alliance += (int)$joueur['TDC'];
 					$membres_alliance ++;
 				}
-				$requete = $bdd->prepare('INSERT INTO alliances_'.$serveur.'(alliance, TDC, membres, date_releve, origine, proprietaire) VALUES(:alliance, :TDC, :membres, :date_releve, :origine, :proprietaire)');
-				$requete->bindValue(':alliance', $alliance['alliance'], PDO::PARAM_STR);
-				$requete->bindValue(':TDC', $TDC_alliance, PDO::PARAM_INT);
-				$requete->bindValue(':membres', $membres_alliance, PDO::PARAM_INT);
-				$requete->bindValue(':date_releve', time(), PDO::PARAM_INT);
-				$requete->bindValue(':origine', 'DA', PDO::PARAM_STR);
-				$requete->bindValue(':proprietaire', $proprietaire, PDO::PARAM_STR);
-				$requete->execute();
+				$request = $bdd->prepare(
+					'INSERT INTO alliances_'.$serveur.
+					'(alliance, TDC, membres, date_releve, origine, proprietaire) '.
+					'VALUES(:alliance, :TDC, :membres, :date_releve, :origine, :proprietaire)'
+
+					);
+				$request->bindValue(':alliance', $alliance['alliance'], PDO::PARAM_STR);
+				$request->bindValue(':TDC', $TDC_alliance, PDO::PARAM_INT);
+				$request->bindValue(':membres', $membres_alliance, PDO::PARAM_INT);
+				$request->bindValue(':date_releve', time(), PDO::PARAM_INT);
+				$request->bindValue(':origine', 'DA', PDO::PARAM_STR);
+				$request->bindValue(':proprietaire', $proprietaire, PDO::PARAM_STR);
+				$request->execute();
 			}
-			$requete = $bdd->prepare('INSERT INTO TDC_'.$serveur.' (pseudo, alliance, valeur, date_releve, origine, proprietaire, prive) VALUES'.$valeurs);
+			$request = $bdd->prepare(
+				'INSERT INTO TDC_'.$serveur.' '.
+				'(pseudo, alliance, valeur, date_releve, origine, proprietaire, prive) '.
+				'VALUES'.$valeurs
+			);
 			$i = 0;
 			foreach($releves['joueurs'] as $joueur) {
 				$i++;
-				$requete->bindValue(':pseudo_'.$i, $joueur['pseudo'], PDO::PARAM_STR);
-				$requete->bindValue(':valeur_'.$i, $joueur['TDC'], PDO::PARAM_INT);
-				$requete->bindValue(':alliance_'.$i, $joueur['alliance'], PDO::PARAM_STR);
-				$requete->bindValue(':date_releve_'.$i, time(), PDO::PARAM_INT);
-				$requete->bindValue(':origine_'.$i, 'PJ', PDO::PARAM_STR);
-				$requete->bindValue(':proprietaire_'.$i, $proprietaire, PDO::PARAM_STR);
-				$requete->bindValue(':prive_'.$i, 0, PDO::PARAM_INT);
+				$request->bindValue(':pseudo_'.$i, $joueur['pseudo'], PDO::PARAM_STR);
+				$request->bindValue(':valeur_'.$i, $joueur['TDC'], PDO::PARAM_INT);
+				$request->bindValue(':alliance_'.$i, $joueur['alliance'], PDO::PARAM_STR);
+				$request->bindValue(':date_releve_'.$i, time(), PDO::PARAM_INT);
+				$request->bindValue(':origine_'.$i, 'PJ', PDO::PARAM_STR);
+				$request->bindValue(':proprietaire_'.$i, $proprietaire, PDO::PARAM_STR);
+				$request->bindValue(':prive_'.$i, 0, PDO::PARAM_INT);
 			}
 			foreach($releves['alliances'] as $alliance) {
 				$TDC_alliance = 0;
 				$membres_alliance = 0;
 				foreach($alliance['valeurs'] as $joueur) {
 					$i++;
-					$requete->bindValue(':pseudo_'.$i, $joueur['pseudo'], PDO::PARAM_STR);
-					$requete->bindValue(':valeur_'.$i, $joueur['TDC'], PDO::PARAM_INT);
-					$requete->bindValue(':alliance_'.$i, $alliance['alliance'], PDO::PARAM_STR);
-					$requete->bindValue(':date_releve_'.$i, time(), PDO::PARAM_INT);
-					$requete->bindValue(':origine_'.$i, 'DA', PDO::PARAM_STR);
-					$requete->bindValue(':proprietaire_'.$i, $proprietaire, PDO::PARAM_STR);
-					$requete->bindValue(':prive_'.$i, 0, PDO::PARAM_INT);				
+					$request->bindValue(':pseudo_'.$i, $joueur['pseudo'], PDO::PARAM_STR);
+					$request->bindValue(':valeur_'.$i, $joueur['TDC'], PDO::PARAM_INT);
+					$request->bindValue(':alliance_'.$i, $alliance['alliance'], PDO::PARAM_STR);
+					$request->bindValue(':date_releve_'.$i, time(), PDO::PARAM_INT);
+					$request->bindValue(':origine_'.$i, 'DA', PDO::PARAM_STR);
+					$request->bindValue(':proprietaire_'.$i, $proprietaire, PDO::PARAM_STR);
+					$request->bindValue(':prive_'.$i, 0, PDO::PARAM_INT);				
 				}
 			}
-			$requete->execute();
+			$request->execute();
 		}
+	}
+
+	public function surveillance_Joueurs() {
+		
 	}
 
 	public function get_Data() {
 		$this->set_Options();
 		if($this->mode == 'correspondances') {
-			echo json_encode($this->get_Correspondances());
+			return $this->get_Correspondances();
 		}
 		elseif($this->mode == 'variations') {
-			echo json_encode($this->get_Variations());
+			return $this->get_Variations();
 		}
 		elseif($this->mode == 'joueurs') {
-			echo json_encode($this->get_DataJoueur());
+			return $this->get_DataJoueur();
 		}
 		elseif($this->mode == 'alliances') {
-			echo json_encode($this->get_DataAlliance());
+			return $this->get_DataAlliance();
 		}
 		elseif($this->mode == 'detail_correspondances') {
-			echo json_encode($this->get_DetailsVariation());
+			return $this->getDetailsCorrespondance();
+		}
+		elseif($this->mode == 'compatible_variations') {
+			return $this->getCompatibleVariations();
 		}
 	}
 
@@ -100,7 +125,7 @@ class Traceur {
 		$this->mode = htmlentities($_GET['mode']);
 		$this->droits_alliance = $this->get_AlliancesAccessibles();
 		$this->utilisateur->get_RightsZzzelp();
-		if(in_array($this->mode, array('correspondances', 'variations', 'joueurs', 'alliances'))) {
+		if(in_array($this->mode, $this->modes)) {
 			$this->debut = htmlentities($_GET['debut']);
 			$this->fin = htmlentities($_GET['fin']);
 			if($_GET['manuel'] == 1) {
@@ -132,23 +157,26 @@ class Traceur {
 	private function get_Correspondances() {
 		$this->droits_alliance = $this->get_AlliancesAccessibles();
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('SELECT * FROM correspondances_'.$this->utilisateur->serveur.' WHERE date_mini >= :debut AND date_maxi <= :fin '.
-								  $this->create_SubRequete_Correspondances().
-								  ($this->alliances_diff ? ' AND alliance_att != alliance_def' : '').
-								  (!is_nan($this->valeur_min) ? ' AND valeur >= :valeur_min' : '').
-								  (($this->valeur_max > 0) ? ' AND valeur <= :valeur_max' : '').
-								  ' ORDER BY date_mini DESC');
-		$requete->bindValue(':debut', $this->debut, PDO::PARAM_INT);
-		$requete->bindValue(':fin', $this->fin, PDO::PARAM_INT);
+		$request = $bdd->prepare(
+			'SELECT * FROM correspondances_'.$this->utilisateur->serveur.' WHERE '.
+			'date_mini >= :debut AND date_maxi <= :fin '.
+		  	$this->create_SubRequete_Correspondances().
+		 	($this->alliances_diff ? ' AND alliance_att != alliance_def' : '').
+		 	(!is_nan($this->valeur_min) ? ' AND valeur >= :valeur_min' : '').
+		  	(($this->valeur_max > 0) ? ' AND valeur <= :valeur_max' : '').' '.
+		  	'ORDER BY date_mini DESC'
+		);
+		$request->bindValue(':debut', $this->debut, PDO::PARAM_INT);
+		$request->bindValue(':fin', $this->fin, PDO::PARAM_INT);
 		if(!is_nan($this->valeur_min)) {
-			$requete->bindValue(':valeur_min', $this->valeur_min);
+			$request->bindValue(':valeur_min', $this->valeur_min);
 		}
 		if($this->valeur_max > 0) {
-			$requete->bindValue(':valeur_max', $this->valeur_max);
+			$request->bindValue(':valeur_max', $this->valeur_max);
 		}
-		$requete = $this->bind_SubRequete_Correspondances($requete);
-		$requete->execute();
-		$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+		$request = $this->bind_SubRequete_Correspondances($request);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 		$accessibles = array();
 		foreach($resultats as $resultat) {
 			$acces = json_decode($resultat['acces'], true);
@@ -168,12 +196,26 @@ class Traceur {
 		$fini = false;
 		$n = 0;
 		while(!$fini AND $n<5) {
-			$requete = $bdd->prepare('SELECT * FROM variations_inconnues_'.$this->utilisateur->serveur.' WHERE date_mini >= :debut AND date_maxi <= :fin '.$this->create_SubRequete_Variations().($this->variations_inconnues ? ' AND resolu = 0' : '').' ORDER BY date_mini DESC LIMIT '.($n*100).', 10000');
-			$requete->bindValue(':debut', $this->debut, PDO::PARAM_INT);
-			$requete->bindValue(':fin', $this->fin, PDO::PARAM_INT);
-			$requete = $this->bind_SubRequete_Variations($requete);
-			$requete->execute();
-			$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+			$request = $bdd->prepare(
+				'SELECT * FROM variations_inconnues_'.$this->utilisateur->serveur.' WHERE '.
+				'date_mini >= :debut AND date_maxi <= :fin '.
+				$this->create_SubRequete_Variations().
+				($this->variations_inconnues ? ' AND resolu = 0' : '').
+				(!is_nan($this->valeur_min) ? ' AND abs(valeur_avant-valeur_apres) >= :valeur_min' : '').
+				(($this->valeur_max > 0) ? ' AND abs(valeur_avant-valeur_apres) <= :valeur_max' : '').
+				' ORDER BY date_mini DESC LIMIT '.($n*100).', 10000'
+			);
+			$request->bindValue(':debut', $this->debut, PDO::PARAM_INT);
+			$request->bindValue(':fin', $this->fin, PDO::PARAM_INT);
+			if(!is_nan($this->valeur_min)) {
+				$request->bindValue(':valeur_min', $this->valeur_min);
+			}
+			if($this->valeur_max > 0) {
+				$request->bindValue(':valeur_max', $this->valeur_max);
+			}
+			$request = $this->bind_SubRequete_Variations($request);
+			$request->execute();
+			$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 			foreach($resultats as $resultat) {
 				$acces = json_decode($resultat['acces'], true);
 				foreach($this->droits_alliance as $alliance) {
@@ -192,23 +234,20 @@ class Traceur {
 
 
 	function get_DataJoueur() {
-		if($this->joueur == '') {
-			return array('correspondances' => array(), 'variations' => array(), 'releves' => array(), 'pseudo' => '');
-		}
-		else {
-			$this->alliances = array();
-			$this->joueurs = array($this->joueur);
-			$valeurs = array(
-						'correspondances' => $this->get_Correspondances(), 
-						'variations' => $this->get_Variations(), 
-						'pseudo' => $this->joueur
-					);
-			if($this->utilisateur->droitsZzzelp > 0) {
-				$valeurs['releves'] = $this->get_RelevesJoueur();
+		$this->alliances = array();
+		$this->joueurs = explode(',', $this->joueur);
+		$valeurs = array(
+			'correspondances' 	=> $this->get_Correspondances(), 
+			'variations' 		=> $this->get_Variations(), 
+			'pseudo' 			=> $this->joueur
+		);
+		if($this->utilisateur->droitsZzzelp > 0) {
+			$valeurs['releves'] = $this->get_RelevesJoueur();
+			if(count($this->joueurs) == 1) {
 				$valeurs['habitudes'] = $this->get_HabitudesJoueur();
 			}
-			return $valeurs;
 		}
+		return $valeurs;
 	}
 
 	function get_AlliancesAccessibles() {
@@ -222,16 +261,20 @@ class Traceur {
 
 	function get_DataAlliance() {
 		if($this->alliance == '') {
-			$valeurs = array('correspondances' => array(), 'variations' => array(), 'alliance' => '');
+			$valeurs = array(
+				'correspondances' 	=> array(), 
+				'variations' 		=> array(), 
+				'alliance' 			=> ''
+			);
 		}
 		else {
-			$this->alliances = array($this->alliance);
+			$this->alliances = explode(',', $this->alliance);
 			$this->joueurs = array();
 			$valeurs = array(
-						'correspondances' => $this->get_Correspondances(), 
-						'variations' => $this->get_Variations(), 
-						'alliance' => $this->alliance
-					);
+				'correspondances' 	=> $this->get_Correspondances(), 
+				'variations' 		=> $this->get_Variations(), 
+				'alliance' 			=> $this->alliance
+			);
 		}
 		if($this->utilisateur->droitsZzzelp > 0) {
 			$valeurs['releves'] = $this->get_RelevesAlliance();
@@ -241,21 +284,118 @@ class Traceur {
 
 	private function get_RelevesJoueur() {
 		$releves = array();
+		$pseudos = array();
+		$min = 100000000000000;
+		$max = 0;
 		for($i=count($this->variations_brutes)-1;$i>=0;$i--) {
-			$releves[] = array((int)$this->variations_brutes[$i]['date_mini']*1000,(int)$this->variations_brutes[$i]['valeur_apres']);
+			$variation = $this->variations_brutes[$i];
+			if(!array_key_exists($variation['pseudo'], $pseudos)) {
+				$pseudos[$variation['pseudo']] = count($pseudos);
+				$releves[] = array(
+					'name' => $variation['pseudo'],
+					'data' => array(array(
+						$this->debut*1000,
+						(int)$variation['valeur_avant']
+					)),
+					'step' => true
+				);
+				if($min > (int)$variation['valeur_avant']) {
+					$min = (int)$variation['valeur_avant'];
+				}
+				elseif($max < (int)$variation['valeur_avant']) {
+					$max = (int)$variation['valeur_avant'];
+				}
+			}
+			$releves[$pseudos[$variation['pseudo']]]['data'][] = array(
+				(int)$variation['date_mini']*1000,
+				(int)$variation['valeur_apres']
+			);
+			if($min > (int)$variation['valeur_apres']) {
+				$min = (int)$variation['valeur_apres'];
+			}
+			elseif($max < (int)$variation['valeur_apres']) {
+				$max = (int)$variation['valeur_apres'];
+			}
 		}
-		return $releves;
+		foreach($pseudos as $pseudo => $i) {
+			$releves[$i]['data'][] = array(
+				$this->fin*1000,
+				(int)$releves[$i]['data'][count($releves[$i]['data'])-1][1]
+			);
+		}
+		return array(
+			'content' 	=> $releves,
+			'min' 		=> $min,
+			'max'		=> $max
+		);
 	}
 
 	private function get_RelevesAlliance() {
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
 		$releves = array();
-		$requete = $bdd->prepare('SELECT * FROM alliances_'.$this->utilisateur->serveur.' WHERE alliance = :alliance AND date_releve >= :debut AND date_releve <= :fin ORDER BY date_releve ASC');
-		$requete->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
-		$requete->bindValue(':debut', $this->debut, PDO::PARAM_INT);
-		$requete->bindValue(':fin', $this->fin, PDO::PARAM_INT);
-		$requete->execute();
-		$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+		$TAGs = array();
+		$min = 100000000000000;
+		$max = 0;
+		$request = $bdd->prepare(
+			'SELECT * FROM alliances_'.$this->utilisateur->serveur.' WHERE '.
+			'date_releve >= :debut AND date_releve <= :fin '.
+			$this->create_SubRequete_Alliance().' '.
+			'ORDER BY date_releve ASC'
+		);
+		$request->bindValue(':debut', $this->debut, PDO::PARAM_INT);
+		$request->bindValue(':fin', $this->fin, PDO::PARAM_INT);
+		$request = $this->bindSubrequestAlliance($request);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
+		foreach($resultats as $releve) {
+			if(!array_key_exists($releve['alliance'], $TAGs)) {
+				$TAGs[$releve['alliance']] = count($TAGs);
+				$releves[] = array(
+					'name' => $releve['alliance'],
+					'data' => array(array(
+						$this->debut*1000,
+						(int)$releve['TDC']
+					)),
+					'step' => true
+				);
+			}
+			$releves[$TAGs[$releve['alliance']]]['data'][] = array(
+				(int)$releve['date_releve']*1000,
+				(int)$releve['TDC']
+			);
+			if($min > (int)$releve['TDC']) {
+				$min = (int)$releve['TDC'];
+			}
+			elseif($max < (int)$releve['TDC']) {
+				$max = (int)$releve['TDC'];
+			}
+		}
+		foreach($TAGs as $TAG => $i) {
+			$releves[$i]['data'][] = array(
+				$this->fin*1000,
+				(int)$releves[$i]['data'][count($releves[$i]['data'])-1][1]
+			);
+		}
+		return array(
+			'content' 	=> $releves,
+			'min' 		=> $min,
+			'max'		=> $max
+		);
+
+
+
+		$bdd = Zzzelp::Connexion_BDD('Traceur');
+		$releves = array();
+		$request = $bdd->prepare(
+			'SELECT * FROM alliances_'.$this->utilisateur->serveur.' WHERE '.
+			'alliance = :alliance AND date_releve >= :debut AND date_releve <= :fin '.
+			'ORDER BY date_releve ASC'
+		);
+		$request->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
+		$request->bindValue(':debut', $this->debut, PDO::PARAM_INT);
+		$request->bindValue(':fin', $this->fin, PDO::PARAM_INT);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 		foreach($resultats as $releve) {
 			$releves[] = array((int)$releve['date_releve']*1000,(int)$releve['TDC']);
 		}
@@ -272,12 +412,31 @@ class Traceur {
 		return $horaires;
 	}
 
-	public function get_DetailsVariation() {
+	public function getDetailsCorrespondance() {
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('SELECT * FROM correspondances_'.$this->utilisateur->serveur.' WHERE ID = :ID');
-		$requete->bindValue(':ID', $this->ID, PDO::PARAM_INT);
-		$requete->execute();
-		return $requete->fetch(PDO::FETCH_ASSOC);
+		$request = $bdd->prepare('SELECT * FROM correspondances_'.$this->utilisateur->serveur.' WHERE ID = :ID');
+		$request->bindValue(':ID', $this->ID, PDO::PARAM_INT);
+		$request->execute();
+		return $request->fetch(PDO::FETCH_ASSOC);
+	}
+
+	public function getCompatibleVariations() {
+		$bdd = Zzzelp::Connexion_BDD('Traceur');
+		$request = $bdd->prepare(
+			'SELECT * FROM variations_inconnues_'.$this->utilisateur->serveur.' WHERE '.
+			'valeur_avant > :valeur_min AND valeur_apres > :valeur_min AND '.
+			'valeur_avant < :valeur_max AND valeur_apres < :valeur_max AND '.
+			'date_maxi > :date_mini AND date_mini < :date_maxi AND '.
+			'SIGN(valeur_apres-valeur_avant) = :signe AND resolu = 0'
+		);
+		$request->bindValue(':valeur_min', htmlentities($_GET['valeur_min']), PDO::PARAM_INT);
+		$request->bindValue(':valeur_max', htmlentities($_GET['valeur_max']), PDO::PARAM_INT);
+		$request->bindValue(':date_mini', htmlentities($_GET['date_mini']), PDO::PARAM_INT);
+		$request->bindValue(':date_maxi', htmlentities($_GET['date_maxi']), PDO::PARAM_INT);
+		$request->bindValue(':signe', htmlentities($_GET['signe']), PDO::PARAM_INT);
+		$request->execute();
+
+		return $request->fetchAll(PDO::FETCH_ASSOC);
 	}
 
 	/*
@@ -285,79 +444,102 @@ class Traceur {
 	*/
 
 	private function create_SubRequete_Correspondances() {
-		$requete = '';
+		$request = '';
 		$i = 0;
 		foreach($this->alliances as $alliance) {
 			if($alliance != '') {
 				$i++;
-				$requete .= (($requete == '') ? '' : ' OR ').'alliance_att = :alliance_att_'.$i.' OR alliance_def = :alliance_def_'.$i;
+				$request .= (($request == '') ? '' : ' OR ').'alliance_att = :alliance_att_'.$i.' OR alliance_def = :alliance_def_'.$i;
 			}
 		}
 		$i=0;
 		foreach($this->joueurs as $joueur) {
 			if($joueur != '') {
 				$i++;
-				$requete .= (($requete == '') ? '' : ' OR ').'attaquant = :attaquant_'.$i.' OR cible = :cible_'.$i;
+				$request .= (($request == '') ? '' : ' OR ').'attaquant = :attaquant_'.$i.' OR cible = :cible_'.$i;
 			}
 		}
-		return (($requete == '') ? '' : ('AND ('.$requete.')'));
+		return (($request == '') ? '' : ('AND ('.$request.')'));
 	}
 
-	private function bind_SubRequete_Correspondances($requete) {
+	private function bind_SubRequete_Correspondances($request) {
 		$i=0;
 		foreach($this->alliances as $alliance) {
 			if($alliance != '') {
 				$i++;
-				$requete->bindValue(':alliance_att_'.$i, $alliance, PDO::PARAM_STR);
-				$requete->bindValue(':alliance_def_'.$i, $alliance, PDO::PARAM_STR);
+				$request->bindValue(':alliance_att_'.$i, $alliance, PDO::PARAM_STR);
+				$request->bindValue(':alliance_def_'.$i, $alliance, PDO::PARAM_STR);
 			}
 		}
 		$i=0;
 		foreach($this->joueurs as $joueur) {
 			if($joueur != '') {
 				$i++;
-				$requete->bindValue(':attaquant_'.$i, $joueur, PDO::PARAM_STR);
-				$requete->bindValue(':cible_'.$i, $joueur, PDO::PARAM_STR);
+				$request->bindValue(':attaquant_'.$i, $joueur, PDO::PARAM_STR);
+				$request->bindValue(':cible_'.$i, $joueur, PDO::PARAM_STR);
 			}
 		}
-		return $requete;
+		return $request;
 	}
 
 	private function create_SubRequete_Variations() {
-		$requete = '';
-		$i = 0;
+		$request = '';
+		$i=0;
 		foreach($this->alliances as $alliance) {
 			if($alliance != '') {
 				$i++;
-				$requete .= (($requete == '') ? '' : ' OR ').'alliance = :alliance_'.$i;
+				$request .= (($request == '') ? '' : ' OR ').'alliance = :alliance_'.$i;
 			}
 		}
 		$i=0;
 		foreach($this->joueurs as $joueur) {
 			if($joueur != '') {
 				$i++;
-				$requete .= (($requete == '') ? '' : ' OR ').'pseudo = :pseudo_'.$i;
+				$request .= (($request == '') ? '' : ' OR ').'pseudo = :pseudo_'.$i;
 			}
 		}
-		return (($requete == '') ? '' : ('AND ('.$requete.')'));		
+		return (($request == '') ? '' : ('AND ('.$request.')'));		
 	}
 
-	private function bind_SubRequete_Variations($requete) {
+	private function bind_SubRequete_Variations($request) {
 		$i=0;
 		foreach($this->alliances as $alliance) {
 			if($alliance != '') {
 				$i++;
-				$requete->bindValue(':alliance_'.$i, $alliance, PDO::PARAM_STR);
+				$request->bindValue(':alliance_'.$i, $alliance, PDO::PARAM_STR);
 			}
 		}
 		$i=0;
 		foreach($this->joueurs as $joueur) {
 			if($joueur != '') {
 				$i++;
-				$requete->bindValue(':pseudo_'.$i, $joueur, PDO::PARAM_STR);
+				$request->bindValue(':pseudo_'.$i, $joueur, PDO::PARAM_STR);
 			}
 		}
-		return $requete;
+		return $request;
+	}
+
+	private function create_SubRequete_Alliance() {
+		$request = '';
+		$i=0;
+		foreach($this->alliances as $alliance) {
+			if($alliance != '') {
+				$i++;
+				$request .= (($request == '') ? '' : ' OR ').'alliance = :alliance_'.$i;
+			}
+		}
+		return (($request == '') ? '' : ('AND ('.$request.')'));				
+	}
+
+	private function bindSubrequestAlliance($request) {
+		$i=0;
+		foreach($this->alliances as $alliance) {
+			if($alliance != '') {
+				$i++;
+				$request->bindValue(':alliance_'.$i, $alliance, PDO::PARAM_STR);
+			}
+		}
+		return $request;		
 	}
 
 
@@ -389,12 +571,16 @@ class Traceur {
 		/*
 			Récupération des TDC des joueurs
 		*/
-		$requete = $bdd->prepare('SELECT pseudo, valeur FROM TDC_'.$this->utilisateur->serveur.' WHERE alliance = :alliance AND date_releve > :debut AND date_releve < :fin GROUP BY pseudo');
-		$requete->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
-		$requete->bindValue(':debut', $this->debut, PDO::PARAM_INT);
-		$requete->bindValue(':fin', $this->fin, PDO::PARAM_INT);		
-		$requete->execute();
-		while($releve = $requete->fetch(PDO::FETCH_ASSOC)) {
+		$request = $bdd->prepare(
+			'SELECT pseudo, valeur FROM TDC_'.$this->utilisateur->serveur.' WHERE '.
+			'alliance = :alliance AND date_releve > :debut AND date_releve < :fin '.
+			'GROUP BY pseudo'
+		);
+		$request->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
+		$request->bindValue(':debut', $this->debut, PDO::PARAM_INT);
+		$request->bindValue(':fin', $this->fin, PDO::PARAM_INT);		
+		$request->execute();
+		while($releve = $request->fetch(PDO::FETCH_ASSOC)) {
 			$statistiques['TDC'][$releve['pseudo']] = $releve['valeur'];
 		}
 
@@ -402,12 +588,17 @@ class Traceur {
 
 		$this->chaine = array();
 
-		$requete = $bdd->prepare('SELECT * FROM correspondances_'.$this->utilisateur->serveur.' WHERE (alliance_att = :alliance AND (alliance_def = :alliance OR cible = "")) AND date_mini > :debut AND date_maxi < :fin AND mode < 2 ORDER BY date_mini DESC');
-		$requete->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
-		$requete->bindValue(':debut', $this->debut, PDO::PARAM_INT);
-		$requete->bindValue(':fin', $this->fin, PDO::PARAM_INT);
-		$requete->execute();
-		while($flood = $requete->fetch(PDO::FETCH_ASSOC)) {
+		$request = $bdd->prepare(
+			'SELECT * FROM correspondances_'.$this->utilisateur->serveur.' WHERE '.
+			'(alliance_att = :alliance AND (alliance_def = :alliance OR cible = "")) '.
+			'AND date_mini > :debut AND date_maxi < :fin AND mode < 2 '.
+			'ORDER BY date_mini DESC'
+		);
+		$request->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
+		$request->bindValue(':debut', $this->debut, PDO::PARAM_INT);
+		$request->bindValue(':fin', $this->fin, PDO::PARAM_INT);
+		$request->execute();
+		while($flood = $request->fetch(PDO::FETCH_ASSOC)) {
 			if($flood['cible'] != '') {
 				$duo = $flood['attaquant'].'/'.$flood['cible'];
 				if(array_key_exists($flood['attaquant'], $statistiques['joueurs'])) {
@@ -568,11 +759,11 @@ class Traceur {
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
 		$initial = array();
 		$pseudos = array();
-		$requete = $bdd->prepare('SELECT pseudo, alliance, valeur, origine, date_releve FROM TDC_'.$serveur.' WHERE date_releve <= :fin AND date_releve >= :debut ORDER BY date_releve DESC');
-		$requete->bindValue(':fin', $periode['debut'], PDO::PARAM_INT);
-		$requete->bindValue(':debut', ($periode['debut'] - 3600*12), PDO::PARAM_INT);
-		$requete->execute();
-		while($resultat = $requete->fetch(PDO::FETCH_ASSOC)) {
+		$request = $bdd->prepare('SELECT pseudo, alliance, valeur, origine, date_releve FROM TDC_'.$serveur.' WHERE date_releve <= :fin AND date_releve >= :debut ORDER BY date_releve DESC');
+		$request->bindValue(':fin', $periode['debut'], PDO::PARAM_INT);
+		$request->bindValue(':debut', ($periode['debut'] - 3600*12), PDO::PARAM_INT);
+		$request->execute();
+		while($resultat = $request->fetch(PDO::FETCH_ASSOC)) {
 			if(!in_array(strtolower($resultat['pseudo']), $pseudos)) {
 				$pseudos[] = strtolower($resultat['pseudo']);
 				$initial[$resultat['pseudo']] = array(
@@ -585,11 +776,11 @@ class Traceur {
 			}
 		}
 
-		$requete = $bdd->prepare('SELECT pseudo, alliance, valeur, origine, date_releve FROM TDC_'.$serveur.' WHERE date_releve > :debut AND date_releve < :fin ORDER BY pseudo, date_releve ASC');
-		$requete->bindValue(':debut', $periode['debut'], PDO::PARAM_INT);
-		$requete->bindValue(':fin', $periode['fin'], PDO::PARAM_INT);
-		$requete->execute();
-		while($resultat = $requete->fetch(PDO::FETCH_ASSOC)) {
+		$request = $bdd->prepare('SELECT pseudo, alliance, valeur, origine, date_releve FROM TDC_'.$serveur.' WHERE date_releve > :debut AND date_releve < :fin ORDER BY pseudo, date_releve ASC');
+		$request->bindValue(':debut', $periode['debut'], PDO::PARAM_INT);
+		$request->bindValue(':fin', $periode['fin'], PDO::PARAM_INT);
+		$request->execute();
+		while($resultat = $request->fetch(PDO::FETCH_ASSOC)) {
 			if(isset($ex_valeur) AND $ex_valeur['pseudo'] != $resultat['pseudo']) {
 				unset($ex_valeur);
 			}
@@ -631,23 +822,23 @@ class Traceur {
 	private function cron_SaveVariations($variations, $serveur) {
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
 		foreach($variations as $variation) {
-			$requete = $bdd->prepare('SELECT COUNT(*) FROM variations_inconnues_'.$serveur.' WHERE pseudo = :pseudo AND date_mini = :date_mini AND date_maxi = :date_maxi');
-			$requete->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
-			$requete->bindValue(':date_mini', $variation['date_avant'], PDO::PARAM_INT);
-			$requete->bindValue(':date_maxi', $variation['date_apres'], PDO::PARAM_INT);
-			$requete->execute();
-			$res = $requete->fetch(PDO::FETCH_NUM);
+			$request = $bdd->prepare('SELECT COUNT(*) FROM variations_inconnues_'.$serveur.' WHERE pseudo = :pseudo AND date_mini = :date_mini AND date_maxi = :date_maxi');
+			$request->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
+			$request->bindValue(':date_mini', $variation['date_avant'], PDO::PARAM_INT);
+			$request->bindValue(':date_maxi', $variation['date_apres'], PDO::PARAM_INT);
+			$request->execute();
+			$res = $request->fetch(PDO::FETCH_NUM);
 			if($res[0] == 0) {
-				$requete = $bdd->prepare('INSERT INTO variations_inconnues_'.$serveur.'(pseudo, alliance, date_mini, date_maxi, valeur_avant, valeur_apres, acces) 
+				$request = $bdd->prepare('INSERT INTO variations_inconnues_'.$serveur.'(pseudo, alliance, date_mini, date_maxi, valeur_avant, valeur_apres, acces) 
 							VALUES(:pseudo, :alliance, :date_mini, :date_maxi, :valeur_avant, :valeur_apres, :acces)');
-				$requete->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
-				$requete->bindValue(':alliance', $variation['alliance'], PDO::PARAM_STR);
-				$requete->bindValue(':date_mini', $variation['date_avant'], PDO::PARAM_INT);
-				$requete->bindValue(':date_maxi', $variation['date_apres'], PDO::PARAM_INT);
-				$requete->bindValue(':valeur_avant', $variation['valeur_avant'], PDO::PARAM_INT);
-				$requete->bindValue(':valeur_apres', $variation['valeur_apres'], PDO::PARAM_INT);
-				$requete->bindValue(':acces', json_encode($this->get_RelevesProches($variation, $serveur)), PDO::PARAM_STR);
-				$requete->execute();
+				$request->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
+				$request->bindValue(':alliance', $variation['alliance'], PDO::PARAM_STR);
+				$request->bindValue(':date_mini', $variation['date_avant'], PDO::PARAM_INT);
+				$request->bindValue(':date_maxi', $variation['date_apres'], PDO::PARAM_INT);
+				$request->bindValue(':valeur_avant', $variation['valeur_avant'], PDO::PARAM_INT);
+				$request->bindValue(':valeur_apres', $variation['valeur_apres'], PDO::PARAM_INT);
+				$request->bindValue(':acces', json_encode($this->get_RelevesProches($variation, $serveur)), PDO::PARAM_STR);
+				$request->execute();
 			}
 		}
 	}
@@ -655,13 +846,13 @@ class Traceur {
 	public function get_RelevesProches($variation, $serveur) {
 		$alliances = array();
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('SELECT proprietaire FROM TDC_'.$serveur.' WHERE pseudo = :pseudo AND (ABS(date_releve - :date_mini) < :ecart_max OR ABS(date_releve - :date_maxi) < :ecart_max)');
-		$requete->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
-		$requete->bindValue(':date_mini', $variation['date_avant'], PDO::PARAM_INT);
-		$requete->bindValue(':date_maxi', $variation['date_apres'], PDO::PARAM_INT);
-		$requete->bindValue(':ecart_max', 3600, PDO::PARAM_INT);
-		$requete->execute();
-		$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+		$request = $bdd->prepare('SELECT proprietaire FROM TDC_'.$serveur.' WHERE pseudo = :pseudo AND (ABS(date_releve - :date_mini) < :ecart_max OR ABS(date_releve - :date_maxi) < :ecart_max)');
+		$request->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
+		$request->bindValue(':date_mini', $variation['date_avant'], PDO::PARAM_INT);
+		$request->bindValue(':date_maxi', $variation['date_apres'], PDO::PARAM_INT);
+		$request->bindValue(':ecart_max', 3600, PDO::PARAM_INT);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 		foreach($resultats as $resultat) {
 			if($resultat['proprietaire'] != '' AND !in_array($resultat['proprietaire'], $alliances)) {
 				$alliances[] = $resultat['proprietaire'];
@@ -683,10 +874,10 @@ class Traceur {
 	private function cron_GetCorrespondances($serveur, $periode) {
 		$variations = array();
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('SELECT * FROM variations_inconnues_'.$serveur.' WHERE date_maxi > :debut AND resolu = 0');
-		$requete->bindValue(':debut', $periode['debut'], PDO::PARAM_INT);
-		$requete->execute();
-		$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+		$request = $bdd->prepare('SELECT * FROM variations_inconnues_'.$serveur.' WHERE date_maxi > :debut AND resolu = 0');
+		$request->bindValue(':debut', $periode['debut'], PDO::PARAM_INT);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 		foreach($resultats as $resultat) {
 			$variations[] = array(
 								'ID' => $resultat['ID'], 
@@ -843,44 +1034,44 @@ class Traceur {
 
 	private function cron_SaveCorrespondance($serveur, $flood) {
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('INSERT INTO correspondances_'.$serveur.' 
+		$request = $bdd->prepare('INSERT INTO correspondances_'.$serveur.' 
 					(attaquant, cible, alliance_att, alliance_def, date_mini, date_maxi, valeur, TDC_avant_att, TDC_apres_att, TDC_avant_def, TDC_apres_def, mode, acces) VALUES
 					(:attaquant, :cible, :alliance_att, :alliance_def, :date_mini, :date_maxi, :valeur, :TDC_avant_att, :TDC_apres_att, :TDC_avant_def, :TDC_apres_def, :mode, :acces)');
-		$requete->bindValue(':attaquant', $flood['attaquant'], PDO::PARAM_STR);
-		$requete->bindValue(':cible', $flood['cible'], PDO::PARAM_STR);
-		$requete->bindValue(':alliance_att', $flood['alliance_att'], PDO::PARAM_STR);
-		$requete->bindValue(':alliance_def', $flood['alliance_def'], PDO::PARAM_STR);
-		$requete->bindValue(':date_mini', $flood['date_mini'], PDO::PARAM_INT);
-		$requete->bindValue(':date_maxi', $flood['date_maxi'], PDO::PARAM_INT);
-		$requete->bindValue(':valeur', $flood['valeur'], PDO::PARAM_INT);
-		$requete->bindValue(':TDC_avant_att', $flood['valeur_avant_att'], PDO::PARAM_INT);
-		$requete->bindValue(':TDC_apres_att', $flood['valeur_apres_att'], PDO::PARAM_INT);
-		$requete->bindValue(':TDC_avant_def', $flood['valeur_avant_def'], PDO::PARAM_INT);
-		$requete->bindValue(':TDC_apres_def', $flood['valeur_apres_def'], PDO::PARAM_INT);
-		$requete->bindValue(':mode', $flood['mode'], PDO::PARAM_INT);
-		$requete->bindValue(':acces', json_encode($this->get_VariationsProches($serveur, $flood)), PDO::PARAM_STR);
-		$requete->execute();
+		$request->bindValue(':attaquant', $flood['attaquant'], PDO::PARAM_STR);
+		$request->bindValue(':cible', $flood['cible'], PDO::PARAM_STR);
+		$request->bindValue(':alliance_att', $flood['alliance_att'], PDO::PARAM_STR);
+		$request->bindValue(':alliance_def', $flood['alliance_def'], PDO::PARAM_STR);
+		$request->bindValue(':date_mini', $flood['date_mini'], PDO::PARAM_INT);
+		$request->bindValue(':date_maxi', $flood['date_maxi'], PDO::PARAM_INT);
+		$request->bindValue(':valeur', $flood['valeur'], PDO::PARAM_INT);
+		$request->bindValue(':TDC_avant_att', $flood['valeur_avant_att'], PDO::PARAM_INT);
+		$request->bindValue(':TDC_apres_att', $flood['valeur_apres_att'], PDO::PARAM_INT);
+		$request->bindValue(':TDC_avant_def', $flood['valeur_avant_def'], PDO::PARAM_INT);
+		$request->bindValue(':TDC_apres_def', $flood['valeur_apres_def'], PDO::PARAM_INT);
+		$request->bindValue(':mode', $flood['mode'], PDO::PARAM_INT);
+		$request->bindValue(':acces', json_encode($this->get_VariationsProches($serveur, $flood)), PDO::PARAM_STR);
+		$request->execute();
 	}
 
 	private function cron_DeleteVariation($serveur, $variation) {
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('UPDATE variations_inconnues_'.$serveur.' SET resolu = 1 WHERE pseudo = :pseudo AND date_mini = :date_mini AND date_maxi = :date_maxi');
-		$requete->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
-		$requete->bindValue(':date_mini', $variation['date_mini'], PDO::PARAM_INT);
-		$requete->bindValue(':date_maxi', $variation['date_maxi'], PDO::PARAM_INT);
-		$requete->execute();
+		$request = $bdd->prepare('UPDATE variations_inconnues_'.$serveur.' SET resolu = 1 WHERE pseudo = :pseudo AND date_mini = :date_mini AND date_maxi = :date_maxi');
+		$request->bindValue(':pseudo', $variation['pseudo'], PDO::PARAM_STR);
+		$request->bindValue(':date_mini', $variation['date_mini'], PDO::PARAM_INT);
+		$request->bindValue(':date_maxi', $variation['date_maxi'], PDO::PARAM_INT);
+		$request->execute();
 	}
 
 	public function get_VariationsProches($serveur, $flood) {
 		$alliances1 = array();
 		$bdd = Zzzelp::Connexion_BDD('Traceur');
-		$requete = $bdd->prepare('SELECT acces FROM variations_inconnues_'.$serveur.' WHERE pseudo = :pseudo AND (ABS(date_mini - :date_mini) < :ecart_max OR ABS(date_maxi - :date_maxi) < :ecart_max)');
-		$requete->bindValue(':pseudo', $flood['attaquant'], PDO::PARAM_STR);
-		$requete->bindValue(':date_mini', $flood['date_mini'], PDO::PARAM_INT);
-		$requete->bindValue(':date_maxi', $flood['date_maxi'], PDO::PARAM_INT);
-		$requete->bindValue(':ecart_max', 3600, PDO::PARAM_INT);
-		$requete->execute();
-		$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+		$request = $bdd->prepare('SELECT acces FROM variations_inconnues_'.$serveur.' WHERE pseudo = :pseudo AND (ABS(date_mini - :date_mini) < :ecart_max OR ABS(date_maxi - :date_maxi) < :ecart_max)');
+		$request->bindValue(':pseudo', $flood['attaquant'], PDO::PARAM_STR);
+		$request->bindValue(':date_mini', $flood['date_mini'], PDO::PARAM_INT);
+		$request->bindValue(':date_maxi', $flood['date_maxi'], PDO::PARAM_INT);
+		$request->bindValue(':ecart_max', 3600, PDO::PARAM_INT);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 		foreach($resultats as $resultat) {
 			$acces = json_decode($resultat['acces'], true);
 			foreach($acces as $alliance) {
@@ -891,13 +1082,13 @@ class Traceur {
 		}
 
 		$alliances2 = array();
-		$requete = $bdd->prepare('SELECT acces FROM variations_inconnues_'.$serveur.' WHERE pseudo = :pseudo AND (ABS(date_mini - :date_mini) < :ecart_max OR ABS(date_maxi - :date_maxi) < :ecart_max)');
-		$requete->bindValue(':pseudo', $flood['cible'], PDO::PARAM_STR);
-		$requete->bindValue(':date_mini', $flood['date_mini'], PDO::PARAM_INT);
-		$requete->bindValue(':date_maxi', $flood['date_maxi'], PDO::PARAM_INT);
-		$requete->bindValue(':ecart_max', 3600, PDO::PARAM_INT);
-		$requete->execute();
-		$resultats = $requete->fetchAll(PDO::FETCH_ASSOC);
+		$request = $bdd->prepare('SELECT acces FROM variations_inconnues_'.$serveur.' WHERE pseudo = :pseudo AND (ABS(date_mini - :date_mini) < :ecart_max OR ABS(date_maxi - :date_maxi) < :ecart_max)');
+		$request->bindValue(':pseudo', $flood['cible'], PDO::PARAM_STR);
+		$request->bindValue(':date_mini', $flood['date_mini'], PDO::PARAM_INT);
+		$request->bindValue(':date_maxi', $flood['date_maxi'], PDO::PARAM_INT);
+		$request->bindValue(':ecart_max', 3600, PDO::PARAM_INT);
+		$request->execute();
+		$resultats = $request->fetchAll(PDO::FETCH_ASSOC);
 		foreach($resultats as $resultat) {;
 			$acces = json_decode($resultat['acces'], true);
 			foreach($acces as $alliance) {

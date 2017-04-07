@@ -31,9 +31,7 @@ function Ajout_ligne_convois(mode) {
 		cell = ligne.insertCell(0);
 		cell.innerHTML = '<input type="text" class="input_semi_court" name="pseudo_compte_plus[]">';
 		cell = ligne.insertCell(1);
-		cell.innerHTML = '<input type="text" class="input_semi_court" name="valeur_compte_plus[]" id="valeur_compte_plus_' + (longueur-2) + '" onchange="Modification_bonus(' + (longueur-2) + ')" onkeyup="Ajout_espaces(\'valeur_compte_plus_' + (longueur-2) + '\')">';
-		cell = ligne.insertCell(2);
-		cell.innerHTML = '<a href="#" onClick="Ajout_compte_plus(\'valeur_compte_plus_' + (longueur-2) + '\')"><input type="image" src="/Images/plus.png" width="25"/></a>';
+		cell.innerHTML = '<input type="text" class="input_semi_court" name="valeur_compte_plus[]" onkeyup="ze_Ajout_espaces(this)">';
 	}
 }
 
@@ -237,6 +235,6 @@ function Valider_creation_convois(n) {
 
 function Envoi_requete_convois(convoyeur, convoye, valeur, mode) {
 	var xdr = ze_getXDomainRequest();
-	xdr.open('GET', url_zzzelp + 'update_convois?serveur=' + ze_Analyser_URL('serveur') + '&alliance=' + ze_Analyser_URL('alliance') + '&mode=' + mode + '&convoyeur=' + convoyeur + '&convoye=' + convoye + '&valeur=' + valeur);
+	xdr.open('GET', ZzzelpScript.url + 'update_convois?serveur=' + ze_Analyser_URL('serveur') + '&alliance=' + ze_Analyser_URL('alliance') + '&mode=' + mode + '&convoyeur=' + convoyeur + '&convoye=' + convoye + '&valeur=' + valeur);
     xdr.send(null);	
 }

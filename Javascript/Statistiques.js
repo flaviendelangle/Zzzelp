@@ -5,7 +5,7 @@ function Changement_section(section) {
 	document.querySelector('#debut').disabled = (section == 'zzzelp');
 	document.querySelector('#fin').disabled = (section == 'zzzelp');
 	document.querySelector('#section_actuelle').value = section;
-	window.history.pushState('', '', url_zzzelp + 'statistiques?serveur=' + ze_Analyser_URL('serveur') + '&alliance=' + ze_Analyser_URL('alliance') + '#' + document.querySelector('#section_actuelle').value);
+	window.history.pushState('', '', ZzzelpScript.url + 'statistiques?serveur=' + ze_Analyser_URL('serveur') + '&alliance=' + ze_Analyser_URL('alliance') + '#' + document.querySelector('#section_actuelle').value);
 	var sections = document.querySelectorAll('.ancre[id*="ancre_"]');
 		chargements = {
 			floods : new Array(

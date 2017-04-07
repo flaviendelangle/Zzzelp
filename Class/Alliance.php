@@ -429,7 +429,7 @@ class Alliance {
 	public function get_Convois() {
 		$this->get_ParametersConvois();
 		$this->get_Multis();
-		$this->get_ComptePlus();
+		$this->get_TDCPersos();
 		$this->get_ConvoisAlliance();
 		$this->get_RecentConvois();
 	}
@@ -549,16 +549,42 @@ class Alliance {
 	}
 
 	/*
-		Récupère le Compte + échangé par chaque joueur (utilisé à la SMURF)
+		Récupère le TDC perso des joueurs (utilisé par la -VIP-)
 	*/
-	private function get_ComptePlus() {
+	protected function get_TDCPersos() {
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
-		$requete = $bdd->prepare('SELECT pseudo, valeur FROM compte_plus WHERE alliance = :alliance AND serveur = :serveur ORDER BY pseudo ASC');
+		$requete = $bdd->prepare('SELECT pseudo, valeur FROM TDC_perso WHERE alliance = :alliance AND serveur = :serveur ORDER BY valeur DESC');
 		$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
 		$requete->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
 		$requete->execute();
-		$this->compteplus = $requete->fetchAll(PDO::FETCH_ASSOC);	 
+		$this->TDCpersos = $requete->fetchAll(PDO::FETCH_ASSOC);	 
 		$bdd = null;
+	}
+
+	/*
+		Modifie le TDC perso des joueurs (utilisé par la -VIP-)
+	*/
+	private function update_TDCPersos() {
+		$pseudos = $_POST['pseudo_compte_plus'];
+		$valeurs = $_POST['valeur_compte_plus'];
+		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
+		$requete = $bdd->prepare('DELETE FROM TDC_perso WHERE alliance = :alliance AND serveur = :serveur');
+		$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
+		$requete->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
+		$requete->execute();
+		if(!empty($pseudos) AND !empty($valeurs)) {
+			$bdd = Zzzelp::Connexion_BDD('Donnees_site');
+			for($i=0; $i<count($pseudos); $i++) {
+				if(!empty($valeurs[$i]) && $valeurs[$i] > 0) {
+					$requete = $bdd->prepare('INSERT INTO TDC_perso (pseudo, serveur, alliance, valeur) VALUES(:pseudo, :serveur, :alliance, :valeur)');
+					$requete->bindValue(':pseudo', $pseudos[$i], PDO::PARAM_STR);
+					$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
+					$requete->bindValue(':alliance', $this->alliance, PDO::PARAM_STR);
+					$requete->bindValue(':valeur', str_replace(' ', '', $valeurs[$i]), PDO::PARAM_INT);
+					$requete->execute();
+				}
+			}
+		}
 	}
 
 	/*
@@ -567,6 +593,7 @@ class Alliance {
 	public function update_GestionConvois() {
 		$this->save_ParametresConvois();
 		$this->save_Multis();
+		$this->update_TDCPersos();
 	}
 
 	/*

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header(); ?>
 	</head>
@@ -34,7 +34,7 @@
 								<?php foreach(Fourmizzz::$serveurs as $serveur) {?>
 								<div class="ligne_cadre_structure">
 									<span <?php if($this->pseudos[$serveur]['validation'] == 1) {echo 'style="color:#006400;font-weight:600;"';}elseif($this->pseudos[$serveur]['pseudo'] != ''){echo'style="color:#DA1010;font-weight:600;"';}?>>Pseudo <?php echo $serveur ?>: </span>
-									<span class="ligne_inputs">
+									<span class="ligne_inputs" style="width: calc(100% - 160px) !important;">
 										<img src="/Images/trash.png" style="width:20px;height:20px;float:left;margin-right:10px" onclick="document.location.href= url_zzzelp + '/compte/accueil?code=suppressionpseudo&serveur=<?php echo $serveur ?>'" title="Supprimer votre pseudo de Zzzelp">
 										<input autocomplete="off" class='input_large' type="text" id="pseudo_<?php echo $serveur ?>" name="pseudo_<?php echo $serveur ?>" value="<?php echo $this->pseudos[$serveur]['pseudo'] ?>"> 
 										<script>

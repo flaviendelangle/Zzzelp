@@ -294,6 +294,21 @@
 	margin-top : 50px;
 }
 
+.zone_multiflood .alliance-extender > div {
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    background: #333;
+    display: inline-block;
+    margin: 0 7px;
+}
+
+.zone_multiflood .alliance-extender {
+	cursor : pointer;
+}
+
+
+
 /* Elements cachés */
 .chasse_raccourci, .TDC_raccourci, .armee_raccourci {
 	display : none;

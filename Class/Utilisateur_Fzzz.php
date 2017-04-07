@@ -395,7 +395,7 @@ class Utilisateur_Fzzz {
 				'w1' 	=> array('delangle'),
 			);
 		$alliances_semi_prive = array(
-				's1'	=> array('ZOO', 'CDF', 'FP', '-NBW-'),
+				's1'	=> array('ZOO', 'CDF', 'FP'),
 				's2'	=> array('FCGB'),
 				's3'	=> array(),
 				's4'	=> array(),

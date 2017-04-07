@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -63,7 +63,7 @@
 								<?php foreach($chasses->parametres as $parametre => $donnees) { ?>
 								<div class="ligne_cadre_structure ligne_cache options_generales">
 									<span><?php echo $parametre ?> :</span>
-									<input type="text" class="input_<?php echo $donnees['input'] ?> parametres" <?php if($donnees['espaces']) { echo 'onkeyup="Ajout_espaces(\''.$donnees['id'].'\')"';} ?> id="<?php echo $donnees['id'] ?>">
+									<input type="text" class="input_<?php echo $donnees['input'] ?> parametres" <?php if($donnees['espaces']) { echo 'onkeyup="ze_Ajout_espaces(this)"';} ?> id="<?php echo $donnees['id'] ?>">
 								</div>
 								<?php } ?>
 							</div>

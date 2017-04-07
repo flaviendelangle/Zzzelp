@@ -24,8 +24,6 @@ php_flag display_errors on
 
 RewriteEngine On    # Turn on the rewriting engine
 
-#RewriteRule    ^Userscripts/zzzelpscript.js$  index.php?page=generate_zzzelpscript  [L]     
-
 RewriteRule    ^Style/([^/]+)$	Style/$1	[L]	  	
 RewriteRule    ^Javascript/([^/]+)$	Javascript/$1	[L]	
 RewriteRule    ^ZzzelpScript/([^/]+)$	ZzzelpScript/$1	[L]	  	
@@ -33,10 +31,9 @@ RewriteRule    ^ZzzelpScript/([^/]+)$	ZzzelpScript/$1	[L]
 RewriteRule    ^Images/([^/]+)$	Images/$1	[L]	  	
 RewriteRule    ^Userscripts/([^/]+)$	Userscripts/$1	[L]
 RewriteRule    ^Fichiers/([^/]+)$	Fichiers/$1	[L]
-RewriteRule    ^Examples/([^/]+)$	Examples/$1	[L]	  	
-RewriteRule    ^Nwoaar/([^/]+)$	Nwoaar/$1	[L]	  	
+RewriteRule    ^Examples/([^/]+)$	Examples/$1	[L]
 
-
+RewriteRule	   api/(.*)$ 	api/api.php?request=$1 [L,QSA,NC]
 RewriteRule    ^([^/]+)$	index.php?page=$1	[L,QSA]
 RewriteRule    ^([^/]+)/$	index.php?page=$1	[L,QSA]	
 RewriteRule    ^([^/]+)/([^/]+)$	index.php?page=$1&onglet=$2	[L,QSA]

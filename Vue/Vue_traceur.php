@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -9,28 +9,7 @@
 				<?=$menu->create_MenuZzzelp(); ?>
 			</div>
 			<div class="main">
-				<div class="grid grid-pad grid_separee">
-					<div class="col-1-4">
-						<div class="ancre" id="ancre_principale" data-mode="correspondances">
-							Floods trouvés
-						</div>
-					</div>
-					<div class="col-1-4">
-						<div class="ancre" id="ancre_imports_manuels" data-mode="variations">
-							Variations
-						</div>
-					</div>
-					<div class="col-1-4">
-						<div class="ancre" id="ancre_sondes" data-mode="joueurs">
-							Joueurs
-						</div>
-					</div>
-					<div class="col-1-4">
-						<div class="ancre" id="ancre_zzzelpscript" data-mode="alliances">
-							Alliances
-						</div>
-					</div>
-				</div>
+				<!--
 				<div class="grid grid-pad">
 					<div class="col-1-1">
 						<div class="zone_contenu zone_largeur_courte" id="options_traceur">
@@ -55,6 +34,7 @@
 						</div>
 					</div>
 				</div>
+				-->
 			</div>
 		</div>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
@@ -64,8 +44,9 @@
 		<link rel="stylesheet" type="text/css" href="/Style/rome.css" />
 		<script src="/Javascript/Traceur_prive.js"></script>
 		<script>
-			document.querySelector('#options_traceur').dataset.mode = window.location.hash;
-			InitialiserTraceur()			
+			//document.querySelector('#options_traceur').dataset.mode = window.location.hash;
+			//InitialiserTraceur();
+			new ZzzelpDataAnalyser(document.querySelector('.main'), 'zzzelp');
 		</script>
 	</body>
 </html>

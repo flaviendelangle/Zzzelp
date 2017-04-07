@@ -17,51 +17,51 @@ class ZzzelpScript {
 		Nouvelle version
 	*/
 	public $options = array(
-				'synchronisation' => array(
-					'nom' => 'Synchronisation avec Zzzelp',
-					'parametres' => array(
-						'synchro_ouvrieres' => array('nom' => 'Vos ouvrières', 'prive' => 0),
-						'synchro_niveaux' => array('nom' => 'Vos niveaux', 'prive' => 0),
-					//	'synchro_chasses' => array('nom' => 'Vos chasses', 'prive' => 0),
-						'synchro_RC' => array('nom' => 'Vos rapports de combat', 'prive' => 1),
-						'synchro_armee' => array('nom' => 'Votre armée (C+ only)', 'prive' => 0)
-					)
-				),
-				'alliance' => array(
-					'nom' => 'Les outils pour alliance',
-					'parametres' => array(
-						'ally_rangs' => array('nom' => 'Rangs Zzzelp', 'prive' => 0),
-						'ally_couleurs' => array('nom' => 'Couleurs des rangs', 'prive' => 0),
-					//	'ally_traceur_auto' => array('nom' => 'Exports auto des TDC', 'prive' => 2),
-						'ally_traceur_consultation' => array('nom' => 'Résultats du traceur', 'prive' => 1)
-					)
-				),
-				'perso' => array(
-					'nom' => 'Les outils pour joueur',
-					'parametres' => array(
-						'perso_smileys' => array('nom' => 'Smileys personnalisés', 'prive' => 0),
-						'perso_menu_contextuel' => array('nom' => 'Menu contextuel amélioré', 'prive' => 0),
-						'perso_page_chat' => array('nom' => 'Chat amélioré', 'prive' => 2),
-						'perso_page_profil' => array('nom' => 'Profils améliorés', 'prive' => 2),
-						'perso_colonies' => array('nom' => 'Affichage des colonies', 'prive' => 0),
-						'perso_messagerie' => array('nom' => 'Messagerie améliorée', 'prive' => 0),
-						'perso_messagerie_guerre' => array('nom' => 'Messagerie de guerre', 'prive' => 0),
-						'perso_lancement_attaques' => array('nom' => 'Lancement des attaques', 'prive' => 0),
-						'perso_page_ennemie' => array('nom' => 'Page Ennemie améliorée', 'prive' => 0),
-						'perso_page_description' => array('nom' => 'Description alliance cachée', 'prive' => 0),
-						'perso_page_armee' => array('nom' => 'Page Armée améliorée', 'prive' => 0)
-					)
-				),
-				'zzzelpfloods' => array(
-					'nom' => 'Gestionnaire de floods',
-					'parametres' => array(
-						'zzzelpfloods_stockage' => array('nom' => 'Stockage sur Zzzelp', 'prive' => 0),
-						'zzzelpfloods_antisonde' => array('nom' => 'Replacement antisonde', 'prive' => 0),
-						'zzzelpfloods_relance' => array('nom' => 'Aide à la relance', 'prive' => 5),
-						'zzzelpfloods_antisynchro' => array('nom' => 'Lancement à la seconde', 'prive' => 2)
-					)
-				)
-			);
+		'synchronisation' => array(
+			'nom' => 'Synchronisation avec Zzzelp',
+			'parametres' => array(
+				'synchro_ouvrieres' => array('nom' => 'Vos ouvrières', 'prive' => 0),
+				'synchro_niveaux' => array('nom' => 'Vos niveaux', 'prive' => 0),
+			//	'synchro_chasses' => array('nom' => 'Vos chasses', 'prive' => 0),
+				'synchro_RC' => array('nom' => 'Vos rapports de combat', 'prive' => 1),
+				'synchro_armee' => array('nom' => 'Votre armée (C+ only)', 'prive' => 0)
+			)
+		),
+		'alliance' => array(
+			'nom' => 'Les outils pour alliance',
+			'parametres' => array(
+				'ally_rangs' => array('nom' => 'Rangs Zzzelp', 'prive' => 0),
+				'ally_couleurs' => array('nom' => 'Couleurs des rangs', 'prive' => 0),
+			//	'ally_traceur_auto' => array('nom' => 'Exports auto des TDC', 'prive' => 2),
+				'ally_traceur_consultation' => array('nom' => 'Résultats du traceur', 'prive' => 1)
+			)
+		),
+		'perso' => array(
+			'nom' => 'Les outils pour joueur',
+			'parametres' => array(
+				'perso_smileys' => array('nom' => 'Smileys personnalisés', 'prive' => 0),
+				'perso_menu_contextuel' => array('nom' => 'Menu contextuel amélioré', 'prive' => 0),
+				'perso_page_chat' => array('nom' => 'Chat amélioré', 'prive' => 2),
+				'perso_page_profil' => array('nom' => 'Profils améliorés', 'prive' => 2),
+				'perso_colonies' => array('nom' => 'Affichage des colonies', 'prive' => 0),
+				'perso_messagerie' => array('nom' => 'Messagerie améliorée', 'prive' => 0),
+				'perso_messagerie_guerre' => array('nom' => 'Messagerie de guerre', 'prive' => 0),
+				'perso_lancement_attaques' => array('nom' => 'Lancement des attaques', 'prive' => 0),
+				'perso_page_ennemie' => array('nom' => 'Page Ennemie améliorée', 'prive' => 0),
+				'perso_page_description' => array('nom' => 'Description alliance cachée', 'prive' => 0),
+				'perso_page_armee' => array('nom' => 'Page Armée améliorée', 'prive' => 0)
+			)
+		),
+		'zzzelpfloods' => array(
+			'nom' => 'Gestionnaire de floods',
+			'parametres' => array(
+				'zzzelpfloods_stockage' => array('nom' => 'Stockage sur Zzzelp', 'prive' => 0),
+				'zzzelpfloods_antisonde' => array('nom' => 'Replacement antisonde', 'prive' => 0),
+				'zzzelpfloods_relance' => array('nom' => 'Aide à la relance', 'prive' => 5),
+				'zzzelpfloods_antisynchro' => array('nom' => 'Lancement à la seconde', 'prive' => 2)
+			)
+		)
+	);
 	public function __construct($pseudo, $serveur, $token, $compte=null) {
 		if(!isset($compte)) {
 			if(!isset($_GET['pseudo'])) {
@@ -109,7 +109,11 @@ class ZzzelpScript {
 	*/
 	private function is_token_zzzelp_valid() {
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
-		$requete = $bdd->prepare('SELECT COUNT(*) FROM Identification_ZzzelpScript WHERE serveur = :serveur AND pseudo = :pseudo AND token = :token AND date_creation > :date_creation');
+		$requete = $bdd->prepare(
+			'SELECT COUNT(*) FROM Identification_ZzzelpScript WHERE '.
+			'serveur = :serveur AND pseudo = :pseudo AND token = :token '.
+			'AND date_creation > :date_creation'
+		);
 		$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
 		$requete->bindValue(':pseudo', $this->pseudo, PDO::PARAM_STR);
 		$requete->bindValue(':token', $this->token, PDO::PARAM_STR);
@@ -129,10 +133,18 @@ class ZzzelpScript {
 		$requete->bindValue(':pseudo', $this->pseudo, PDO::PARAM_STR);
 		$requete->execute();
 		if($requete->fetch(PDO::FETCH_NUM)[0] > 0) {
-			$requete = $bdd->prepare('UPDATE Identification_ZzzelpScript SET token = :token, date_creation = :date_creation WHERE serveur = :serveur AND pseudo = :pseudo');
+			$requete = $bdd->prepare(
+				'UPDATE Identification_ZzzelpScript '.
+				'SET token = :token, date_creation = :date_creation '.
+				'WHERE serveur = :serveur AND pseudo = :pseudo'
+			);
 		}
 		else {
-			$requete = $bdd->prepare('INSERT INTO Identification_ZzzelpScript (serveur, pseudo, token, date_creation) VALUES(:serveur, :pseudo, :token, :date_creation)');
+			$requete = $bdd->prepare(
+				'INSERT INTO Identification_ZzzelpScript '.
+				'(serveur, pseudo, token, date_creation) '.
+				'VALUES(:serveur, :pseudo, :token, :date_creation)'
+			);
 		}
 		$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
 		$requete->bindValue(':pseudo', $this->pseudo, PDO::PARAM_STR);
@@ -200,7 +212,7 @@ class ZzzelpScript {
 		$this->parametres_script['menu'] = $menu->create_MenuFourmizzz($this->get_Fichiers());
 		$this->parametres_script['menucplus'] = $menu->create_MenuComptePlus();
 		$this->parametres_script['droits'] = $this->utilisateur->droitsZzzelp;
-		$this->parametres_script['version'] = 3.22;
+		$this->parametres_script['version'] = 3.25;
 		$this->parametres_script['prive'] = $this->utilisateur->droitsZzzelp;
 		$this->show_results($this->parametres_script);	
 	}
@@ -285,7 +297,11 @@ class ZzzelpScript {
 
 	public function get_ParametresZzzelpFloodPrive() {
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
-		$requete = $bdd->prepare('SELECT zzzelpfloods_prive_seconde, zzzelpfloods_prive_mode_relance FROM parametres_ZzzelpScript WHERE pseudo = :pseudo AND serveur = :serveur');
+		$requete = $bdd->prepare(
+			'SELECT zzzelpfloods_prive_seconde, zzzelpfloods_prive_mode_relance '.
+			'FROM parametres_ZzzelpScript '.
+			'WHERE pseudo = :pseudo AND serveur = :serveur'
+		);
 		$requete->bindValue(':pseudo', $this->utilisateur->pseudo, PDO::PARAM_STR);
 		$requete->bindValue(':serveur', $this->utilisateur->serveur, PDO::PARAM_STR);
 		$requete->execute();
@@ -556,14 +572,14 @@ class ZzzelpScript {
 		$fichiers = array();
 		if($this->utilisateur->droitsZzzelp > 0) {
 			$fichiers[] = array('dossier' => 'Javascript', 'nom' => 'Traceur_prive');
-			$fichiers[] = array('dossier' => 'ZzzelpScript', 'nom' => 'Prive_b87bd6rcf565dv4v4');
+			$fichiers[] = array('dossier' => 'ZzzelpScript/private', 'nom' => 'Prive_b87bd6rcf565dv4v4');
 			$fichiers[] = array('dossier' => 'Javascript', 'nom' => 'Guerre');
 		}
 		if($this->utilisateur->droitsZzzelp > 1) {
-			$fichiers[] = array('dossier' => 'ZzzelpScript', 'nom' => 'GroupePrive_40ac4b64439c2649');																	   
+			$fichiers[] = array('dossier' => 'ZzzelpScript/private', 'nom' => 'GroupePrive_40ac4b64439c2649');																	   
 		}
 		if($this->utilisateur->droitsZzzelp > 2) {
-			$fichiers[] = array('dossier' => 'ZzzelpScript', 'nom' => 'Admin_4a939ff004d85c3f');
+			$fichiers[] = array('dossier' => 'ZzzelpScript/private', 'nom' => 'Admin_4a939ff004d85c3f');
 		}
 		$contenu = '';
 		foreach($fichiers as $fichier) {

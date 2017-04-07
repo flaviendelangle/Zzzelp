@@ -14,8 +14,8 @@ function Chargement_coordonnees() {
 		var coordonnees = JSON.parse(xdr.responseText);
 		Creation_tableau(coordonnees);
 		Affichage_carte(coordonnees);
-	}
-	xdr.open('GET', url_zzzelp + 'coordonnees?serveur=' + serveur + '&alliances=[' + alliances +']&joueurs=[' + joueurs + ']', true);
+	};
+	xdr.open('GET', ZzzelpScript.url + 'coordonnees?serveur=' + serveur + '&alliances=[' + alliances +']&joueurs=[' + joueurs + ']', true);
 	xdr.send();
 }
 

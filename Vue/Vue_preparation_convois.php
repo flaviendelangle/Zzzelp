@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -28,7 +28,13 @@
 							<div class="ligne_cadre_structure">
 								<span>Ouvrières : </span>
 								<span class="ligne_inputs">
-									<input type="text" id="ouvrieres" value="<?php echo number_format($convois->utilisateur->niveaux->ouvrieres, 0, '.', ' ') ?>" class="input_tableau" onkeyup="Ajout_espaces('ouvrieres')" onblur="Modification_convoi()">
+									<input 
+										type="text" id="ouvrieres" 
+										value="<?php echo number_format($convois->utilisateur->niveaux->ouvrieres, 0, '.', ' ') ?>" 
+										class="input_tableau" 
+										onkeyup="ze_Ajout_espaces(this)" 
+										onblur="Modification_convoi()"
+									>
 									<a  href='http://<?php echo $compte->serveur ?>.fourmizzz.fr/Ressources.php?alliance=<?php echo htmlentities($_GET['alliance']) ?>&pseudo=<?php echo htmlentities($_GET['pseudo']) ?>&valeur_convois=<?php echo htmlentities($_GET['valeur_convois']) ?>&ressource=<?php echo htmlentities($_GET['ressource']) ?>'><img src="/Images/inverser.png" style="height:1.2em;margin-left:15px;margin-top:0.8em"></a>
 								</span>
 							</div>
@@ -56,14 +62,32 @@
 							<a class="bouton" onclick="Lancement_convois()">Lancer le convoi</a>
 					   </div>
 					   <br><br>
+					   <div id="zone_convois"></div>
 					</div>
 				</div>				
 			</div>
 		</div>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
 		<script src="/Javascript/Convois.js"></script>
+		<script src="/ZzzelpScript/zzzelp/ressourcessender.js"></script>
 		<script>
-			var ID = <?php echo $convois->convoye->id ?>;
+
+new ZzzelpRessourcesSender(document.querySelector('#zone_convois'), {
+	ouvrieres  	: 8000000000,
+	field 		: 2000000,
+	etable 		: 20,
+	total 		: 53557601650000,
+	mode 		: 'manual',
+	server 		: 's2',
+	pseudo 		: 'batshaka',
+	alliance 	: 'FCGB',
+	ressource 	: 'materiaux'
+});
+
+
+
+
+var ID = <?php echo $convois->convoye->id ?>;
 function Modification_convoi() {
 	var mode = document.querySelector('#mode_envoi').value;
 	document.querySelector('#convois').disabled = !(mode == 'manuel')
@@ -87,5 +111,10 @@ function Lancement_convois() {
 			}
 			Modification_convoi();
 		</script>
+		<style>
+			.ligne_inputs {
+				width: calc(100% - 100px) !important;
+			}
+		</style>
 	</body>
 </html>

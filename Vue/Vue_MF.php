@@ -8,8 +8,15 @@
 		<script type="text/javascript" src="/Javascript/base_zzzelp.js"></script>
 		<script type="text/javascript" src="/Javascript/MF.js"></script>
 		<script type="text/javascript" src="/Javascript/Guerre.js"></script>
-		<script type="text/javascript" src="/Javascript/zzzelpfloods.js"></script>
-		<script type="text/javascript" src="/ZzzelpScript/Analyseurs.js"></script>
+
+		<script type="text/javascript" src="/ZzzelpScript/zzzelpfloods/main.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/zzzelpfloods/attack.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/zzzelpfloods/player.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/zzzelpfloods/optimization.js"></script>
+
+		<script type="text/javascript" src="/ZzzelpScript/analysers/textoutput.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/analysers/combat.js"></script>
+		<script type="text/javascript" src="/ZzzelpScript/zzzelp/alliancemanager.js"></script>
 		<link rel="stylesheet" type="text/css" href="/Style/rome.css" />
 		<script src='http://bevacqua.github.io/rome/dist/rome.js'></script>
 	</head>
@@ -31,7 +38,7 @@
 		<script>
 			var zone = document.querySelector('.zone_multiflood'),
 				donnees = <?php echo $MF->create_json(); ?>;
-			Initialisation_MF(zone, donnees);
+			new ZzzelpMultiflood(zone, donnees);
 		</script>
 	</body>
 </html>

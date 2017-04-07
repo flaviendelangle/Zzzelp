@@ -69,7 +69,7 @@ class Chasses {
 	public function get_NiveauxChasse() {
 		$niveaux = array();
 		foreach(Fourmizzz::$serveurs as $serveur) {
-			if($this->utilisateur->pseudos[$serveur]['pseudo'] != '') {
+			if($this->utilisateur->pseudos[$serveur]['pseudo'] != '' && $this->utilisateur->comptes_fzzz[$serveur] != null) {
 				$this->utilisateur->comptes_fzzz[$serveur]->getInfosZzzelp();
 				$niveaux[$serveur] = array(
 										(int)$this->utilisateur->comptes_fzzz[$serveur]->niveaux->bouclier_thoracique, 
@@ -91,31 +91,31 @@ class Chasses {
 		Stock les résultats d'une simulation du simulateur de chasses C+
 	*/
 	public static function save_Simulation() {
-		$niveaux = explode(',', substr(htmlentities($_GET['niveaux']), 1, -1));
-		$attaque = explode(',', substr(htmlentities($_GET['attaque']), 1, -1));
-		$defense = explode(',', substr(htmlentities($_GET['defense']), 1, -1));
-		$TDC_depart = htmlentities($_GET['TDC_depart']);
-		$TDC_chasse = htmlentities($_GET['TDC_chasse']);
+		$data = json_decode($_POST['data'], true);
+		$niveaux = $data['niveaux'];
+		$attaque = $data['analyse']['attaquant']['armee']['unites'];
+		$defense = $data['analyse']['defenseur']['armee']['unites'];
+
 
 		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
 		$requete = $bdd->prepare('INSERT INTO SimulationsChasse(pseudo, IP, bouclier, armes, vitesse_chasse, cochenilles, TDC_lancement, TDC_conquis, 
-															    JSN, SN, NE, JS, S, C, CE, A, AE, SE, Tk, TkE, T, TE, 
+															    analyse, JSN, SN, NE, JS, S, C, CE, A, AE, SE, Tk, TkE, T, TE, 
 															    Petite_araignee, Araignee, Chenille, Criquet, Guepe, Cigale, Dionee, Abeille, Hanneton, 
 															    Scarabee, Lezard, Mante_religieuse, Souris, Mulot, Alouette, Rat, Tamanoir) 
 								  VALUES (:pseudo, :IP, :bouclier, :armes, :vitesse_chasse, :cochenilles, :TDC_lancement, :TDC_conquis, 
-															    :JSN, :SN, :NE, :JS, :S, :C, :CE, :A, :AE, :SE, :Tk, :TkE, :T, :TE, 
+															    :analyse, :JSN, :SN, :NE, :JS, :S, :C, :CE, :A, :AE, :SE, :Tk, :TkE, :T, :TE, 
 															    :Petite_araignee, :Araignee, :Chenille, :Criquet, :Guepe, :Cigale, :Dionee, :Abeille, :Hanneton, 
 															    :Scarabee, :Lezard, :Mante_religieuse, :Souris, :Mulot, :Alouette, :Rat, :Tamanoir)');
 		$requete->bindValue(':pseudo', htmlentities($_GET['pseudo']), PDO::PARAM_STR);
 		$requete->bindValue(':IP', $_SERVER["REMOTE_ADDR"], PDO::PARAM_STR);
 
-		$requete->bindValue(':bouclier', htmlentities($niveaux[0]), PDO::PARAM_INT);
-		$requete->bindValue(':armes', htmlentities($niveaux[1]), PDO::PARAM_INT);
-		$requete->bindValue(':vitesse_chasse', htmlentities($niveaux[2]), PDO::PARAM_INT);
-		$requete->bindValue(':cochenilles', htmlentities($niveaux[3]), PDO::PARAM_INT);
+		$requete->bindValue(':bouclier', htmlentities($niveaux['bouclier']), PDO::PARAM_INT);
+		$requete->bindValue(':armes', htmlentities($niveaux['armes']), PDO::PARAM_INT);
+		$requete->bindValue(':vitesse_chasse', htmlentities($niveaux['vitesse_chasse']), PDO::PARAM_INT);
+		$requete->bindValue(':cochenilles', htmlentities($niveaux['cochenilles']), PDO::PARAM_INT);
 
-		$requete->bindValue(':TDC_lancement', htmlentities($_GET['TDC_lancement']), PDO::PARAM_INT);
-		$requete->bindValue(':TDC_conquis', htmlentities($_GET['TDC_conquis']), PDO::PARAM_INT);
+		$requete->bindValue(':TDC_lancement', htmlentities($niveaux['TDC_lancement']), PDO::PARAM_INT);
+		$requete->bindValue(':TDC_conquis', htmlentities($niveaux['TDC_conquis']), PDO::PARAM_INT);
 
 		$requete->bindValue(':JSN', htmlentities($attaque[0]), PDO::PARAM_INT);
 		$requete->bindValue(':SN', htmlentities($attaque[1]), PDO::PARAM_INT);
@@ -149,7 +149,11 @@ class Chasses {
 		$requete->bindValue(':Alouette', htmlentities($defense[14]), PDO::PARAM_INT);
 		$requete->bindValue(':Rat', htmlentities($defense[15]), PDO::PARAM_INT);
 		$requete->bindValue(':Tamanoir', htmlentities($defense[16]), PDO::PARAM_INT);
+
+		$requete->bindValue(':analyse', json_encode($data['analyse']), PDO::PARAM_STR);
 		$requete->execute();
+
+		return 'OK';
 
 	}
 

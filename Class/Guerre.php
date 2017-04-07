@@ -45,7 +45,7 @@ class Guerre {
 		}
 		foreach($joueurs as $joueur => $valeurs) {
 			if(!isset($valeurs->donnees_guerre)) {
-				$joueurs[$joueur]->donnees_guerre = $this->empty_GuerreData();
+				$joueurs[$joueur]->donnees_guerre = $this->empty_GuerreData($joueurs[$joueur]);
 			}
 		}
 		$bdd = null;
@@ -307,10 +307,12 @@ class Guerre {
 		}
 
 		/*
-			Dome = Loge = Bouclier * 3/2
+			Dome = Loge = Bouclier * 7/2
 		*/
-		if($niveaux['bouclier'] > 0 AND $niveaux['loge'] == 0) {
+		if($niveaux['bouclier'] > 0 AND $niveaux['dome'] == 0) {
 			$niveaux['dome'] = (int)($niveaux['bouclier']*7/6) + 2;
+		}
+		if($niveaux['bouclier'] > 0 AND $niveaux['loge'] === 0) {
 			$niveaux['loge'] = (int)($niveaux['bouclier']*7/6) + 2;
 		}
 
@@ -320,9 +322,10 @@ class Guerre {
 		if($niveaux['loge'] > 0 AND $niveaux['dome'] == 0)  {
 			$niveaux['dome'] = $niveaux['loge'];
 		}
-		elseif($niveaux['bouclier'] > 0 AND $niveaux['dome'] == 0)  {
-			$niveaux['dome'] = $niveaux['bouclier'];
-		}		
+		if($niveaux['dome'] > 0 AND $niveaux['loge'] == 0)  {
+			$niveaux['loge'] = $niveaux['dome'];
+		}
+
 
 
 		return $niveaux;
@@ -699,6 +702,35 @@ class Guerre {
 	}
 
 	/*
+		Mise à jour du statut du joueur (DEAD ou non) ainsi que de la date
+	*/
+	public function save_Dead($cible) {
+		$alliance = $this->get_AllianceActif();
+		$bdd = Zzzelp::Connexion_BDD('Donnees_site');
+		$requete = $bdd->prepare('SELECT COUNT(*) FROM Donnees_guerre WHERE pseudo = :pseudo AND serveur = :serveur AND alliance = :alliance');
+		$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
+		$requete->bindValue(':alliance', $alliance, PDO::PARAM_STR);
+		$requete->bindValue(':pseudo', $cible->pseudo, PDO::PARAM_STR);
+		$requete->execute();
+		if($requete->fetch(PDO::FETCH_NUM)[0] > 0) {		
+			$requete = $bdd->prepare('UPDATE Donnees_guerre SET dead = :dead, date_dead = :date_dead  
+									  WHERE pseudo = :pseudo AND serveur = :serveur AND alliance = :alliance');
+		}
+		else {
+			$requete = $bdd->prepare('INSERT INTO Donnees_guerre (pseudo, serveur, alliance, alerte)
+									  VALUES (:pseudo, :serveur, :alliance, :alerte)');
+		}
+		$requete->bindValue(':serveur', $this->serveur, PDO::PARAM_STR);
+		$requete->bindValue(':alliance', $alliance, PDO::PARAM_STR);
+		$requete->bindValue(':pseudo', $cible->pseudo, PDO::PARAM_STR);
+		$requete->bindValue(':dead', $_POST['dead'] ? 1 : 0, PDO::PARAM_INT);
+		$requete->bindValue(':date_dead', $_POST['date_dead'], PDO::PARAM_INT);
+		$requete->execute();
+		$bdd = null;
+	}
+
+
+	/*
 		Récupère l'alliance sur laquelle les données doivent être stockées
 	*/
 	public function get_AllianceActif() {
@@ -829,17 +861,17 @@ class Guerre {
 				'FDF' => array(
 					'valeur' => $def_att, 
 					'couleur' => (($def_att > $att_vie_loge) ? 'red' : (($def_att * 1.2 > $att_vie_loge) ? 'orange' : 'green')),
-					'prerequis' => 'armes'
+					'prerequis' => array('armes')
 				),
 				'OSD' => array(
 					'valeur' => $def_vie_dome, 
 					'couleur' => (($att_att < $def_vie_dome) ? 'red' : (($att_att < $def_vie_dome * 1.2) ? 'orange' : 'green')),
-					'prerequis' => 'dome'
+					'prerequis' => array('bouclier', 'dome')
 				),
 				'OSL' => array(
 					'valeur' => $def_vie_loge, 
 					'couleur' => (($att_att < $def_vie_loge) ? 'red' : (($att_att < $def_vie_loge * 1.2) ? 'orange' : 'green')),
-					'prerequis' => 'loge'
+					'prerequis' => array('bouclier', 'loge')
 				)
 					);			
 
@@ -916,7 +948,7 @@ class Guerre {
 		$requete->bindValue(':ID_forum', $ID_forum, PDO::PARAM_STR);
 		$requete->execute();
 		$this->ID_joueurs = array_keys(json_decode($requete->fetch(PDO::FETCH_ASSOC)['ID_joueurs'], true));
-		$combats = $this->parse_Combats($this->get_Combats($this->ID_joueurs, 0, time()));
+		$combats = $this->parse_Combats($this->get_Combats($this->ID_joueurs, 1459189833, time()));
 		return $this->compute_RecapCombats($combats);
 	}
 
@@ -943,7 +975,7 @@ class Guerre {
 
 			$combats[$i]['analyse']['attaquant']['compte'] = $att;
 			$combats[$i]['analyse']['defenseur']['compte'] = $def;
-			$stats['HOF'][$i] = $combat['HOF'];
+			$stats['HOF'][$i] = $combat['analyse']['attaquant']['HOF'] + $combat['analyse']['defenseur']['HOF'];
 
 			if($att != null) {
 				if(array_key_exists($att->pseudo, $stats['killers'])) {
@@ -1019,7 +1051,7 @@ class Guerre {
 			$ligne =  $i.' - '.$this->BBCode_Pseudo($combat['attaquant']).' vs '.$this->BBCode_Pseudo($combat['defenseur']);
 			$ligne .= ' ('.(Nombre::Espaces($HOF/31557600)).' années)';
 			$FI .= $ligne.$separateur;
-			if($i == 5) {
+			if($i == 13) {
 				break;
 			}
 		}

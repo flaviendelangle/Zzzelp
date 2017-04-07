@@ -193,7 +193,7 @@ class MenuZzzelp {
 					'</ul>
 				</nav>
 				<div class="barre_outils_zzzelp">
-					<div class="acces_aide" onclick="ze_Lancement_aide_Zzzelp()"></div>
+					<div class="acces_aide" onclick="new ZzzelpScriptAide()"></div>
 				</div>';
 
 	}
@@ -253,7 +253,7 @@ class MenuZzzelp {
 	public function get_RightsGlobal() {
 		$this->droits = array();
 		foreach(Fourmizzz::$serveurs as $serveur) {
-			if($this->instance->pseudos[$serveur]['pseudo'] != '') {
+			if($this->instance->pseudos[$serveur]['pseudo'] != '' && $this->instance->pseudos[$serveur]['validation'] == '1') {
 				$this->get_RightsServeur($this->instance->comptes_fzzz[$serveur]);
 			}
 			else {

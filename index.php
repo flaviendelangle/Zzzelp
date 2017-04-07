@@ -15,31 +15,17 @@ date_default_timezone_set('Europe/Paris');
 	Gestion des taches CRON
 */
 if(php_sapi_name() == 'cli') {
-	if($argv[1] == 'websocket') {
-		require 'Class/WebSocketServer.php';
-		require 'Class/WebSocketUser.php';
-		require 'Class/WebSocketZzzelpScript.php';
-	    $server = new WebSocketZzzelpScript("213.251.157.140","9000");
-	    try {
-	      $server->run();
-	    }
-	    catch (Exception $e) {
-	      $server->stdout($e->getMessage());
-	    }
+	require 'Class/Zzzelp.php';
+	require 'Class/GenerationArchives.php';
+	$mode = $argv[1];
+	if($mode == 'archives') {
+		$archives = new GenerationArchives();
 	}
-	else {
-		require 'Class/Zzzelp.php';
-		require 'Class/GenerationArchives.php';
-		$mode = $argv[1];
-		if($mode == 'archives') {
-			$archives = new GenerationArchives();
-		}
-		elseif($mode == 'traceur') {
-			require 'Class/Traceur.php';
-			require 'Class/Tableau.php';
-			$traceur = new Traceur(null);
-			$traceur->load_Cron();		
-		}
+	elseif($mode == 'traceur') {
+		require 'Class/Traceur.php';
+		require 'Class/Tableau.php';
+		$traceur = new Traceur(null);
+		$traceur->load_Cron();		
 	}
 }
 

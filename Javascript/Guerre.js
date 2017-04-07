@@ -29,7 +29,7 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 	};
 
 	this.getTDCUser = function() {
-		new ZzzelpScriptAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + guerre.pseudo, addDOM : true }),
+		new ZzzelpAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + guerre.pseudo, addDOM : true }),
 			{ success : function(zone_page) {
 				guerre.TDC = parseInt(zone_page.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, ''));
 				guerre.load(1);
@@ -39,7 +39,7 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 
 
 	this.load = function(mode) {
-		new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ method : 'GET', force : mode, url : 'mode=joueur' }, guerre.pseudo),
+		new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ method : 'GET', force : mode, url : 'mode=joueur' }, guerre.pseudo),
 			{ success : function(valeurs) {
 				guerre.main(valeurs);
 			}, authentication_issue : function() {
@@ -55,10 +55,10 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 		guerre.createActionBar();
 		guerre.createAlert();
 		guerre.zone.appendChild(guerre.createZoneGenerality(true));
-		guerre.zone.appendChild(guerre.createZoneData(false));
+		guerre.zone.appendChild(new ZzzelpScriptZoneData(valeurs, guerre.pseudo, false).getZone());
 		guerre.zone.appendChild(guerre.createZoneConversation(false));
 		guerre.zone.appendChild(Generation_zone_combat(pseudo, valeurs, false));
-		guerre.zone.appendChild(new ZzzelpScriptAideSynchro(guerre.pseudo, pseudo, valeurs, TDC, false).zone);
+		guerre.zone.appendChild(new ZzzelpScriptAideSynchro(guerre.pseudo, pseudo, valeurs, TDC, false).getZone());
 	};
 				
 	this.createZone = function() {
@@ -71,7 +71,7 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 		entete.innerHTML = 'Données de ' + pseudo;
 		barre_boutons.className = 'zzzelp_modal_boutons';
 		fond.className = 'modal_zzzelp';
-		bouton_quitter.src = url_zzzelp + '/Images/close.png';
+		bouton_quitter.src = ZzzelpScript.url + '/Images/close.png';
 		bouton_quitter.onclick = function onclick(event) {
 			ze_Supprimer_element(fond);
 		};
@@ -93,7 +93,7 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 	this.createActionBar = function() {
 		var barre_actions = document.createElement('div'),
 			liens = new Array(
-				{ nom : 'Traceur Complet', url : url_zzzelp + '/traceur/nouveau?serveur=' + guerre.serveur + '&mode=joueurs&joueur=' + guerre.pseudo },
+				{ nom : 'Traceur Complet', url : ZzzelpScript.url + '/traceur/nouveau?serveur=' + guerre.serveur + '&mode=joueurs&joueur=' + guerre.pseudo },
 				{ nom : 'Profil Fourmizzz', url : 'http://' + guerre.serveur + '.fourmizzz.fr/Membre.php?Pseudo=' + guerre.pseudo }
 		);
 		barre_actions.setAttribute('style', 'text-align: center;');
@@ -124,9 +124,10 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 			contenu_alerte.dataset.vide = '0';
 		}
 		contenu_alerte.className = 'zzzelp_alerte_guerre';
-		modifier.src = url_zzzelp + '/Images/edit.png';
+		modifier.src = ZzzelpScript.url + '/Images/edit.png';
 		modifier.setAttribute('style', 'height: 20px;padding-left: 10px;cursor: pointer;');
 		modifier.onclick = function onclick(event) {
+			guerre.saveAlert(this, input_alerte, contenu_alerte);
 		};
 		input_alerte.setAttribute('style', 'width: 80%;max-width: 350px;height: 2em;display:none');
 		input_alerte.value = guerre.valeurs.niveaux.alerte;
@@ -137,17 +138,17 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 		guerre.zone.appendChild(alerte);
 	};
 
-	this.saveAlert = function() {
-		if(~this.src.indexOf('edit')) {
-			this.src = url_zzzelp + '/Images/valider.png';
+	this.saveAlert = function(img, input_alerte, contenu_alerte) {
+		if(~img.src.indexOf('edit')) {
+			img.src = ZzzelpScript.url + '/Images/valider.png';
 			input_alerte.style.display = '';
 			contenu_alerte.style.display = 'none';
 		}
 		else {
-			this.src = url_zzzelp + '/Images/edit.png';
+			img.src = ZzzelpScript.url + '/Images/edit.png';
 			var form = new FormData();
 			form.append('alerte', input_alerte.value);
-			new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ method : 'POST', url : 'mode=stockage_alerte' }, guerre.pseudo),
+			new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ data : form, method : 'POST', url : 'mode=stockage_alerte' }, guerre.pseudo),
 				{ success : function(valeurs) {
 					contenu_alerte.innerHTML = (input_alerte.value.length === 0) ? 'Aucune alerte concernant ce joueur' : input_alerte.value;
 					contenu_alerte.dataset.vide = (input_alerte.value.length === 0) ? '1' : '0';
@@ -163,7 +164,7 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 			date_maxi = new Date((guerre.valeurs.derniere_montee.date + guerre.valeurs.derniere_montee.incertitude)*1000),
 			incertitude;
 		for(var i=0; i<14; i++) {
-			unites[i] = guerre.valeurs.niveaux[ZzzelpScriptArmee.TAGs[i]];
+			unites[i] = guerre.valeurs.niveaux[ZzzelpArmy.TAGs[i]];
 		}
 		if(guerre.valeurs.derniere_montee.incertitude > 0) {
 			incertitude = ' - ' + ((date_maxi.getHours() >= 10) ? date_maxi.getHours()  : ("0" + date_maxi.getHours())) + 'h';
@@ -189,9 +190,13 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 		zone_general.className = 'zzzelp_section_fenetre';
 		zone_general.setAttribute('style', 'display:' + (afficher ? '' : 'none'));
 
+		cadre.appendChild(guerre.ligneDead());		
+
+
+
 		for(i=0; i<informations.length; i++) {
-			var ligne = document.createElement('div'),
-				label = document.createElement('span'),
+			ligne = document.createElement('div');
+			var	label = document.createElement('span'),
 				valeur = document.createElement('span');
 			ligne.className = 'ligne_cadre_structure';
 			valeur.className = 'input_fige';
@@ -216,167 +221,83 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 		return zone;		
 	};
 
-	this.createZoneData = function(afficher) {
-		var zone = document.createElement('div'),
-			entete_armee = document.createElement('div'),
-			zone_armee = document.createElement('div');
-		entete_armee.className = 'entete_menu_cache';
-		entete_armee.innerHTML = ' Armée et niveaux ';
-		entete_armee.onclick = function onclick(event) {
-			this.nextSibling.style.display = (this.nextSibling.style.display == 'none') ? '' : 'none';
-		};
-		zone_armee.setAttribute('style', 'display:' + (afficher ? '' : 'none'));
-		zone_armee.className = 'zzzelp_section_fenetre';
-
-		zone.appendChild(entete_armee);
-		zone.appendChild(zone_armee);
-
-		guerre.createZoneDataImportArmee(zone_armee);
-		guerre.createZoneDataArmee(zone_armee);
-		guerre.createZoneDataNiveaux(zone_armee);
-		guerre.createZoneDataDate(zone_armee);
-		guerre.createZoneDataMAJ(zone_armee);		
-
-		return zone;
-	};
-
-	this.createZoneDataImportArmee = function(zone_armee) {
-		var ligne_preparation_analyse = document.createElement('div'),
-			bouton = document.createElement('a'),
-			ligne_analyse = document.createElement('div'),
-			champ_analyse = document.createElement('textarea'),
-			ligne_bouton_analyse = document.createElement('div'),
-			bouton_analyse = document.createElement('a');
-		ligne_preparation_analyse.className = 'ligne_cadre_structure ligne_armee';
-		ligne_preparation_analyse.setAttribute('style', 'height:auto');
-		bouton.setAttribute('style', 'width: 180px;');
-		bouton.className = 'bouton_guerre';
-		bouton.innerHTML = 'Importer une armée';
-		bouton.onclick = function onclick(event) {
-			ligne_preparation_analyse.style.display = 'none';
-			ligne_analyse.style.display = '';
-			ligne_bouton_analyse.style.display = '';
-		};
-		ligne_analyse.className = 'ligne_cadre_structure ligne_armee';
-		ligne_analyse.setAttribute('style', 'height:auto;display:none;');
-		ligne_bouton_analyse.className = 'ligne_cadre_structure ligne_armee';
-		ligne_bouton_analyse.setAttribute('style', 'height:auto;display:none;');
-		champ_analyse.setAttribute('style', 'width: 250px;margin: auto;display: block;height: 70px;');
-		bouton_analyse.setAttribute('style', 'width: 170px;');
-		bouton_analyse.className = 'bouton_guerre';
-		bouton_analyse.innerHTML = 'Importer';
-		bouton_analyse.onclick = function onclick(event) {
-			var armee = ZzzelpScriptArmee.analyse(champ_analyse.value),
-				inputs = document.querySelectorAll('.ligne_armee .input_tableau[data-donnee="armee"]');
-			for(var i=0; i<14; i++) {
-				inputs[i].value = ze_Nombre(armee[i]);
-			}
-			ligne_preparation_analyse.style.display = '';
-			ligne_analyse.style.display = 'none';
-			ligne_bouton_analyse.style.display = 'none';
-		};
-
-		ligne_preparation_analyse.appendChild(bouton);
-		ligne_analyse.appendChild(champ_analyse);
-		ligne_bouton_analyse.appendChild(bouton_analyse);
-
-		zone_armee.appendChild(ligne_preparation_analyse);
-		zone_armee.appendChild(ligne_analyse);
-		zone_armee.appendChild(ligne_bouton_analyse);
-	};
-
-	this.createZoneDataArmee = function(zone_armee) {
-		for(var i=0; i<14; i++) {
-			var ligne_unite = document.createElement('div'),
-				span = document.createElement('span'),
-				input = document.createElement('input');
-			ligne_unite.className = 'ligne_cadre_structure ligne_armee';
-			span.innerHTML = ZzzelpScriptArmee.noms_pluriel[i] + ' :';
-			input.type = 'text';
-			input.dataset.donnee = 'armee';
-			guerre.addSpacesInput(input);
-			input.className = 'input_haut input_tableau';
-			input.value = ze_Nombre(parseInt(guerre.valeurs.niveaux[ZzzelpScriptArmee.TAGs[i]]));
-			ligne_unite.appendChild(span);
-			ligne_unite.appendChild(input);
-			zone_armee.appendChild(ligne_unite);
-		}
-	};
-
-	this.createZoneDataNiveaux = function(zone_armee) {
-		niveaux = new Array(
-			{ nom : 'Armes', id : 'armes' },
-			{ nom : 'Bouclier', id : 'bouclier' },
-			{ nom : 'Dôme', id : 'dome' },
-			{ nom : 'Loge Impériale', id : 'loge' },
-			{ nom : 'Temps de ponte', id : 'tdp' },
-			{ nom : 'Vitesse d\'attaque', id : 'vitesse_attaque' },
-			{ nom : 'Vitesse de chasse', id : 'vitesse_chasse' }
-		);
-
-		for(var i=0; i<niveaux.length; i++) {
-			var ligne_niveau = document.createElement('div'),
-				span = document.createElement('span'),
-				input = document.createElement('input');
-			ligne_niveau.className = 'ligne_cadre_structure ligne_armee';
-			span.innerHTML = niveaux[i].nom + ' :';
-			input.dataset.nom = niveaux[i].id;
-			input.type = 'text';
-			input.className = 'input_haut input_niveau';
-			input.value = guerre.valeurs.niveaux[niveaux[i].id];
-			ligne_niveau.appendChild(span);
-			ligne_niveau.appendChild(input);
-			zone_armee.appendChild(ligne_niveau);	
-		}
-	};
-
-	this.createZoneDataDate = function(zone_armee) {
-		var ligne_date = document.createElement('div'),
-			span = document.createElement('span'),
-			input = document.createElement('input');
-		ligne_date.className = 'ligne_cadre_structure ligne_armee';
-		span.innerHTML = 'MAJ de l\'armée :';
-		span.id = 'entete_date_MAJ_armee';
-		input.className = 'input_haut input_tableau';
-		input.id = 'date_MAJ_armee';
-		input.value = (guerre.valeurs.niveaux.date_armee > 0) ? ze_Generation_date_v1(guerre.valeurs.niveaux.date_armee, true) : '';
-		input.placeholder = ze_Generation_date_v1(time(), true);
-		ligne_date.appendChild(span);
-		ligne_date.appendChild(input);
-		zone_armee.appendChild(ligne_date);
-	};
-
-	this.createZoneDataMAJ = function(zone_armee) {
+	this.ligneDead = function() {
 		var ligne = document.createElement('div'),
-			bouton = document.createElement('a');
-		ligne.className = 'ligne_cadre_structure ligne_armee';
-		ligne.setAttribute('style', 'height:auto');
-		bouton.setAttribute('style', 'width: 100px');
-		bouton.className = 'bouton_guerre';
-		bouton.innerHTML = 'Enregistrer';
+			contenu_dead = document.createElement('span'),
+			input_dead = document.createElement('input'),
+			checkbox_dead = document.createElement('input'),
+			modifier = document.createElement('img');
+		ligne.setAttribute('style', 'text-align: center;');
+		if(guerre.valeurs.niveaux.dead === '0') {
+			date = ze_Generation_date_v1(time());
+			contenu_dead.innerHTML = 'Joueur encore en vie !';
+			contenu_dead.setAttribute('style', 'font-weight:bold;color:#FF0000');
+			contenu_dead.dataset.vide = '1';
+		}
+		else {
+			date = ze_Generation_date_v1(this.valeurs.niveaux.date_dead);
+			contenu_dead.innerHTML = 'DEAD le ' + date;
+			contenu_dead.setAttribute('style', 'font-weight:bold;color:#2E8B57');
+			contenu_dead.dataset.vide = '0';
+			checkbox_dead.checked = true;
+		}
+		contenu_dead.className = 'zzzelp_alerte_guerre';
+		modifier.src = ZzzelpScript.url + '/Images/edit.png';
+		modifier.setAttribute('style', 'height: 20px;padding-left: 10px;cursor: pointer;');
+		modifier.onclick = function onclick(event) {
+			guerre.saveDead(this, input_dead, contenu_dead, checkbox_dead);
+		};
+		input_dead.setAttribute('style', 'width: 80%;max-width: 150px;height: 2em;display:none');
+		input_dead.value = date;
+		checkbox_dead.setAttribute('style', 'display:none');
+		checkbox_dead.type = 'checkbox';
 
-		bouton.onclick = function onclick(event) {
-			var date = ze_Date_to_timestamp_v1(document.querySelector('#date_MAJ_armee').value),
-				armee = new ZzzelpScriptArmee(undefined, {}),
-				niveaux = '',
-				elements = zone_armee.querySelectorAll('.ligne_armee input[type="text"]');
-			for(var j=0; j<elements.length; j++) {
-				if(j<14) {
-					armee.push(parseInt(elements[j].value.replace(/ /g, '')));
+		ligne.appendChild(contenu_dead);
+		ligne.appendChild(input_dead);
+		ligne.appendChild(checkbox_dead);
+		ligne.appendChild(modifier);
+
+		return ligne;
+	};
+
+	this.saveDead = function(img, input_dead, contenu_dead, checkbox_dead) {
+		if(~img.src.indexOf('edit')) {
+			img.src = ZzzelpScript.url + '/Images/valider.png';
+			input_dead.style.display = '';
+			checkbox_dead.style.display = '';
+			contenu_dead.style.display = 'none';
+		}
+		else {
+			img.src = ZzzelpScript.url + '/Images/edit.png';
+			var form = new FormData(),
+				dead;
+			if(checkbox_dead.checked) {
+				dead = ze_Date_to_timestamp_v1(input_dead.value);
+				if(dead === 0) {
+					return;
 				}
-				niveaux += ((niveaux === '' ) ? '' : ',') + elements[j].value.replace(/ /g, '');
-			}
-			if(date > 0 || ze_Calcul_capa_flood(armee) === 0) {
-				var data = { method : 'GET', url : 'mode=MAJ_niveaux&niveaux=[' + niveaux + ']&date_armee=' + date };
-				new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, guerre.pseudo), {});
 			}
 			else {
-				document.querySelector('#entete_date_MAJ_armee').style.color = 'red';
-				document.querySelector('#entete_date_MAJ_armee').style.fontWeight = 'bold';
-			}	
-		};
-		ligne.appendChild(bouton);
-		zone_armee.appendChild(ligne);
+				dead = 0;
+			}
+			form.append('dead', checkbox_dead.checked);
+			form.append('date_dead', dead);
+			new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ data : form, method : 'POST', url : 'mode=stockage_dead' }, guerre.pseudo),
+				{ success : function(valeurs) {
+					if(dead > 0) {
+						contenu_dead.innerHTML = 'DEAD le ' + ze_Generation_date_v1(dead);
+						contenu_dead.setAttribute('style', 'font-weight:bold;color:#2E8B57');
+					}
+					else {
+						contenu_dead.innerHTML = 'Joueur encore en vie';
+						contenu_dead.setAttribute('style', 'font-weight:bold;color:#F0000');
+					}
+					input_dead.style.display = 'none';
+					checkbox_dead.style.display = 'none';
+					contenu_dead.style.display = '';
+				}
+			});
+		}
 	};
 
 	this.createZoneConversation = function(afficher) {
@@ -507,6 +428,7 @@ function ZzzelpScriptModalGuerre(pseudo, TDC) {
 	};
 
 	this.init();
+
 }
 
 ZzzelpScriptModalGuerre.chooseAjaxParam = function(param, pseudo) {
@@ -522,6 +444,217 @@ ZzzelpScriptModalGuerre.chooseAjaxParam = function(param, pseudo) {
 	return param;
 };
 
+ZzzelpScriptModalGuerre.areLevelsSure = function(niveaux, niveaux_probables, prerequis) {
+	for(var i=0; i<prerequis.length; i++) {
+		if(!ZzzelpScriptModalGuerre.isLevelSure(niveaux[prerequis[i]], niveaux_probables[prerequis[i]])) {
+			return false;
+		}
+	}
+	return true;
+};
+
+ZzzelpScriptModalGuerre.isLevelSure = function(niveau, niveau_probable) {
+	return (parseInt(niveau) !== 0 || niveau_probable === 0);
+};
+
+function ZzzelpScriptZoneData(valeurs, pseudo, afficher, Scallback) {
+
+	var that = this;
+
+	this.afficher = afficher;
+	this.pseudo = pseudo;
+	this.valeurs = valeurs;
+	this.Scallback = Scallback;
+
+	this.init = function() {
+		var zone = document.createElement('div'),
+			entete_armee = document.createElement('div'),
+			zone_armee = document.createElement('div');
+		entete_armee.className = 'entete_menu_cache';
+		entete_armee.innerHTML = ' Armée et niveaux ';
+		entete_armee.onclick = function onclick(event) {
+			this.nextSibling.style.display = (this.nextSibling.style.display == 'none') ? '' : 'none';
+		};
+		zone_armee.setAttribute('style', 'display:' + (that.afficher ? '' : 'none'));
+		zone_armee.className = 'zzzelp_section_fenetre';
+
+		zone.appendChild(entete_armee);
+		zone.appendChild(zone_armee);
+
+		that.createImportArmee(zone_armee);
+		that.createArmee(zone_armee);
+		that.createNiveaux(zone_armee);
+		that.createDate(zone_armee);
+		that.createMAJ(zone_armee);	
+
+
+		that.zone_armee = zone_armee;
+		that.zone = zone;
+	};
+
+	this.createImportArmee = function(zone_armee) {
+		var ligne_preparation_analyse = document.createElement('div'),
+			bouton = document.createElement('a'),
+			ligne_analyse = document.createElement('div'),
+			champ_analyse = document.createElement('textarea'),
+			ligne_bouton_analyse = document.createElement('div'),
+			bouton_analyse = document.createElement('a');
+		ligne_preparation_analyse.className = 'ligne_cadre_structure ligne_armee';
+		ligne_preparation_analyse.setAttribute('style', 'height:auto');
+		bouton.setAttribute('style', 'width: 180px;');
+		bouton.className = 'bouton_guerre';
+		bouton.innerHTML = 'Importer une armée';
+		bouton.onclick = function onclick(event) {
+			ligne_preparation_analyse.style.display = 'none';
+			ligne_analyse.style.display = '';
+			ligne_bouton_analyse.style.display = '';
+		};
+		ligne_analyse.className = 'ligne_cadre_structure ligne_armee';
+		ligne_analyse.setAttribute('style', 'height:auto;display:none;');
+		ligne_bouton_analyse.className = 'ligne_cadre_structure ligne_armee';
+		ligne_bouton_analyse.setAttribute('style', 'height:auto;display:none;');
+		champ_analyse.setAttribute('style', 'width: 250px;margin: auto;display: block;height: 70px;');
+		bouton_analyse.setAttribute('style', 'width: 170px;');
+		bouton_analyse.className = 'bouton_guerre';
+		bouton_analyse.innerHTML = 'Importer';
+		bouton_analyse.onclick = function onclick(event) {
+			var armee = ZzzelpArmy.analyse(champ_analyse.value),
+				inputs = document.querySelectorAll('.ligne_armee .input_tableau[data-donnee="armee"]');
+			for(var i=0; i<14; i++) {
+				inputs[i].value = ze_Nombre(armee.getUnite(i));
+			}
+			ligne_preparation_analyse.style.display = '';
+			ligne_analyse.style.display = 'none';
+			ligne_bouton_analyse.style.display = 'none';
+		};
+
+		ligne_preparation_analyse.appendChild(bouton);
+		ligne_analyse.appendChild(champ_analyse);
+		ligne_bouton_analyse.appendChild(bouton_analyse);
+
+		zone_armee.appendChild(ligne_preparation_analyse);
+		zone_armee.appendChild(ligne_analyse);
+		zone_armee.appendChild(ligne_bouton_analyse);
+	};
+
+	this.createArmee = function(zone_armee) {
+		for(var i=0; i<14; i++) {
+			var ligne_unite = document.createElement('div'),
+				span = document.createElement('span'),
+				input = document.createElement('input');
+			ligne_unite.className = 'ligne_cadre_structure ligne_armee';
+			span.innerHTML = ZzzelpArmy.noms_pluriel[i] + ' :';
+			input.type = 'text';
+			input.dataset.donnee = 'armee';
+			that.addSpacesInput(input);
+			input.className = 'input_haut input_tableau';
+			input.value = ze_Nombre(parseInt(that.valeurs.niveaux[ZzzelpArmy.TAGs[i]]));
+			ligne_unite.appendChild(span);
+			ligne_unite.appendChild(input);
+			zone_armee.appendChild(ligne_unite);
+		}
+	};
+
+	this.createNiveaux = function(zone_armee) {
+		niveaux = new Array(
+			{ nom : 'Armes', id : 'armes' },
+			{ nom : 'Bouclier', id : 'bouclier' },
+			{ nom : 'Dôme', id : 'dome' },
+			{ nom : 'Loge Impériale', id : 'loge' },
+			{ nom : 'Temps de ponte', id : 'tdp' },
+			{ nom : 'Vitesse d\'attaque', id : 'vitesse_attaque' },
+			{ nom : 'Vitesse de chasse', id : 'vitesse_chasse' }
+		);
+
+		for(var i=0; i<niveaux.length; i++) {
+			var ligne_niveau = document.createElement('div'),
+				span = document.createElement('span'),
+				input = document.createElement('input');
+			ligne_niveau.className = 'ligne_cadre_structure ligne_armee';
+			span.innerHTML = niveaux[i].nom + ' :';
+			input.dataset.nom = niveaux[i].id;
+			input.type = 'text';
+			input.className = 'input_haut input_niveau';
+			input.value = that.valeurs.niveaux[niveaux[i].id];
+			ligne_niveau.appendChild(span);
+			ligne_niveau.appendChild(input);
+			zone_armee.appendChild(ligne_niveau);	
+		}
+	};
+
+	this.createDate = function(zone_armee) {
+		var ligne_date = document.createElement('div'),
+			span = document.createElement('span'),
+			input = document.createElement('input');
+		ligne_date.className = 'ligne_cadre_structure ligne_armee';
+		span.innerHTML = 'MAJ de l\'armée :';
+		span.id = 'entete_date_MAJ_armee';
+		input.className = 'input_haut input_tableau';
+		input.id = 'date_MAJ_armee';
+		input.value = (that.valeurs.niveaux.date_armee > 0) ? ze_Generation_date_v1(that.valeurs.niveaux.date_armee, true) : '';
+		input.placeholder = ze_Generation_date_v1(time(), true);
+		ligne_date.appendChild(span);
+		ligne_date.appendChild(input);
+		zone_armee.appendChild(ligne_date);
+	};
+
+	this.createMAJ = function(zone_armee) {
+		var ligne = document.createElement('div'),
+			bouton = document.createElement('a');
+		ligne.className = 'ligne_cadre_structure ligne_armee';
+		ligne.setAttribute('style', 'height:auto');
+		bouton.setAttribute('style', 'width: 100px');
+		bouton.className = 'bouton_guerre';
+		bouton.innerHTML = 'Enregistrer';
+
+		bouton.onclick = function onclick(event) {
+			var date = ze_Date_to_timestamp_v1(document.querySelector('#date_MAJ_armee').value),
+				armee = new ZzzelpArmy(undefined, {}),
+				niveaux = '',
+				elements = zone_armee.querySelectorAll('.ligne_armee input[type="text"]');
+			for(var j=0; j<elements.length; j++) {
+				if(j<14) {
+					armee.setUnite(j, parseInt(elements[j].value.replace(/ /g, '')));
+				}
+				niveaux += ((niveaux === '' ) ? '' : ',') + elements[j].value.replace(/ /g, '');
+			}
+			if(date > 0 || armee.getCapaFlood() === 0) {
+				var data = { method : 'GET', url : 'mode=MAJ_niveaux&niveaux=[' + niveaux + ']&date_armee=' + date };
+				new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, that.pseudo), {
+					success : function(valeurs) {
+						if(that.Scallback) {
+							that.Scallback();
+						}
+					}
+				});
+			}
+			else {
+				document.querySelector('#entete_date_MAJ_armee').style.color = 'red';
+				document.querySelector('#entete_date_MAJ_armee').style.fontWeight = 'bold';
+			}	
+		};
+		ligne.appendChild(bouton);
+		zone_armee.appendChild(ligne);
+	};
+
+	this.addSpacesInput = function(input) {
+		input.onkeyup = function onkeyup(event) {
+			ze_Ajout_espaces(this);
+		};		
+	};
+
+	this.getZone = function() {
+		return that.zone;
+	};
+
+	this.getZoneContenu = function() {
+		return that.zone_armee;
+	};
+
+
+	this.init();
+}
+
 function ZzzelpScriptZoneEdition(action, pseudo, contenu, ID) {
 
 	var edition = this;
@@ -534,8 +667,8 @@ function ZzzelpScriptZoneEdition(action, pseudo, contenu, ID) {
 		{ nom : 'gras', 	title : 'Gras', 			img : 'http://s1.fourmizzz.fr/images/BBCode/bold.png', 		balise : 'b' },
 		{ nom : 'italic', 	title : 'Italique', 		img : 'http://s1.fourmizzz.fr/images/BBCode/italic.png',	balise : 'i' },
 		{ nom : 'souligne', title : 'Souligné', 		img : 'http://s1.fourmizzz.fr/images/BBCode/underline.png', balise : 'u' }, 
-		{ nom : 'centrer', 	title : 'Centrer', 			img : url_zzzelp + '/Images/center.png',					balise : 'center' },
-		{ nom : 'droite', 	title : 'Aligner à droite', img : url_zzzelp + '/Images/right.png',						balise : 'right' }, 
+		{ nom : 'centrer', 	title : 'Centrer', 			img : ZzzelpScript.url + '/Images/center.png',					balise : 'center' },
+		{ nom : 'droite', 	title : 'Aligner à droite', img : ZzzelpScript.url + '/Images/right.png',						balise : 'right' }, 
 		{ nom : 'img', 		title : 'Image', 			img : 'http://s1.fourmizzz.fr/images/BBCode/picture.png',	balise : 'img' }, 
 		{ nom : 'url', 		title : 'Lien', 			img : 'http://s1.fourmizzz.fr/images/BBCode/link.png',		balise : 'url' },
 		{ nom : 'player', 	title : 'Pseudo', 			img : 'http://s1.fourmizzz.fr/images/BBCode/membre.gif',	balise : 'player' },
@@ -673,7 +806,7 @@ function ZzzelpScriptZoneEdition(action, pseudo, contenu, ID) {
 					data : form
 			};
 			zone.querySelector('.zzzelp_zone_erreur').innerHTML = '';
-			new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, edition.pseudo),
+			new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, edition.pseudo),
 				{ success : function(data) {
 					var message;
 					if(action == 'create') {
@@ -758,8 +891,8 @@ function ZzzelpScriptMessageGuerre(data, type, pseudo) {
 				bouton_edit = document.createElement('img'),
 				bouton_delete = document.createElement('img');
 			barre_modif.className = 'zzzelp_barre_edit';
-			bouton_edit.src = url_zzzelp + '/Images/edit.png';
-			bouton_delete.src = url_zzzelp + '/Images/suppression.png';
+			bouton_edit.src = ZzzelpScript.url + '/Images/edit.png';
+			bouton_delete.src = ZzzelpScript.url + '/Images/suppression.png';
 			bouton_edit.onclick = function onclick(event) {
 				message.edit(message.dataset.numero, 'modifier');
 			};
@@ -890,7 +1023,7 @@ function ZzzelpScriptMessageGuerre(data, type, pseudo) {
 		}
 		else if(action == 'supprimer') {
 			var data = { method : 'GET', force : mode, url : 'mode=stockage_message&action=delete&ID_message=' + ID + '&' };
-			new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, message.pseudo),
+			new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, message.pseudo),
 				{ success : function(valeurs) {
 					ze_Supprimer_element(ligne_message);
 				}
@@ -931,13 +1064,13 @@ function Generation_zone_combat(pseudo, valeurs, afficher, FI) {
 	zone_combat.appendChild(Generation_zone_combat_lieu(pseudo, valeurs, valeurs.optimisations.loge, 'Optimisation'));
 
 	zone.appendChild(zone_combat);
-	return zone;		
+	return zone;
 
 	function Generation_zone_combat_lieu(pseudo, valeurs, simulation, mode) {
 		var zone = document.createElement('div'),
 			entete = document.createElement('div'),
 			zone_RC = document.createElement('div');
-		entete.innerHTML = '<span>' + mode + ' en ' + ((simulation.lieu == 1) ? 'Dôme' : 'Loge') + '</span><span><a target="_BLANK" href="' + url_zzzelp + '/' + simulation.url + '">Modifier la simulation</a>';
+		entete.innerHTML = '<span>' + mode + ' en ' + ((simulation.lieu == 1) ? 'Dôme' : 'Loge') + '</span><span><a target="_BLANK" href="' + ZzzelpScript.url + '/' + simulation.url + '">Modifier la simulation</a>';
 		if(simulation.erreur !== null) {
 			zone_RC.innerHTML = simulation.erreur;
 		}
@@ -951,7 +1084,7 @@ function Generation_zone_combat(pseudo, valeurs, afficher, FI) {
 						);
 			warnings.setAttribute('style', 'font-style: italic;color: red;line-height: 2em;text-align: center;');
 			for(var i=0; i<niveaux.length; i++) {
-				if(valeurs.niveaux[niveaux[i].id] === 0 && valeurs.niveaux_probables[niveaux[i].id] > 0) {
+				if(valeurs.niveaux[niveaux[i].id] === '0' && valeurs.niveaux_probables[niveaux[i].id] > 0) {
 					warnings.innerHTML += 'Niveau de ' + niveaux[i].nom + ' inconnu, Zzzelp a utilisé un ' + niveaux[i].nom + ' ' + valeurs.niveaux_probables[niveaux[i].id] + '<br>';
 				}
 			}
@@ -977,18 +1110,27 @@ function Generation_zone_combat(pseudo, valeurs, afficher, FI) {
 
 
 function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI) {
-
 	var that = this;
 
 	this.FI = (typeof FI == 'undefined') ? false : FI;
 	this.zone_modal = this.FI ? document.querySelector('#forum') : document.querySelector('.modal_zzzelp');
-	this.pseudo = utilisateur;
+	this.pseudo = pseudo;
+	this.serveur = that.zone_modal.dataset.serveur;
 
 	this.main = function() {
-		this.createZone();
-		this.step1();
-		this.step2();
-		this.step3();
+		if(that.serveur == 's1') {
+			that.alliances_conflit = new Array('ZOO', 'CDF', 'FP', '-NBW-', 'SFNL', 'RdFB', '-VIP');
+		}
+		else if(that.serveur == 's2') {
+			that.alliances_conflit = new Array('FCGB', 'OS');
+		}
+		else {
+			that.alliances_conflit = [];
+		}
+		that.createZone();
+		that.step1();
+		that.step2();
+		that.step3();
 	};
 
 	this.createZone = function() {
@@ -1049,7 +1191,7 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 		bouton.onclick = function onclick(event) {
 			var donnees = new ZzzelpScriptRC(that.pseudo).HOF(textarea.value, true);
 			if(donnees.length > 0) {
-				var depart = donnees[0].valeurs.date - donnees[0].valeurs.defenseur.HOF_avant * Math.pow(0.9, parseInt(that.zone_synchro.querySelector('#tdp_synchro').value));
+				var depart = donnees[0].valeurs.date - donnees[0].valeurs.defenseur.armee.statistiques.HOF * Math.pow(0.9, parseInt(that.zone_synchro.querySelector('#tdp_synchro').value));
 				that.zone_synchro.querySelector('#heure_depart_synchro').value = ze_Generation_date_v1(depart, true, true);
 			}
 		};
@@ -1067,7 +1209,7 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 			parametres = new Array(
 				{ nom : 'Heure du départ', valeur : ze_Generation_date_v1(time(), true, true), id : 'heure_depart_synchro', type : 'input_tableau' },
 				{ nom : 'Terrain du joueur', valeur : ze_Nombre(parseInt(TDC)), id : 'TDC_joueur', type : 'input_tableau' },
-				{ nom : 'Alliances attaquables', valeur : 'ZOO,CDF,FP,-NBW-', id : 'alliances_attaquables', type : 'input_tableau' },
+				{ nom : 'Alliances attaquables', valeur : that.alliances_conflit, id : 'alliances_attaquables', type : 'input_tableau' },
 				{ nom : 'Vitesse d\'attaque', valeur : valeurs.niveaux.vitesse_attaque, id : 'vitesse_attaque_synchro', type : 'input_niveau' }
 		);
 		entete_parametres.innerHTML = 'Etapes 2 : Calcul des cibles potentielles';
@@ -1100,7 +1242,8 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 		bouton.onclick = function onclick(event) {
 			var depart = ze_Date_to_timestamp_v1(document.querySelector('#heure_depart_synchro').value);
 			if(~url.indexOf('fourmizzz.fr/')) {
-				that.getTDCTarget(depart, that.getRetourSynchro);
+				var alliances = that.zone_modal.querySelector('#alliances_attaquables').value.replace(/ /g, '').split(',');
+				that.getTDCTarget(depart, that.getRetourSynchro, alliances, true);
 			}
 			else {
 				that.getRetourSynchro(donnees.joueurs, depart);
@@ -1109,7 +1252,7 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 		that.zone_synchro.appendChild(bouton);
 		that.zone_synchro.appendChild(zone_synchro_2);
 
-		autocompletion(zone_parametres.querySelector('#alliances_attaquables'), { mode : 'alliance', serveur : that.zone_modal.dataset.serveur, multiple : true });
+		autocompletion(zone_parametres.querySelector('#alliances_attaquables'), { mode : 'alliance', serveur : that.serveur, multiple : true });
 	};
 
 	this.step3 = function() {
@@ -1117,7 +1260,7 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 			entete_parametres = document.createElement('div'),
 			parametres = new Array(
 				{ nom : 'Heure de l\'impact', valeur : ze_Generation_date_v1(time(), true, true), id : 'heure_impact_synchro', type : 'input_tableau' },
-				{ nom : 'Alliances pouvant aider', valeur : 'ZOO,CDF,FP,-NBW-', id : 'alliances_alliees_synchro', type : 'input_tableau' },
+				{ nom : 'Alliances pouvant aider', valeur : that.alliances_conflit, id : 'alliances_alliees_synchro', type : 'input_tableau' },
 				{ nom : 'Vitesse d\'attaque', valeur : 0, id : 'vitesse_attaque_synchro_2', type : 'input_niveau' }
 		);
 		entete_parametres.innerHTML = 'Etapes 3 : Calcul des joueurs pouvant l\'avoir :';
@@ -1149,7 +1292,8 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 		continuer.onclick = function onclick(event) {
 			var depart = ze_Date_to_timestamp_v1(document.querySelector('#heure_impact_synchro').value);
 			if(~url.indexOf('fourmizzz.fr/')) {
-				that.getTDCTarget(depart, that.getHeureLancementSynchro, FI);
+				var alliances = that.zone_modal.querySelector('#alliances_alliees_synchro').value.replace(/ /g, '').split(',');
+				that.getTDCTarget(depart, that.getHeureLancementSynchro, alliances, FI);
 			}
 			else {
 				that.getHeureLancementSynchro(donnees.joueurs, depart);
@@ -1165,11 +1309,11 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 		zone_etape_3.dataset.impact = ''; //ligne.dataset.retour;
 		that.zone_synchro.appendChild(zone_etape_3);
 
-		autocompletion(zone_parametres.querySelector('#alliances_alliees_synchro'), { mode : 'alliance', serveur : that.zone_modal.dataset.serveur, multiple : true });	
+		autocompletion(zone_parametres.querySelector('#alliances_alliees_synchro'), { mode : 'alliance', serveur : that.serveur, multiple : true });	
 	};
 
-	this.getTDCTarget = function(depart, fonction, FI) {
-		new ZzzelpScriptAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + that.zone_modal.dataset.pseudo, addDOM : true }),
+	this.getTDCTarget = function(depart, fonction, alliances, FI) {
+		new ZzzelpAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + that.zone_modal.dataset.pseudo, addDOM : true }),
 			{ success : function(zone_page) {
 				var pseudo = that.zone_modal.dataset.pseudo,
 					TDC = parseInt(zone_page.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, '')),
@@ -1182,17 +1326,17 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 						x : parseInt(coordonnees[1]), 
 						y : parseInt(coordonnees[2]) 
 				};
-				that.getTDCPlayers(joueurs, depart, 1, fonction, true);
+				that.getTDCPlayers(joueurs, depart, 1, fonction, alliances);
 			}
 		});
 	};
 
-	this.getTDCPlayers = function(joueurs, depart, n, fonction, attaque) {
+	this.getOldTDCPlayers = function(joueurs, depart, n, fonction, attaque) {
 		var utilisateur = that.zone_modal.dataset.pseudo,
 			contentType = 'application/x-www-form-urlencoded';
 			data = 'etat=tous&terrain_max=' + parseInt(joueurs[utilisateur].TDC * (attaque ? 3 : 2));
 		data += '&fourmiliere_attaquable=true&terrain_min=' + parseInt(joueurs[utilisateur].TDC / (attaque ? 2 : 3)) + '&page=' + n;
-		new ZzzelpScriptAjax(({ method : 'POST', domain : 'fourmizzz', url : 'ennemie.php', addDOM : true, data : data, contentType : contentType }),
+		new ZzzelpAjax(({ method : 'POST', domain : 'fourmizzz', url : 'ennemie.php', addDOM : true, data : data, contentType : contentType }),
 			{ success : function(zone_page) {
 				var pseudo;
 				if(zone_page.querySelectorAll('#tabEnnemie').length > 0) {
@@ -1209,84 +1353,92 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 					that.getTDCPlayers(joueurs, depart, (n+1), fonction, attaque, utilisateur);
 				}
 				else {
-					var coordonnees = (typeof localStorage['zzzelp_coordonnees_' + ze_serveur] == 'undefined') ? {} : JSON.parse(localStorage['zzzelp_coordonnees_' + ze_serveur]),
-						pseudos = [];
+					var pseudos = [];
 					for (pseudo in joueurs) {
-						if(typeof coordonnees[pseudo] == 'undefined') {
-							pseudos.push(pseudo);
-						}
+						pseudos.push(pseudo);
 					}
-					if(pseudos.length > 0) {
-						ze_Recuperation_coordonnees(pseudos, []);
-					}
-					fonction(joueurs, depart);
+					new ZzzelpScriptCoordonnees(pseudos, [], function(coordonnees) {
+						fonction(joueurs, depart, coordonnees);
+					});
 				}
 			}
 		});
 	};
 
-	that.getRetourSynchro = function(joueurs, depart) {
-		var pseudos = [], pseudo;
-		if(~url.indexOf('fourmizzz.fr/')) {
-			var coordonnees = (typeof localStorage['zzzelp_coordonnees_' + ze_serveur] == 'undefined') ? {} : JSON.parse(localStorage['zzzelp_coordonnees_' + ze_serveur]);
-			for (pseudo in joueurs) {
-				if(typeof coordonnees[pseudo] == 'undefined') {
-					pseudos.push(pseudo);
+	this.getTDCPlayers = function(joueurs, depart, n, fonction, alliances) {
+		new ZzzelpScriptTraceur({ alliances : alliances, joueurs : [] }, function(valeurs) {
+			var joueur;
+			for(var i=0; i<valeurs.alliances.length; i++) {
+				var alliance = valeurs.alliances[i].alliance;
+				for(var j=0; j<valeurs.alliances[i].valeurs.length; j++) {
+					joueur = valeurs.alliances[i].valeurs[j];
+					valeurs.joueurs.push({ pseudo : joueur.pseudo, TDC : joueur.TDC, alliance : alliance });
 				}
 			}
-			if(pseudos.length === 0) {
-				for(pseudo in joueurs) {
-					var placement = coordonnees[pseudo];
-					joueurs[pseudo].x = placement.x;
-					joueurs[pseudo].y = placement.y;
+			var pseudos = [];
+			for(i=0; i<valeurs.joueurs.length; i++) {
+				joueur = valeurs.joueurs[i];
+				pseudos.push(joueur.pseudo);
+				if(joueur.pseudo != utilisateur) {
+					joueurs[joueur.pseudo] = {
+						alliance : joueur.alliance,
+						TDC : joueur.TDC
+					};
+				}
+			}
+			new ZzzelpScriptCoordonnees(pseudos, [], function(coordonnees) {
+				fonction(joueurs, depart, coordonnees);
+			});
+		});	
+	};
+
+	that.getRetourSynchro = function(joueurs, depart, coordonnees) {
+		var pseudo;
+		if(~url.indexOf('fourmizzz.fr/')) {
+			for(pseudo in joueurs) {
+				var placement = coordonnees[pseudo];
+				joueurs[pseudo].x = placement.x;
+				joueurs[pseudo].y = placement.y;
+			}
+		}
+		var utilisateur = that.pseudo,
+			VA = parseInt(document.querySelector('#vitesse_attaque_synchro').value),
+			alliances = that.zone_modal.querySelector('#alliances_attaquables').value.replace(/ /g, ''),
+			possibles = [],
+			TDC_1 = joueurs[utilisateur].TDC, TDC_2;
+		alliances = (alliances in ['', '*']) ? [] : alliances.split(',');
+		for(pseudo in joueurs) {
+			TDC_2 = joueurs[pseudo].TDC;
+			if(pseudo != utilisateur && TDC_2 < TDC_1 * 3 && TDC_2 > TDC_1 / 2) {
+				if(alliances.length === 0 || (joueurs[pseudo].alliance !== '' && ~alliances.indexOf(joueurs[pseudo].alliance))) {
+					var distance = ze_Calcul_distance(joueurs[utilisateur].x, joueurs[utilisateur].y, joueurs[pseudo].x, joueurs[pseudo].y),
+						duree = ze_Calcul_temps_trajet(distance, VA);
+					possibles.push({ pseudo : pseudo, alliance : joueurs[pseudo].alliance, duree : duree, retour : (depart + duree), TDC : joueurs[pseudo].TDC });
 				}
 			}
 		}
-		if(pseudos.length > 0) {
-			setTimeout(function(){
-				that.getRetourSynchro(joueurs, depart);
-				return false;
-			}, 250);
+		console.log(possibles);
+		possibles.sort(function (a, b) {
+		    if (a.duree > b.duree)
+		      return 1;
+		    if (a.duree < b.duree)
+		      return -1;
+		    return 0;
+		});
+
+		document.querySelector('.zzzelp_synchro_etape_2').innerHTML = '';
+		document.querySelector('.zzzelp_synchro_etape_3').innerHTML = '';
+
+		if(possibles.length === 0) {
+			document.querySelector('.zzzelp_synchro_etape_2').innerHTML = '<center>Aucune cible ne correspond</center>';
 		}
 		else {
-			var utilisateur = that.zone_modal.dataset.pseudo,
-				VA = parseInt(document.querySelector('#vitesse_attaque_synchro').value),
-				alliances = that.zone_modal.querySelector('#alliances_attaquables').value.replace(/ /g, ''),
-				possibles = [],
-				TDC_1 = joueurs[utilisateur].TDC, TDC_2;
-			alliances = (alliances in ['', '*']) ? [] : alliances.split(',');
-			for(pseudo in joueurs) {
-				TDC_2 = joueurs[pseudo].TDC;
-				if(pseudo != utilisateur && TDC_2 < TDC_1 * 3 && TDC_2 > TDC_1 / 2) {
-					if(alliances.length === 0 || (joueurs[pseudo].alliance !== '' && joueurs[pseudo].alliance in alliances)) {
-						var distance = ze_Calcul_distance(joueurs[utilisateur].x, joueurs[utilisateur].y, joueurs[pseudo].x, joueurs[pseudo].y),
-							duree = ze_Calcul_temps_trajet(distance, VA);
-						possibles.push({ pseudo : pseudo, alliance : joueurs[pseudo].alliance, duree : duree, retour : (depart + duree), TDC : joueurs[pseudo].TDC });
-					}
-				}
-			}
-			possibles.sort(function (a, b) {
-			    if (a.duree > b.duree)
-			      return 1;
-			    if (a.duree < b.duree)
-			      return -1;
-			    return 0;
-			});
-
-			document.querySelector('.zzzelp_synchro_etape_2').innerHTML = '';
-			document.querySelector('.zzzelp_synchro_etape_3').innerHTML = '';
-
-			if(possibles.length === 0) {
-				document.querySelector('.zzzelp_synchro_etape_2').innerHTML = '<center>Aucune cible ne correspond</center>';
-			}
-			else {
-				that.createTableTargetRetou(r);
-				document.querySelector('#heure_impact_synchro').value = ze_Generation_date_v1(possibles[0].retour, true, true);
-			}
+			that.createTableTargetRetour(possibles);
+			document.querySelector('#heure_impact_synchro').value = ze_Generation_date_v1(possibles[0].retour, true, true);
 		}
 	};
 
-	this.createTableTargetRetour = function() {
+	this.createTableTargetRetour = function(possibles) {
 		var tableau = document.createElement('table'),
 			entete = tableau.insertRow(0),
 			colonnes = new Array(
@@ -1331,98 +1483,87 @@ function ZzzelpScriptAideSynchro(utilisateur, pseudo, valeurs, TDC, afficher, FI
 		};		
 	};
 
-	this.getHeureLancementSynchro = function(joueurs, depart) {
-		var pseudos = [], pseudo, duree;
+	this.getHeureLancementSynchro = function(joueurs, depart, coordonnees) {
+		var pseudo, duree;
 		if(~url.indexOf('fourmizzz.fr/')) {
-			var coordonnees = (typeof localStorage['zzzelp_coordonnees_' + ze_serveur] == 'undefined') ? {} : JSON.parse(localStorage['zzzelp_coordonnees_' + ze_serveur]);
-			for (pseudo in joueurs) {
-				if(typeof coordonnees[pseudo] == 'undefined') {
-					pseudos.push(pseudo);
-				}
-			}
-			if(pseudos.length === 0) {
-				for(pseudo in joueurs) {
-					var placement = coordonnees[pseudo];
-					joueurs[pseudo].x = placement.x;
-					joueurs[pseudo].y = placement.y;
-				}
-			}
-		}
-		if(pseudos.length > 0) {
-			setTimeout(function(){
-				that.getHeureLancementSynchro(joueurs, depart);
-				return false;
-			}, 250);
-		}
-		else {
-			var utilisateur = that.zone_modal.dataset.pseudo,
-				retour = ze_Date_to_timestamp_v1(document.querySelector('#heure_impact_synchro').value),
-				VA = parseInt(document.querySelector('#vitesse_attaque_synchro_2').value),
-				alliances = that.zone_modal.querySelector('#alliances_alliees_synchro').value.replace(/ /g, ''),
-				possibles = [],
-				TDC_1 = joueurs[utilisateur].TDC, TDC_2;
-			alliances = (alliances in ['', '*']) ? [] : alliances.split(',');
 			for(pseudo in joueurs) {
-				TDC_2 = joueurs[pseudo].TDC;
-				if(pseudo != utilisateur && TDC_2 < TDC_1 * 2 && TDC_2 > TDC_1 / 3) {
-					if(alliances.length === 0 || (joueurs[pseudo].alliance !== '' && joueurs[pseudo].alliance in alliances)) {
-						var distance = ze_Calcul_distance(joueurs[utilisateur].x, joueurs[utilisateur].y, joueurs[pseudo].x, joueurs[pseudo].y);
-						duree = ze_Calcul_temps_trajet(distance, VA);
-						if((retour - duree) > time()) {
-							possibles.push({ 
-								pseudo : pseudo, 
-								alliance : joueurs[pseudo].alliance, 
-								duree : duree, 
-								lancement : (retour - duree), 
-								TDC : joueurs[pseudo].joueur
-							});
-						}
+				var placement = coordonnees[pseudo];
+				joueurs[pseudo].x = placement.x;
+				joueurs[pseudo].y = placement.y;
+			}
+		}
+		var utilisateur = that.zone_modal.dataset.pseudo,
+			retour = ze_Date_to_timestamp_v1(document.querySelector('#heure_impact_synchro').value),
+			VA = parseInt(document.querySelector('#vitesse_attaque_synchro_2').value),
+			alliances = that.zone_modal.querySelector('#alliances_alliees_synchro').value.replace(/ /g, ''),
+			possibles = [],
+			TDC_1 = joueurs[utilisateur].TDC, TDC_2;
+		alliances = (alliances in ['', '*']) ? [] : alliances.split(',');
+		for(pseudo in joueurs) {
+			TDC_2 = joueurs[pseudo].TDC;
+			if(pseudo != utilisateur && TDC_2 < TDC_1 * 2 && TDC_2 > TDC_1 / 3) {
+				if(alliances.length === 0 || (joueurs[pseudo].alliance !== '' && joueurs[pseudo].alliance in alliances)) {
+					var distance = ze_Calcul_distance(joueurs[utilisateur].x, joueurs[utilisateur].y, joueurs[pseudo].x, joueurs[pseudo].y);
+					duree = ze_Calcul_temps_trajet(distance, VA);
+					if((retour - duree) > time()) {
+						possibles.push({ 
+							pseudo : pseudo, 
+							alliance : joueurs[pseudo].alliance, 
+							duree : duree, 
+							lancement : (retour - duree), 
+							TDC : joueurs[pseudo].joueur
+						});
 					}
 				}
 			}
-			possibles.sort(function (a, b) {
-			    if (a.duree > b.duree)
-			      return 1;
-			    if (a.duree < b.duree)
-			      return -1;
-			    return 0;
-			});
+		}
+		possibles.sort(function (a, b) {
+		    if (a.duree > b.duree)
+		      return 1;
+		    if (a.duree < b.duree)
+		      return -1;
+		    return 0;
+		});
 
-			document.querySelector('.zzzelp_synchro_etape_3').innerHTML = '';
+		document.querySelector('.zzzelp_synchro_etape_3').innerHTML = '';
 
-			if(possibles.length === 0) {
-				document.querySelector('.zzzelp_synchro_etape_3').innerHTML = '<center>Aucun allié ne peut arriver à temps</center>';
+		if(possibles.length === 0) {
+			document.querySelector('.zzzelp_synchro_etape_3').innerHTML = '<center>Aucun allié ne peut arriver à temps</center>';
+		}
+		else {
+			var tableau = document.createElement('table'),
+				entete = tableau.insertRow(0),
+				colonnes = new Array(
+								{ nom : 'Pseudo' },
+								{ nom : 'Alliance' },
+								{ nom : 'Trajet' },
+								{ nom : 'Lancement' }
+							);
+			tableau.id = 'zzzelp_tableau_synchro_2';
+			for(var i=0; i<colonnes.length; i++) {
+				var colonne = document.createElement('th');
+				colonne.innerHTML = colonnes[i].nom;
+				entete.appendChild(colonne);
 			}
-			else {
-				var tableau = document.createElement('table'),
-					entete = tableau.insertRow(0),
-					colonnes = new Array(
-									{ nom : 'Pseudo' },
-									{ nom : 'Alliance' },
-									{ nom : 'Trajet' },
-									{ nom : 'Lancement' }
-								);
-				tableau.id = 'zzzelp_tableau_synchro_2';
-				for(var i=0; i<colonnes.length; i++) {
-					var colonne = document.createElement('th');
-					colonne.innerHTML = colonnes[i].nom;
-					entete.appendChild(colonne);
-				}
-				for(i=0; i<possibles.length; i++) {
-					var ligne = tableau.insertRow(-1);
-					pseudo = ligne.insertCell(0);
-					var	alliance = ligne.insertCell(1);
-					duree = ligne.insertCell(2);
-					var	lancement = ligne.insertCell(3);
-					pseudo.innerHTML = possibles[i].pseudo;
-					alliance.innerHTML = possibles[i].alliance;
-					duree.innerHTML = ze_Secondes_date(possibles[i].duree);
-					lancement.innerHTML = ze_Generation_date_precise(possibles[i].lancement);
-				}
-				document.querySelector('.zzzelp_synchro_etape_3').appendChild(tableau);
+			for(i=0; i<possibles.length; i++) {
+				var ligne = tableau.insertRow(-1);
+				pseudo = ligne.insertCell(0);
+				var	alliance = ligne.insertCell(1);
+				duree = ligne.insertCell(2);
+				var	lancement = ligne.insertCell(3);
+				pseudo.innerHTML = possibles[i].pseudo;
+				alliance.innerHTML = possibles[i].alliance;
+				duree.innerHTML = ze_Secondes_date(possibles[i].duree);
+				lancement.innerHTML = ze_Generation_date_precise(possibles[i].lancement);
 			}
+			document.querySelector('.zzzelp_synchro_etape_3').appendChild(tableau);
 		}
 	};
+
+	this.getZone = function() {
+		return this.zone;
+	};
+
 
 	this.main();
 }
@@ -1432,10 +1573,10 @@ function ze_Ajout_raccourci_modal_profil() {
 }
 
 function MAJ_niveau_joueur(pseudo, nom, valeur, img) {
-	var url_ajax = 'guerre_script?mode=stockage_niveau&cible=' + pseudo + '&niveau=' + nom + '&valeur=' + valeur;
-	new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax },
+	var url_ajax = 'guerre_script?mode=stockage_niveau&cible=' + pseudo + '&niveau=' + nom + '&valeur=' + valeur + '&';
+	new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax },
 		{ success : function(valeurs) {
-			img.src = url_zzzelp + '/Images/valider.png';
+			img.src = ZzzelpScript.url + '/Images/valider.png';
 		}
 	});
 }
@@ -1457,12 +1598,16 @@ function FIGuerre(mode, variable) {
 	p += 'Le post [i]Statistiques du conflit[/i] recense un certain nombre de valeurs permettant de mieux évaluer l’avancement du conflit. ';
 	p += 'Ce post se met à jour en un clic grâce à Zzzelp.';
 	p += 'Pour que les données récoltées soient les plus précises possibles, essayez de bien rentrer les pseudos des combats sur les outils de guerre. ';
-	p += 'Si les combats ont été importés automatiquement, ceux-ci sont déjà rentrés.\n'
+	p += 'Si les combats ont été importés automatiquement, ceux-ci sont déjà rentrés.\n';
 	p += 'Là encore merci de ne pas éditer manuellement ce post.\n\n\n';
 	p += 'Bonne guerre,\n\ndelangle';
 
 	this.nom_cache = 'zzzelp_' + ze_serveur + '_creation_FI_guerre';
-	this.regexp_titre = '(.*) FDF : ([0-9GTM]+) (\\? |)/ OSD : ([0-9GTM]+) (\\? |)/ OSL : ([0-9GTM]+) (\\? |)/';
+	this.nom_cache_trie = 'zzzelp_' + ze_serveur + '_trie_FI_guerre';
+	this.regexp_titre = {
+		en_vie : '(.*) FDF : ([0-9GTM]+) (\\? |)/ OSD : ([0-9GTM]+) (\\? |)/ OSL : ([0-9GTM]+) (\\? |)/',
+		dead : '(.*) DEAD le (.*)'
+	};
 	this.special_posts = new Array(
 		{ 
 			id : 'statistiques_guerre',
@@ -1482,7 +1627,7 @@ function FIGuerre(mode, variable) {
 	);
 	this.copy_special_posts = JSON.parse(JSON.stringify(this.special_posts));
 	this.special_posts_en_cours = '';
-	this.parametres = Parametre_ZzzelpScript('FI_guerre');
+	this.parametres = ZzzelpScript.parameters('FI_guerre');
 	this.topic_actif = 0;
 	this.combats_cache = [];
 
@@ -1511,7 +1656,7 @@ function FIGuerre(mode, variable) {
 		form.append('valeurs', valeurs);
 
 		var url_ajax = 'guerre_script?mode=stockage_FI&';
-		new ZzzelpScriptAjax({ method : 'POST', domain : 'zzzelp', url : url_ajax, data : form }, {});
+		new ZzzelpAjax({ method : 'POST', domain : 'zzzelp', url : url_ajax, data : form }, {});
 	};
 
 	this.update_FIZzzelp = function(xdr, mode) {
@@ -1537,7 +1682,7 @@ function FIGuerre(mode, variable) {
 		form.append('pseudo', pseudo);
 		form.append('ID_forum', obj.ID_forum);
 		var url_ajax = 'guerre_script?mode=add_player_FI&';
-		new ZzzelpScriptAjax({ method : 'POST', domain : 'zzzelp', url : url_ajax },
+		new ZzzelpAjax({ method : 'POST', domain : 'zzzelp', url : url_ajax },
 			{ success : function(valeurs) {
 				ze_Inserer_message('Joueur ajouté avec succès', 3000);
 			}, authentication_issue : function(valeurs) {
@@ -1548,14 +1693,29 @@ function FIGuerre(mode, variable) {
 
 	this.generation_main_post = function(valeurs, creation) {
 		var txt = '\n[center][player]' + valeurs.niveaux.pseudo + '[/player][/center]\n\n',
-			titre = valeurs.niveaux.pseudo + ' ';
+			titre = valeurs.niveaux.pseudo + ' ', i;
 		txt += '[url=/Membre.php?Pseudo=' + valeurs.niveaux.pseudo + '&modal_zzzelp]Accéder à son profil Zzzelp (ZzzelpScript nécessaire)[/url]';
 		txt += '\n[i]Dernière MAJ : ' + ze_Generation_date_v1(time_fzzz()) + '[/i]\n\n';
 		txt += '[b]Statistiques :[/b]\n';
 		for(var stat in valeurs.resume_armee) {
 			var donnee = valeurs.resume_armee[stat];
-			txt += stat + ' : ' + ze_Nombre(donnee.valeur) + ((valeurs.niveaux[donnee.prerequis] === 0 && valeurs.niveaux_probables[donnee.prerequis] > 0) ? ' ?' : '') + '\n';
-			titre += stat + ' : ' + ze_Nombre_raccourci(donnee.valeur, 3) + ((valeurs.niveaux[donnee.prerequis] === 0 && valeurs.niveaux_probables[donnee.prerequis] > 0) ? ' ?' : '') + ' / ';
+			txt += stat + ' : ' + ze_Nombre(donnee.valeur);
+			titre += stat + ' : ' + ze_Nombre_raccourci(donnee.valeur, 3);
+			if(!ZzzelpScriptModalGuerre.areLevelsSure(valeurs.niveaux, valeurs.niveaux_probables, donnee.prerequis)) {
+				txt += ' ? (estimation : ';
+				for(i=0; i<donnee.prerequis.length; i++) {
+					if(!ZzzelpScriptModalGuerre.isLevelSure(valeurs.niveaux[donnee.prerequis[i]], valeurs.niveaux_probables[donnee.prerequis[i]])) {
+						txt += donnee.prerequis[i] + ' ' + valeurs.niveaux_probables[donnee.prerequis[i]] + ' ';
+					}
+				}
+				txt += ')';
+				titre += ' ?';
+			}
+			txt += '\n';
+			titre += ' / ';
+		}
+		if(valeurs.niveaux.dead == '1') {
+			titre = valeurs.niveaux.pseudo + ' DEAD le ' + ze_Generation_date_v1(valeurs.niveaux.date_dead);
 		}
 		txt += '\n\n[b]Niveaux :[/b]\n';
 		var niveaux = { tdp : 'Temps de ponte', armes : 'Armes', bouclier : 'Bouclier', dome : 'Dôme', loge : 'Loge', vitesse_attaque : 'Vitesse d\'attaque', vitesse_chasse : 'Vitesse de chasse'};
@@ -1566,17 +1726,18 @@ function FIGuerre(mode, variable) {
 			txt += '\n\nArmée inconnue';
 		}
 		else {
-			txt += '\n\n[b]Armée (' + ze_Generation_date_v1(valeurs.niveaux.date_armee) + ')[/b] :\n';
-			for(var i=0; i<14; i++) {
-				txt += ZzzelpScriptArmee.TAGs[i] + ' : ' + ze_Nombre(parseInt(valeurs.niveaux[ZzzelpScriptArmee.TAGs[i]])) + '\n';
+			var date = valeurs.niveaux.date_armee > 0 ? ze_Generation_date_v1(valeurs.niveaux.date_armee) : 'jamais';
+			txt += '\n\n[b]Armée (' + date + ')[/b] :\n';
+			for(i=0; i<14; i++) {
+				txt += ZzzelpArmy.TAGs[i] + ' : ' + ze_Nombre(parseInt(valeurs.niveaux[ZzzelpArmy.TAGs[i]])) + '\n';
 			}
 		}
-		txt += '\n\n[b]Guide d\'utilisation :[/b][i]\n1) Gardez au maximum ZzzelpScript activé afin de stocker automatiquement vos combats sur Zzzelp\n2) Ne rennommez JAMAIS un sujet[/i]\n';
+		txt += '\n\n[b]Guide d\'utilisation :[/b][i]\n1) Gardez au maximum ZzzelpScript activé afin de stocker automatiquement vos combats sur Zzzelp\n2) Ne renommez JAMAIS un sujet[/i]\n';
 		
 		var hash = SHA256(JSON.stringify([valeurs.niveaux, valeurs.armee])),
 			ex_hash;
 		if(!creation) {
-			ex_hash = document.querySelector('#forum font[color="#d7c384"]').innerHTML;
+			ex_hash = document.querySelector('#forum font[color="#d7c384"]') ? document.querySelector('#forum font[color="#d7c384"]').innerHTML : '';
 		}
 		if(!creation && hash == ex_hash) {
 			return undefined;
@@ -1623,7 +1784,7 @@ function FIGuerre(mode, variable) {
 
 	this.get_dataZzzelp = function(pseudo, mode, mode_action) {
 		var url_ajax = 'guerre_script?mode=joueur_light&cible=' + pseudo + '&';
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax },
 			{ success : function(valeurs) {
 				obj.data_guerre = valeurs;
 				obj.create_player_subject(valeurs, mode_action);
@@ -1642,7 +1803,7 @@ function FIGuerre(mode, variable) {
 		data.append('xajax', mode);
 		data.append('xajaxr', new Date().getTime()-10000000);
 		data.append('xajaxargs[]', '<xjxquery><q>' + variables_str + '</q></xjxquery>');
-		new ZzzelpScriptAjax({ method : 'POST', domain : 'fourmizzz', url : 'alliance.php?forum_menu', addDOM : false, data : data },
+		new ZzzelpAjax({ method : 'POST', domain : 'fourmizzz', url : 'alliance.php?forum_menu', addDOM : false, data : data },
 			{ success : function(valeurs, ajax) {
 				if(suite == 'creation') {
 					obj.creation_FI(ajax.xdr);
@@ -1652,6 +1813,7 @@ function FIGuerre(mode, variable) {
 				}
 				else if(suite == 'modification') {
 					xajax.processResponse(ajax.xdr.responseXML);
+					obj.customize_player_post(obj.pseudo_actif);
 				}			
 			}
 		});
@@ -1682,7 +1844,7 @@ function FIGuerre(mode, variable) {
 			}, 'creation');
 		}
 		else if(typeof obj.get_param('joueurs') == 'undefined') {
-			new ZzzelpScriptAjax(({ method : 'GET', domain : 'fourmizzz', url : 'classementAlliance.php?alliance=' + this.get_param('TAG'), addDOM : true }),
+			new ZzzelpAjax(({ method : 'GET', domain : 'fourmizzz', url : 'classementAlliance.php?alliance=' + this.get_param('TAG'), addDOM : true }),
 				{ success : function(zone_page) {
 					var liens = zone_page.querySelectorAll('#tabMembresAlliance a[href*="Membre.php"');
 					var joueurs = [];
@@ -1706,7 +1868,6 @@ function FIGuerre(mode, variable) {
 			var lignes = zone_page.querySelector('.tab_triable').rows,
 				sujets_joueurs = {},
 				posts_speciaux = {};
-			console.log(lignes);
 			
 			for(i=1; i<lignes.length-1; i+=2) {
 				var ID = lignes[i].querySelector('input[type="checkbox"]').value;
@@ -1807,6 +1968,7 @@ function FIGuerre(mode, variable) {
 				ex_ID = ID;
 				obj.topic_actif = ID;
 				if(typeof pseudo != 'undefined') {
+					obj.pseudo_actif = pseudo;
 					obj.get_dataZzzelp(pseudo, 1, 'modification');
 				}
 				else if(role_post == 'statistiques_guerre') {
@@ -1867,18 +2029,27 @@ function FIGuerre(mode, variable) {
 
 	this.analyse_titles = function() {
 		var lignes = document.querySelectorAll('.topic_forum'),
-			classements = [];
+			classements = [], valeurs;
 		for(var i=0; i<lignes.length;i++) {
 			lignes[i].parentNode.parentNode.dataset.ordre_fzzz = i;
-			if(lignes[i].innerHTML.match(obj.regexp_titre)) {
-				console.log(obj.regexp_titre);
-				var valeurs = new RegExp(obj.regexp_titre).exec(lignes[i].innerHTML);
+			if(lignes[i].innerHTML.match(obj.regexp_titre.en_vie)) {
+				valeurs = new RegExp(obj.regexp_titre.en_vie).exec(lignes[i].innerHTML);
 				classements.push({ 
 					ligne : lignes[i], 
 					FDF : (valeurs[2] == "0" ? 0 : ze_Nombre_complet(valeurs[2])),
 					OSD : (valeurs[4] == "0" ? 0 : ze_Nombre_complet(valeurs[4])),
 					OSL : (valeurs[6] == "0" ? 0 : ze_Nombre_complet(valeurs[6])),
-					alpha : valeurs[1]
+					alpha : valeurs[1],
+					dead : false
+				});
+ 			}
+			if(lignes[i].innerHTML.match(obj.regexp_titre.dead)) {
+				valeurs = new RegExp(obj.regexp_titre.dead).exec(lignes[i].innerHTML);
+				classements.push({ 
+					ligne : lignes[i], 
+					date_dead : ze_Date_to_timestamp_v1(valeurs[2]),
+					alpha : valeurs[1],
+					dead : true
 				});
  			}
 		}
@@ -1887,19 +2058,25 @@ function FIGuerre(mode, variable) {
 				OSD = 1,
 				OSL = 1,
 				alpha = 1;
+				date_dead = 1;
 			for(var j=0; j<classements.length; j++) {
 				if(i != j) {
-					if(classements[i].FDF < classements[j].FDF) {
-						FDF ++;
-					}
-					if(classements[i].OSD < classements[j].OSD) {
-						OSD ++;
-					}
-					if(classements[i].OSL < classements[j].OSL) {
-						OSL ++;
-					}
 					if(classements[i].alpha.toUpperCase() > classements[j].alpha.toUpperCase()) {
 						alpha ++;
+					}
+					if(!classements[j].dead && !classements[i].dead) {
+						if(classements[i].FDF < classements[j].FDF) {
+							FDF ++;
+						}
+						if(classements[i].OSD < classements[j].OSD) {
+							OSD ++;
+						}
+						if(classements[i].OSL < classements[j].OSL) {
+							OSL ++;
+						}
+					}
+					else if(classements[j].dead && classements[i].dead && classements[i].date_dead < classements[j].date_dead) {
+						date_dead ++;					
 					}
 				}
 			}
@@ -1907,6 +2084,8 @@ function FIGuerre(mode, variable) {
 			classements[i].ligne.parentNode.parentNode.dataset.OSD = OSD;
 			classements[i].ligne.parentNode.parentNode.dataset.OSL = OSL;
 			classements[i].ligne.parentNode.parentNode.dataset.alpha = alpha;
+			classements[i].ligne.parentNode.parentNode.dataset.date_dead = date_dead;
+			classements[i].ligne.parentNode.parentNode.dataset.dead = classements[i].dead ? 1 : 0;
 		}
 	};
 
@@ -1925,10 +2104,7 @@ function FIGuerre(mode, variable) {
 			tableau.insertBefore(lignes[i].ligne_1, tableau.rows[tableau.rows.length-1]);
 			tableau.insertBefore(lignes[i].ligne_2, tableau.rows[tableau.rows.length-1]);
 		}
-		for(i=1; i<tableau.rows.length-1; i+=2) {
-			tableau.rows[i].className = (i%4 == 1) ? '' : 'ligne_paire';
-			tableau.rows[i+1].className = (i%4 == 1) ? '' : 'ligne_paire';
-		}
+		obj.appy_color_lines();
 	};
 
 	this.quick_sort_FI = function(lignes, critere) {
@@ -1936,17 +2112,62 @@ function FIGuerre(mode, variable) {
 			return lignes;
 		}
 		var petit = [],
-			grand = [];
+			grand = [],
+			is_critere_armee = ~['FDF', 'OSD', 'OSL'].indexOf(critere),
+			ligne_A = lignes[0].ligne_1;
 		for(var k=1; k<lignes.length; k++) {
-			if(parseInt(lignes[k].ligne_1.dataset[critere]) < parseInt(lignes[0].ligne_1.dataset[critere])) {
+			var ligne_B = lignes[k].ligne_1;
+			if(!is_critere_armee || (ligne_B.dataset.dead === '0' && ligne_A.dataset.dead === '0')) {
+				if(parseInt(ligne_B.dataset[critere]) < parseInt(ligne_A.dataset[critere])) {
+					petit.push(lignes[k]);
+				}
+				else {
+					grand.push(lignes[k]);
+				}
+			}
+			else if(ligne_A.dataset.dead === '0' && ligne_B.dataset.dead == '1') {
+				grand.push(lignes[k]);
+			}
+			else if(ligne_B.dataset.dead === '0' && ligne_A.dataset.dead == '1') {
 				petit.push(lignes[k]);
 			}
 			else {
-				grand.push(lignes[k]);
+				if(parseInt(ligne_B.dataset.date_dead) < parseInt(ligne_A.dataset.date_dead)) {
+					petit.push(lignes[k]);
+				}
+				else {
+					grand.push(lignes[k]);
+				}
+
 			}
 		}
 		var res_1 = obj.quick_sort_FI(petit, critere).concat([lignes[0]], obj.quick_sort_FI(grand, critere));
 		return res_1;
+	};
+
+	this.show_matching_subjects = function(query) {
+		query = query.toUpperCase();
+		var sujets = document.querySelectorAll('.topic_forum');
+		for(var i=0; i<sujets.length; i++) {
+			var ligne = sujets[i].parentNode.parentNode;
+			if(~sujets[i].innerHTML.toUpperCase().indexOf(query)) {
+				ligne.style.display = '';
+				ligne.nextSibling.style.display = '';
+			}
+			else {
+				ligne.style.display = 'none';
+				ligne.nextSibling.style.display = 'none';
+			}
+		}
+		obj.appy_color_lines();
+	};
+
+	this.appy_color_lines = function() {
+		var tableau = document.querySelector('#forum table tbody');
+		for(i=1; i<tableau.rows.length-1; i+=2) {
+			tableau.rows[i].className = (i%4 == 1) ? '' : 'ligne_paire';
+			tableau.rows[i+1].className = (i%4 == 1) ? '' : 'ligne_paire';
+		}		
 	};
 
 
@@ -1962,10 +2183,10 @@ function FIGuerre(mode, variable) {
 			ligne_ajout.setAttribute('style', 'ligne-height:3em;');
 			input_ajout.type = 'text';
 			label_ajout.innerHTML = 'Ajouter un joueur : ';
-			img_ajout.src = url_zzzelp + 'Images/valider.png';
+			img_ajout.src = ZzzelpScript.url + 'Images/valider.png';
 			img_ajout.setAttribute('style', 'width: 25px;vertical-align: middle;margin-left: 5px;cursor:pointer;');
 			img_ajout.onclick = function onclick(event) {
-				new ZzzelpScriptAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + input_ajout.value, addDOM : true }),
+				new ZzzelpAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + input_ajout.value, addDOM : true }),
 					{ success : function(zone_page) {
 						if(zone_page.querySelectorAll('.boite_membre').length > 0) {
 							var pseudo = document.querySelector('center h2').innerHTML;
@@ -1983,16 +2204,25 @@ function FIGuerre(mode, variable) {
 			ligne_ajout.appendChild(img_ajout);
 			form.appendChild(ligne_ajout);
 
+			var search_bar = document.createElement('input');
+			search_bar.setAttribute('style', 'float:right;width:160px;margin-right:15px;');
+			search_bar.placeholder = 'Rechercher un sujet';
+			search_bar.onkeyup = function onkeyup(event) {
+				obj.show_matching_subjects(this.value);	
+			};
+			document.querySelector('#forum').insertBefore(search_bar, document.querySelector('#forum div[onclick*="xajax_NouveauSujet"]').nextSibling);
+
 			var select_trie = document.createElement('select'),
 				options = new Array(
-					{ nom : 'Trie : Dernier message', valeur : 'ordre_fzzz' },
-					{ nom : 'Trie : Ordre alphabétique', valeur : 'alpha'},
-					{ nom : 'Trie : Force de Frappe', valeur : 'FDF' },
-					{ nom : 'Trie : Vie en dôme', valeur : 'OSD' },
-					{ nom : 'Trie : Vie en loge', valeur : 'OSL' }
+					{ nom : 'Tri : Dernier message', valeur : 'ordre_fzzz' },
+					{ nom : 'Tri : Ordre alphabétique', valeur : 'alpha'},
+					{ nom : 'Tri : Force de Frappe', valeur : 'FDF' },
+					{ nom : 'Tri : Vie en dôme', valeur : 'OSD' },
+					{ nom : 'Tri : Vie en loge', valeur : 'OSL' }
 				);
 			select_trie.setAttribute('style', 'float:right;');
 			select_trie.onchange = function onchange(event) {
+				localStorage.setItem(obj.nom_cache_trie, this.value);
 				obj.sort_FI(this.value);
 			};
 			for(var i=0; i<options.length; i++) {
@@ -2002,6 +2232,11 @@ function FIGuerre(mode, variable) {
 				select_trie.appendChild(option);
 			}
 			document.querySelector('#forum').insertBefore(select_trie, document.querySelector('#forum div[onclick*="xajax_NouveauSujet"]').nextSibling);
+			var ex_trie = localStorage.getItem(obj.nom_cache_trie);
+			if(ex_trie !== null) {
+				obj.sort_FI(ex_trie);
+				select_trie.value = ex_trie;
+			}
 		}
 	};
 
@@ -2031,11 +2266,11 @@ function FIGuerre(mode, variable) {
 			return false;
 		};
 		bouton_aide_synchro.onclick = function onclick(event) {
-			new ZzzelpScriptAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + pseudo, addDOM : true }),
+			new ZzzelpAjax(({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + pseudo, addDOM : true }),
 				{ success : function(zone_page) {
 					var TDC = parseInt(zone_page.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, ''));
 					zone_contenu.innerHTML = '';
-					zone_contenu.appendChild(new ZzzelpScriptAideSynchro(gpseudo, pseudo, obj.data_guerre, TDC, true, true).zone);
+					zone_contenu.appendChild(new ZzzelpScriptAideSynchro(gpseudo, pseudo, obj.data_guerre, TDC, true, true).getZone());
 				}
 			});
 			return false;
@@ -2047,11 +2282,36 @@ function FIGuerre(mode, variable) {
 		document.querySelector('#forum').insertBefore(cell_entete, document.querySelector('#forum div[onclick*="xajax_repondre"]'));
 		document.querySelector('#forum').insertBefore(cell_contenu, document.querySelector('#forum div[onclick*="xajax_repondre"]'));
 		document.querySelector('#forum').insertBefore(document.createElement('hr'), document.querySelector('#forum div[onclick*="xajax_repondre"]'));
+
+		obj.add_button_edit_post(pseudo);
+	};
+
+	this.add_button_edit_post = function(pseudo) {
+		var img = document.querySelector('div[id*="editTopic"] img[src*="crayon"]');
+		img.parentNode.onclick = function() {
+			if(confirm('Etes-vous certains de vouloir editer manuellement ce sujet ?')) {
+				xajax_editTopic(obj.topic_actif);
+			}
+			return false;
+		};
+		var bouton_edit = document.createElement('a');
+		bouton_edit.setAttribute('style', 'display:block;width:190px;margin:20px auto;');
+		bouton_edit.className = 'bouton_guerre';
+		bouton_edit.innerHTML = 'Modifier les données';
+		bouton_edit.onclick = function onclick(event) {
+			var Scallback = function() {
+				obj.get_dataZzzelp(pseudo, 1, 'modification');
+			};
+			firstPost.innerHTML = '';
+			firstPost.appendChild(new ZzzelpScriptZoneData(obj.data_guerre, pseudo, true, Scallback).getZoneContenu());
+		};
+		var firstPost = document.querySelector('.messageForum  div');
+		firstPost.insertBefore(bouton_edit, firstPost.querySelector('a[href*="Membre.php"]').parentNode);
 	};
 
 	this.add_button_MAJ_statistiques = function() {
 		var img = document.querySelector('div[id*="editTopic"] img[src*="crayon"]');
-		img.src = url_zzzelp + 'Images/refresh.png';
+		img.src = ZzzelpScript.url + 'Images/refresh.png';
 		img.setAttribute('style', 'height:15px');
 		img.parentNode.onclick = function onclick(event) {
 			obj.update_Statistiques_guerre(1);
@@ -2061,7 +2321,7 @@ function FIGuerre(mode, variable) {
 
 	this.update_Statistiques_guerre = function(mode) {
 		var url_ajax = 'guerre_script?mode=statistiques_FI&ID_forum=' + obj.ID_forum + '&';
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', force : mode, url : url_ajax },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', force : mode, url : url_ajax },
 			{ success : function(valeurs) {
 				var sujet = document.querySelector('#forum h2').innerHTML;
 				variables = { 
@@ -2080,6 +2340,9 @@ function FIGuerre(mode, variable) {
 	};
 
 	obj.main(mode, variable);
+
 }
 
-FI_guerre = new FIGuerre();
+if(typeof ze_serveur != 'undefined') {
+	FI_guerre = new FIGuerre();
+}

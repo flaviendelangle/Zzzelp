@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -20,8 +20,15 @@
 			</div>
 		</div>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
-		<script src="/Javascript/base_zzzelp.js"></script>
-		<script src="/Javascript/AnalyseChasses.js"></script>
+		<script src="/ZzzelpScript/analysers/hunt.js"></script>
+		<script src="/ZzzelpScript/analysers/textoutput.js"></script>
+		<script>
+function ze_Analyse_chasses(valeur) {
+	var zone = document.querySelector('#resultats_chasses');
+	zone.innerHTML = '';
+	new ZzzelpScriptAnalyseurChasse(valeur).createZone(zone);
+}
+		</script>
 	</body>
 </html>
 

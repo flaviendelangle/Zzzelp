@@ -359,24 +359,25 @@ class Combat {
 	}
 
 	/*
-		Calcul la réplique d'un convois
+		Calcul la réplique d'un combat
 	*/
 	public function get_Replique($attaquant, $defenseur) {
 		$attaque = $attaquant->get_AttaqueAB();
 		$vie_AB = $defenseur->get_VieAB();
 		$vie_HB = $defenseur->get_VieHB();
-		if($attaque>max($vie_AB,$vie_HB*3)) {
-			return 0.1;
+		if($attaque > max($vie_AB,$vie_HB*3)) {
+			$replique = 0.1;
 		}
-		elseif($attaque>max($vie_AB,$vie_HB*2)) {
-			return 0.3;
+		elseif($attaque > max($vie_AB,$vie_HB*2)) {
+			$replique = 0.3;
 		}
-		elseif($attaque>max($vie_AB,$vie_HB*1.5)) {
-			return 0.5;
+		elseif($attaque > max($vie_AB,$vie_HB*1.5)) {
+			$replique = 0.5;
 		}
 		else {
-			return 1;
+			$replique = 1;
 		}
+		return $replique;
 	}
 
 

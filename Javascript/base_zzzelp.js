@@ -1,45 +1,31 @@
 /*
- * Auteur : delangle
- * Version 1.0 (09/2014)
- * Adresse : http://zzzelp.fr/Javascript/base_zzzelp.js
- * 
- * Le but de cette librairie est d'alléger Zzzelp, Zzzelpfloods, ZzzelpScript ainsi que dépendances en évitant les doublons de fonctions classiques
- * Elle est accessible à tous et utilisable sans restriction pour permettre aux développeurs débutant dans les outils Fourmizzz de se concentrer sur leurs outils
-*/
-
-/*
- * SECTIONS DE LA LIBRAIRIE :
- * - Variables generales
- * - Fonctions PHP
- * - Fonctions Fourmizzz
- * - Fonctions Zzzelp
- * - Fonctions diverses
- * - Gestion des dates 
- * - Gestion DOM
-*/
-
-
-/*
  * VARIABLES GENERALES
 */
 
 
+if(typeof ZzzelpScript === 'undefined') {
+	ZzzelpScript = {
+	};
+}
+
 var url =  decodeURIComponent(document.location.href),
 	ze_serveurs = new Array('s1', 's2', 's3', 's4', 'test'),
 	ze_serveurs_full = {
-							s1 : 'Serveur 1',
-							s2 : 'Serveur 2',
-							s3 : 'Serveur 3',
-							s4 : 'Serveur 4',
-							test : 'Serveur test'
-						};
+		s1 : 'Serveur 1',
+		s2 : 'Serveur 2',
+		s3 : 'Serveur 3',
+		s4 : 'Serveur 4',
+		test : 'Serveur test'
+	};
 
 if(~document.location.href.indexOf('fourmizzz.fr')) {
-	ze_serveur = in_array(new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4], ze_serveurs) ? new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4] : undefined,
+	ZzzelpScript.domain = 'fourmizzz';
+	ze_serveur = in_array(new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4], ze_serveurs) ? new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4] : undefined;
 	Connecte = document.querySelectorAll('#loginForm').length ? false : true;
 }
 else if(~document.location.href.indexOf('zzzelp.fr')) {
-	url_zzzelp = url_site;
+	ZzzelpScript.url = url_site;
+	ZzzelpScript.domain = 'zzzelp';
 }
 if(document.location.href.indexOf('fourmizzz.fr') < 0 || Connecte) {
 	if(~document.location.href.indexOf('fourmizzz.fr')) {
@@ -66,9 +52,66 @@ if(document.location.href.indexOf('fourmizzz.fr') < 0 || Connecte) {
 
 
 
+var ZzzelpUtils = {
 
+	array : {
 
+		sort : function(array1, key) {
+			var array2 = [],
+				array3 = [],
+				value;
+			for(var el in array1) {
+				value = array1[el];
+				value.key = el;
+				array2.push(value);
+			}
+			array2.sort(function(a, b) {
+				if(a[key] == b[key]) {
+					return 0;
+				}
+				return a[key] < b[key];
+			});
+			for(var i=0; i<array2.length; i++) {
+				array3[array2[i].key] = array2[i];
+				delete array2[i].key;
+			}
+			return array3;	
+		}
 
+	}
+
+};
+
+function ZzzelpDOM(type, attributes, childs) {
+	if(attributes === undefined) {
+		attributes = {};
+	}
+	if(childs === undefined) {
+		childs = [];
+	}
+	var element = document.createElement(type);
+	for(var key in attributes) {
+		if(key == 'innerHTML') {
+			element.innerHTML = attributes[key];
+		}
+		else if(key.substr(0,2) == 'on') {
+			element[key] = attributes[key];
+		}
+		else if(key == 'data') {
+			var data = attributes.data;
+			for(var keyBis in data) {
+				element.dataset[keyBis] = data[keyBis];
+			}
+		}
+		else {
+			element.setAttribute(key, attributes[key]);
+		}
+	}
+	for(var i=0; i<childs.length; i++) {
+		element.appendChild(childs[i]);
+	}
+	return element;
+}
 
  
 
@@ -99,7 +142,7 @@ function array_sum(tableau) {
 
 function time(ms) {
 	if(typeof ms == 'undefined') {
-		var ms = false;
+		ms = false;
 	}
 	return Math.round(+new Date()/(ms ? 1 : 1000));
 }
@@ -127,24 +170,6 @@ function addslashes(str) {
 }
 
 function html_entity_decode(string, quote_style) {
-	//  discuss at: http://phpjs.org/functions/html_entity_decode/
-	// original by: john (http://www.jd-tech.net)
-	//    input by: ger
-	//    input by: Ratheous
-	//    input by: Nick Kolosov (http://sammy.ru)
-	// improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-	// improved by: marc andreu
-	//  revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-	//  revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-	// bugfixed by: Onno Marsman
-	// bugfixed by: Brett Zamir (http://brett-zamir.me)
-	// bugfixed by: Fox
-	//  depends on: get_html_translation_table
-	//   example 1: html_entity_decode('Kevin &amp; van Zonneveld');
-	//   returns 1: 'Kevin & van Zonneveld'
-	//   example 2: html_entity_decode('&amp;lt;');
-	//   returns 2: '&lt;'
-
 	var hash_map = {},
 		symbol = '',
 		tmp_str = '',
@@ -172,26 +197,6 @@ function html_entity_decode(string, quote_style) {
 }
 
 function get_html_translation_table(table, quote_style) {
-	//  discuss at: http://phpjs.org/functions/get_html_translation_table/
-	// original by: Philip Peterson
-	//  revised by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-	// bugfixed by: noname
-	// bugfixed by: Alex
-	// bugfixed by: Marco
-	// bugfixed by: madipta
-	// bugfixed by: Brett Zamir (http://brett-zamir.me)
-	// bugfixed by: T.Wild
-	// improved by: KELAN
-	// improved by: Brett Zamir (http://brett-zamir.me)
-	//    input by: Frank Forte
-	//    input by: Ratheous
-	//        note: It has been decided that we're not going to add global
-	//        note: dependencies to php.js, meaning the constants are not
-	//        note: real constants, but strings instead. Integers are also supported if someone
-	//        note: chooses to create the constants themselves.
-	//   example 1: get_html_translation_table('HTML_SPECIALCHARS');
-	//   returns 1: {'"': '&quot;', '&': '&amp;', '<': '&lt;', '>': '&gt;'}
-
 	var entities = {},
 		hash_map = {},
 		decimal;
@@ -372,42 +377,6 @@ function getToken() {
 	return JSON.parse(xdr.responseText).token;
 }
 
-
-
-/*
- * Renvoi le tdp actuel du joueur
- * None -> int
-*/
-function ze_getTDP() {
-	return ze_Recuperation_niveau_memoire('construction', 3) + ze_Recuperation_niveau_memoire('construction', 4) + ze_Recuperation_niveau_memoire('laboratoire', 0);
-}
-
-/*
- * Renvoi la Force de Frappe de l'armée rencontrée en chasse
- * array -> int
-*/
-function ze_Calcul_degats_chasse(armee) {
-	var attaque = 0,
-		coeffs = [13,19,30,42,50,70,70,115,140,230,700,1200,1400,3000,10000,50000,1000000];
-	for(var i=0;i<17;i++) {
-		attaque += armee[i]*coeffs[i];
-	}
-	return attaque;
-}
-
-/* Renvoi la Vie de l'armée rencontrée en chasse
- * array -> int
-*/
-function ze_Calcul_vie_chasse(armee) {
-	var vie = 0,
-		coeffs = [50,90,100,105,140,200,700,220,450,1000,5000,900,4800,8400,13000,105000,6600000];
-	for(var i=0;i<17;i++) {
-		vie += armee[i]*coeffs[i];
-	}
-	return vie;
-}
-
-
 /*
  * Renvoi la distance (en unités de Fourmizzz) entre deux joueurs J1(X,Y) et J2(X_2,Y_2)
  * (int, int, int, int) -> int
@@ -460,75 +429,6 @@ function ze_Lien_alliance(TAG, serveur) {
 
 
 
-
-/*
-FONCTIONS ZZZELP
- * - ze_Recuperation_niveau_memoire
- * - ze_Recuperation_coordonnees
- * - ze_Inserer_message
- * - ze_Envoi_chat
- * - ze_Preparation_message
- * - Parametre_ZzzelpScript
- * - ze_Analyser_chaine
- * - Trie_rapide_sous_chaine
-*/
-
-/*
- * Récupère un niveau de constrution ou laboratoire en mémoire si ils y sont stockés par ZzzelpScript
- * (str, int) -> int
-*/
-function ze_Recuperation_niveau_memoire(mode, n) {
-	if(localStorage['zzzelp_niveaux_' + mode]) {
-		var niveau = localStorage['zzzelp_niveaux_' + mode].split(',')[n];
-	}
-	else {
-		var niveau = 0;
-	}
-	return ((niveau > 0) ? parseInt(niveau) : 0);
-}
-
-/* 
- * Récupère sur Zzzelp les coordonnées d'une liste de joueurs de l'alliances
- * (array, array) -> None
-*/
-function ze_Recuperation_coordonnees(joueurs, alliances) {
-	var coordonnees = localStorage['zzzelp_coordonnees_' + ze_serveur];
-	if(coordonnees) {
-		coordonnees = JSON.parse(coordonnees);
-	}
-	else {
-		coordonnees = {};
-		localStorage['zzzelp_coordonnees_' + ze_serveur] = JSON.stringify(coordonnees);
-	}
-	var xdr = ze_getXDomainRequest();
-	xdr.onload = function() {
-		console.log('Coordonnées récupérées');
-		console.log(xdr.responseText);
-		var new_coordonnees = JSON.parse(xdr.responseText);
-		for(var i=0;i<new_coordonnees.length;i++) {
-			new_coordonnees[i].pseudo = new_coordonnees[i].pseudo.replace('&deg;', '°');
-			coordonnees[new_coordonnees[i].pseudo] = new_coordonnees[i];
-		}
-		localStorage['zzzelp_coordonnees_' + ze_serveur] = JSON.stringify(coordonnees);
-		if(joueurs.length > 0) {
-			ze_Recuperation_coordonnees(joueurs, []);
-		}
-		else {
-			console.log('FIN');
-		}
-	}
-	if(joueurs.length > 100) {
-		joueurs_2 = joueurs.slice(0,100)
-		joueurs = joueurs.slice(100,joueurs.length);
-	}
-	else {
-		joueurs_2 = joueurs;
-		joueurs = new Array();
-	}
-	xdr.open("GET", url_zzzelp + '/coordonnees?serveur=' + ze_serveur + '&alliances=[' + alliances + ']&joueurs=[' + joueurs_2 + ']');
-	xdr.send();
-}
-
 /*
  * Insère un message informatif en haut de la page
  * str -> None
@@ -548,7 +448,7 @@ function ze_Inserer_message(message, duree) {
 	conteneur.appendChild(lien_zzzelp);
 	conteneur.appendChild(contenu);
 	contenu.onmouseover = function onmouseover() {ze_Supprimer_element(conteneur);return false;};
-	if(duree != 0) {
+	if(duree !== 0) {
 		setTimeout(function(){ze_Supprimer_element(conteneur);return false;}, duree);
 	}
 }
@@ -593,329 +493,6 @@ function ze_Preparation_message(message) {
 	return message;
 }
 
-/* 
- * Récupère un paramètre du script importé depuis Zzzelp
- * str -> array -> Object
-*/
-function Parametre_ZzzelpScript(section, optionnels) {
-	try {
-		var parametres = JSON.parse(localStorage['zzzelp_parametres_' + ze_serveur]);
-		if(section == 'parametres') {
-			if(parametres.parametres[optionnels[0]].parametres[optionnels[1]].hasOwnProperty('active')) {
-				return parametres.parametres[optionnels[0]].parametres[optionnels[1]].active == '1';
-			}
-			else {
-				return parametres.parametres[optionnels[0]].parametres[optionnels[1]].valeur;
-			}
-		}
-		else if(section == 'ghosts') {
-			return parametres.ghosts[optionnels[0]];
-		}
-		else if(section == '*') {
-			return parametres;
-		}
-		else if(in_array(section, ['sondes', 'antisonde', 'donnees_traceur', 'menu', 'menucplus', 'modules', 'smileys', 'membres', 'fichiers', 'traceur_perso', 'version', 'script_prive', 'droits', 'FI_guerre'])) {
-			return parametres[section];
-		}
-		else if(in_array(section, ['zzzelpfloods_test'])) {
-			if(typeof parametres['zzzelpfloods_test'] != 'undefined') {
-				return parametres['zzzelpfloods_prive'][optionnels[0]];
-			}
-			else {
-				return undefined;
-			}
-		}
-	}
-	catch(e) {
-		return undefined;
-	}
-}
-
-/*
- * Transfome une liste de pseudos / rangs en une chaîne organisé
- * Object -> Object
-*/
-function ze_Analyser_chaine(rangs) {
-	var analyses = new Array(
-						{ role : 'grenier', regexp : '(convoyeur|grenier|gr)(\\s|)(.*)', place : 3 },
-						{ role : 'passeur', regexp : '(passeur|inter|p|finisseur)(\s|)(.*)', place : 3 },
-						{ role : 'chasseur', regexp : '(chasseur)', place : 0 }
-							),
-		chaine = new Array();
-	for(var i=0; i<analyses.length; i++) {
-		for(var j=0; j<rangs[analyses[i].role].length; j++) {
-			var rang = rangs[analyses[i].role][j].rang.toLowerCase(),
-				pseudo = rangs[analyses[i].role][j].pseudo,
-				TDC = rangs[analyses[i].role][j].TDC;
-			if(rang.match(new RegExp(analyses[i].regexp))) {
-				var valeurs = new RegExp(analyses[i].regexp).exec(rang);
-				chaine.push({ 
-					pseudo : pseudo, 
-					TDC : TDC, 
-					role : analyses[i].role,
-					titre : valeurs[1],
-					place : ((analyses[i].place > 0) ? valeurs[analyses[i].place] : undefined), 
-					rang : rangs[analyses[i].role][j].rang 
-				});
-			}
-		}
-	}
-	for(var n=0; n<chaine.length; n++) {
-		if(chaine[n].place) {
-			if(chaine[n].role == 'chasseur') {
-				chaine[n].TDC = -1;
-				chaine[n].mode = 3;
-			}
-			if(chaine[n].place.match(new RegExp('([0-9\.]+)(t|g|m|k)'))) {
-				chaine[n].TDC = ze_Nombre_complet(chaine[n].place);
-				chaine[n].mode = 0; //Rang défini par un niveau de TDC
-			}
-			else if(chaine[n].place.match(new RegExp('([0-9]+)'))) {
-				chaine[n].emplacement = parseInt(new RegExp('([0-9]+)').exec(chaine[n].place)[1]);
-				chaine[n].mode = 1; //Rang défini par un numero
-			}
-			else if(chaine[n].place.match(new RegExp('([a-z]+)'))) {
-				chaine[n].emplacement = parseInt(new RegExp('([a-z]+)').exec(chaine[n].place)[1]);
-				chaine[n].mode = 2; //Rang défini par une lettre
-			}
-		}
-	}
-	//Séparation de la chaine en sous groupes
-	var organisation = new Array();
-	for(var n=0; n<chaine.length; n++) {
-		var trouve = false;
-		for(var i=0; i<organisation.length; i++) {
-			if(organisation[i].role == chaine[n].role && organisation[i].mode == chaine[n].mode && organisation[i].titre == chaine[n].titre) {
-				organisation[i].joueurs.push(chaine[n]);
-				trouve = true;
-			}
-		}
-		if(!trouve) {
-			organisation.push({ 
-				role : chaine[n].role, 
-				mode : chaine[n].mode,
-				titre : chaine[n].titre,
-				joueurs : new Array(chaine[n]) 
-			});
-		}
-	}
-	
-	//On détermine le sens de chaque groupe et on les range dans l'ordre
-	for(var n=0; n<organisation.length; n++) {
-		var card = organisation[n].joueurs.length,
-			moyenne = 0;
-		for(var i=0; i<card; i++) {
-			moyenne += organisation[n].joueurs[i].TDC / card;
-		}
-		organisation[n].TDC_moyen = parseInt(moyenne);
-		if(in_array(organisation[n].mode, [1,2])) {
-			if(card == 1) {
-				var asc = true;
-			}
-			else {
-				if(card < 4) {
-					var TDC_rang_bas = (organisation[n].joueurs[0].emplacement > organisation[n].joueurs[card-1].emplacement) ? organisation[n].joueurs[card-1].TDC : organisation[n].joueurs[0].TDC,
-						TDC_rang_haut = (organisation[n].joueurs[0].emplacement > organisation[n].joueurs[card-1].emplacement) ? organisation[n].joueurs[0].TDC : organisation[n].joueurs[card-1].TDC;	
-				}
-				else {
-					var hauts = new Array(),
-						bas = new Array();
-					for(var i=0; i<card; i++) {
-						if(hauts.length < 2) {
-							hauts.push(i);
-						}
-						else if(organisation[n].joueurs[i].emplacement > organisation[n].joueurs[hauts[0]].emplacement && organisation[n].joueurs[hauts[0]].emplacement < organisation[n].joueurs[hauts[1]].emplacement) {
-							hauts[0] = i;
-						}
-						else if(organisation[n].joueurs[i].emplacement > organisation[n].joueurs[hauts[1]].emplacement) {
-							hauts[1] = i;
-						}
-						if(bas.length < 2) {
-							bas.push(i);
-						}
-						else if(organisation[n].joueurs[i].emplacement < organisation[n].joueurs[bas[0]].emplacement && organisation[n].joueurs[bas[0]].emplacement > organisation[n].joueurs[bas[1]].emplacement) {
-							bas[0] = i;
-						}
-						else if(organisation[n].joueurs[i].emplacement < organisation[n].joueurs[bas[1]].emplacement) {
-							bas[1] = i;
-						}
-					}
-					var TDC_haut_rang = organisation[n].joueurs[hauts[0]].TDC + organisation[n].joueurs[hauts[1]].TDC,
-						TDC_bas_rang = organisation[n].joueurs[bas[0]].TDC + organisation[n].joueurs[bas[1]].TDC;
-				}
-				var asc = (TDC_haut_rang > TDC_bas_rang)
-			}
-		}
-		else {
-			var asc = true;
-		}
-		organisation[n].joueurs = Trie_rapide_sous_chaine(organisation[n].joueurs, asc, (in_array(organisation[n].mode, [1,2]) ? 'emplacement' : 'TDC'));
-	}
-	organisation.sort(function(a, b){
-		if (a.TDC_moyen < b.TDC_moyen) 
-			return 1;
-		if (a.TDC_moyen > b.TDC_moyen)
-			return -1;
-		return 0;
-		});
-	
-	//On reconstitue la chaine
-	var finale = [],
-		n = 1;
-	for(var i=0; i<organisation.length; i++) {
-		for(var j=0; j<organisation[i].joueurs.length; j++) {
-			finale[organisation[i].joueurs[j].pseudo] = { role : organisation[i].joueurs[j].role, rang : organisation[i].joueurs[j].rang, numero : n };
-			n+=1;
-		}
-	}
-	return finale;
-}
-
-/*
- * Trie une sous-chaine (les passeurs par exemple) par rang décroissant
- * Array -> bool -> str -> Array */
-function Trie_rapide_sous_chaine(joueurs, asc, variable) {
-	if(joueurs.length < 2) {
-		return joueurs;
-	}
-	var petit = new Array(),
-		grand = new Array();
-	for(var k=1; k<joueurs.length; k++) {
-		if((asc && joueurs[k][variable] > joueurs[0][variable]) || (!asc && joueurs[k][variable] < joueurs[0][variable])) {
-			petit.push(joueurs[k]);
-		}
-		else {
-			grand.push(joueurs[k]);
-		}
-	}
-	var res_1 = Trie_rapide_sous_chaine(petit, asc, variable).concat([joueurs[0]], Trie_rapide_sous_chaine(grand, asc, variable));
-	return res_1;
-}
-
-/* Affiche une fenêtre modale avec l'aide de Zzzelp */
-function ze_Lancement_aide_Zzzelp(defaut, mode) {
-	var par_defaut = (typeof defaut == 'undefined') ? '' : defaut;
-	xdr = ze_getXDomainRequest();
-	xdr.onload = function() {
-		if(typeof gpseudo != 'undefined') {
-			var valeurs = JSON.parse(xdr.responseText).resultats;
-			if(valeurs == 'Authentification ratée') {
-				ze_Lancement_aide_Zzzelp(defaut, 2);
-			}
-			else {
-				console.log(valeurs);
-				ze_Generation_aide(valeurs, par_defaut);				
-			}
-		}
-		else {
-			ze_Generation_aide(JSON.parse(xdr.responseText), par_defaut);
-		}
-	}
-	if(typeof gpseudo != 'undefined') {
-		lien = url_zzzelp + '/aide_script?serveur=' + ze_serveur + '&pseudo=' + gpseudo + '&token=' + ((mode == 2) ? getToken() : getTokenZzzelp());
-	}
-	else {
-		lien = url_zzzelp + '/aide_data';
-	}
-	console.log(lien);
-	xdr.open('GET', lien, true);
-	xdr.send(null);
-}
-
-function ze_Generation_aide(aide, par_defaut) {
-	var fond = document.createElement('div'),
-		fenetre = document.createElement('div'),
-		entete = document.createElement('header'),
-		titre_sommaire = document.createElement('span'),
-		contenu_sommaire = document.createElement('div'),
-		barre_boutons = document.createElement('div'),
-		bouton_quitter = document.createElement('img'),
-		bouton_sommaire = document.createElement('img');
-	titre_sommaire.innerHTML = 'Aide de ZzzelpScript';
-	titre_sommaire.className = 'zzzelp_titre_FAQ'
-	titre_sommaire.dataset.section = 0;
-	contenu_sommaire.dataset.section = 0;
-	contenu_sommaire.dataset.visible = 1;
-	contenu_sommaire.className = 'zzzelp_contenu_modal';
-	entete.appendChild(titre_sommaire);
-	fond.className = 'modal_zzzelp';
-
-	barre_boutons.className = 'zzzelp_modal_boutons';
-	bouton_quitter.src = url_zzzelp + '/Images/close.png';
-	bouton_quitter.onclick = function onclick(event) {ze_Supprimer_element(fond);}
-	bouton_sommaire.src = url_zzzelp + '/Images/home.png'
-	bouton_sommaire.onclick = function onclick(event) {ze_Changer_section_FAQ(0);}
-	barre_boutons.appendChild(bouton_quitter);
-	barre_boutons.appendChild( document.createTextNode( '\u00A0' ) );
-	barre_boutons.appendChild(bouton_sommaire);
-	fenetre.appendChild(barre_boutons);
-
-	fond.appendChild(fenetre);
-	fenetre.appendChild(entete);
-	fenetre.appendChild(contenu_sommaire);
-	document.body.appendChild(fond);
-
-	var i=0,
-		showed = 0;
-	for(var section in aide) {
-		console.log(section + '|' + par_defaut);
-		i++;
-		if(section == par_defaut) {
-			showed = i;
-		}
-		var titre_section = document.createElement('span'),
-			lien_section = document.createElement('div'),
-			contenu_section = document.createElement('div');
-		titre_section.innerHTML = aide[section].titre;
-		titre_section.className = 'zzzelp_titre_FAQ'
-		titre_section.dataset.section = i;
-		titre_section.setAttribute('style', 'display:none');
-		contenu_section.className = 'zzzelp_contenu_modal';
-		contenu_section.dataset.section = i;
-		contenu_section.dataset.visible = 0;
-		entete.appendChild(titre_section);
-		lien_section.className = 'zzzelp_lien_sommaire';
-		lien_section.dataset.section = i;
-		lien_section.innerHTML = aide[section].titre;
-		lien_section.onclick = function onclick(event) { ze_Changer_section_FAQ(this.dataset.section);}
-		contenu_sommaire.appendChild(lien_section);
-		fenetre.appendChild(contenu_section);
-			
-		for(var sous_section in aide[section].contenu) {
-			var entete_section = document.createElement('h3');
-			entete_section.innerHTML = sous_section;
-			contenu_section.appendChild(entete_section);
-			for(var question in aide[section].contenu[sous_section]) {
-				var lien_question = document.createElement('div'),
-					contenu_question = document.createElement('div');
-				lien_question.className = 'zzzelp_question_FAQ';
-				lien_question.innerHTML = question;
-				lien_question.onclick = function onclick(event) { ze_Afficher_question_FAQ(this);}
-				contenu_question.setAttribute('style', 'display:none');
-				contenu_question.className = 'zzzelp_reponse_FAQ';
-				contenu_question.innerHTML = '<p>' + aide[section].contenu[sous_section][question].contenu + '</p>';
-				contenu_section.appendChild(lien_question);
-				contenu_section.appendChild(contenu_question);
-			}
-		}
-	}
-	ze_Changer_section_FAQ(showed);
-}
-
-function ze_Changer_section_FAQ(i) {
-	var titres = document.querySelectorAll('.zzzelp_titre_FAQ'),
-		contenus = document.querySelectorAll('.zzzelp_contenu_modal');
-	for(n=0; n<titres.length; n++) {
-		titres[n].style.display = (titres[n].dataset.section == i) ? '' : 'none';
-		contenus[n].dataset.visible = (contenus[n].dataset.section == i) ? 1 : 0;
-	}
-}
-
-function ze_Afficher_question_FAQ(element) {
-	console.log(element.nextSibling.style.display);
-	element.nextSibling.style.display = (element.nextSibling.style.display == 'none') ? '' : 'none';
-}
-
 /* Récupère le token si celui-ci existe */
 function getTokenZzzelp() {
 	if(ze_readCookie('zzzelp_token_' + ze_serveur) === null) {
@@ -929,32 +506,33 @@ function getTokenZzzelp() {
 }
 
 function ze_AuthErrors() {
-	var erreurs = (typeof localStorage['zzzelp_erreurs_' + ze_serveur] == 'undefined') ? new Array() : JSON.parse(localStorage['zzzelp_erreurs_' + ze_serveur]);
+	var erreurs = (typeof localStorage['zzzelp_erreurs_' + ze_serveur] == 'undefined') ? [] : JSON.parse(localStorage['zzzelp_erreurs_' + ze_serveur]);
 	console.log(erreurs);
 }
 
 function autocompletion(element, parametres) {
 	element.setAttribute('autocomplete', 'off');
-	if(element.parentNode.nextSibling != null && element.parentNode.nextSibling.className == 'recherche_ajax') {
+	if(element.parentNode.nextSibling !== null && element.parentNode.nextSibling.className == 'recherche_ajax') {
 		ze_Supprimer_element(element.parentNode.nextSibling);
 	}
 	var zone_resultats = document.createElement('div');
 	zone_resultats.className = 'recherche_ajax';
 	zone_resultats.setAttribute('z-index', '-1');
-	if(element.parentNode.nextSibling != null) {
+	if(element.parentNode.nextSibling !== null) {
 		element.parentNode.parentNode.insertBefore(zone_resultats, element.parentNode.nextSibling);
 	}
 	else {
-		element.parentNode.parentNode.appendChild(zone_resultats)
+		element.parentNode.parentNode.appendChild(zone_resultats);
 	}
 
 	element.onkeyup = function onkeyup(event) {
+		var valeur, valeurs;
 		if(parametres.multiple) {
-			var valeurs = element.value.split(','),
-				valeur = valeurs[valeurs.length -1];
+			valeurs = element.value.split(',');
+			valeur = valeurs[valeurs.length -1];
 		}
 		else {
-			var valeur = element.value;
+			valeur = element.value;
 		}
 		if (valeur.length > 0) {
 			var xdr = ze_getXDomainRequest();
@@ -966,7 +544,6 @@ function autocompletion(element, parametres) {
 					ligne.className = 'ligne_autocomplete';
 					ligne.innerHTML = donnees[i];
 					ligne.onclick = function onclick(event) {
-						console.log(event);
 						var nouveau = event.target.innerHTML;
 						if(parametres.multiple) {
 							valeurs[valeurs.length -1] = nouveau;
@@ -978,25 +555,24 @@ function autocompletion(element, parametres) {
 						zone_resultats.innerHTML = '';
 						element.focus();
 						zone_resultats.style.zIndex = -1;
-					}
+					};
 					zone_resultats.appendChild(ligne);
 				}
-				if(donnees.length == 0) {
+				if(donnees.length === 0) {
 					zone_resultats.style.zIndex = -1;
 				}
 				else {
 					zone_resultats.style.zIndex = 999;
 				}				
-			}
-			console.log(url_zzzelp + '/autocomplete?mode=' + parametres.mode + '&serveur=' + parametres.serveur + '&valeur=' + valeur);
-			xdr.open("GET", url_zzzelp + '/autocomplete?mode=' + parametres.mode + '&serveur=' + parametres.serveur + '&valeur=' + valeur,true);
+			};
+			xdr.open("GET", ZzzelpScript.url + '/autocomplete?mode=' + parametres.mode + '&serveur=' + parametres.serveur + '&valeur=' + valeur,true);
 			xdr.send(null);
 		}
 		else {
 			zone_resultats.innerHTML = "";
 			zone_resultats.style.zIndex = -1;
 		}
-	}
+	};
 }
 
 
@@ -1037,10 +613,10 @@ function ze_Nombre(nbr) {
 		signe = (nbr >= 0) ? '' :  '-',
 		res = '';
 	for(var i=entier.length-1; i>=0; i--) {
-		res = (((entier.length - i - 1)%3 == 2 && i != 0) ? ' ' : '') + entier[i] + res;
+		res = (((entier.length - i - 1)%3 == 2 && i !== 0) ? ' ' : '') + entier[i] + res;
 	}
-	for(var i=0; i<decimales.length; i++) {
-		res += ((i == 0) ? '.' : '') + ((i%3 == 0 && i != 0) ? ' ' : '') + decimales[i];
+	for(i=0; i<decimales.length; i++) {
+		res += ((i === 0) ? '.' : '') + ((i%3 === 0 && i !== 0) ? ' ' : '') + decimales[i];
 		
 	}
 	return signe + res;
@@ -1062,16 +638,20 @@ function ze_Nombre_complet(n) {
  * int -> str
 */
 function ze_Nombre_raccourci(n, precision) {
+	if(n<0) {
+		return '-' + ze_Nombre_raccourci(-n, precision);
+	}
 	if(typeof precision == 'undefined') {
 		precision = String(n).length;
 	}
-	var divis = Math.pow(10, String(n).length - precision);
+	var divis = Math.pow(10, String(n).length - precision),
+		res;
 	n = parseInt(n/divis)*divis;
-	n = String(n)
+	n = String(n);
 	if(n >= 1000) {
 		var multiplicateurs = new Array('', 'k', 'M', 'G', 'T'),
-			lettre = multiplicateurs[parseInt((n.length-1)/3)]
-			res = n.substr(0, n.length - multiplicateurs.indexOf(lettre)*3) + lettre + n.substr(n.length - multiplicateurs.indexOf(lettre)*3, multiplicateurs.indexOf(lettre)*3);
+			lettre = multiplicateurs[parseInt((n.length-1)/3)];
+		res = n.substr(0, n.length - multiplicateurs.indexOf(lettre)*3) + lettre + n.substr(n.length - multiplicateurs.indexOf(lettre)*3, multiplicateurs.indexOf(lettre)*3);
 		for(var i=res.length-1; i>res.indexOf(lettre); i--) {
 			if(res[i] == '0') {
 				res = res.substr(0, res.length-1);
@@ -1082,7 +662,7 @@ function ze_Nombre_raccourci(n, precision) {
 		}
 	}
 	else {
-		var res = n;
+		res = n;
 	}
 	return res;
 }
@@ -1105,11 +685,11 @@ function ze_Ajout_espaces(element) {
  * str -> str
 */
 function ze_Analyser_URL(key, default_) {
-	if (default_==null) default_="";
+	if (default_=== null) default_="";
 	key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
 	var qs = regex.exec(decodeURIComponent(document.location.href));
-	if(qs == null) return default_; else return qs[1];
+	if(qs === null) return default_; else return qs[1];
 }
 
 /*
@@ -1117,11 +697,11 @@ function ze_Analyser_URL(key, default_) {
  * str -> str
 */
 function ze_Analyser_URL_2(url,key, default_) {
-			 if (default_==null) default_="";
+			 if (default_=== null) default_="";
 			 key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 			 var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
 			 var qs = regex.exec(url);
-			 if(qs == null) return default_; else return qs[1];
+			 if(qs === null) return default_; else return qs[1];
 }
 
 /*
@@ -1129,12 +709,13 @@ function ze_Analyser_URL_2(url,key, default_) {
  * (str, str, int) -> None
 */
 function ze_createCookie(name,value,days) {
+	var expires;
 	if (days) {
 		var date = new Date();
 		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
+		expires = "; expires="+date.toGMTString();
 	}
-	else var expires = "";
+	else expires = "";
 	document.cookie = name+"="+value+expires+"; domain=fourmizzz.fr; path=/";
 }
 
@@ -1148,7 +729,7 @@ function ze_readCookie(name) {
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
 	}
 	return null;
 }
@@ -1213,12 +794,12 @@ function ze_Base_36_10(n) {
  * int -> string
 */
 function ze_Base_10_36(n) {
-	if(n == 0) {
+	if(n === 0) {
 		return 0;
 	}
-	var nombre = new Array(),
-		res = new String;
-	while(n != 0) {
+	var nombre = [],
+		res = '';
+	while(n !== 0) {
 		if(n >= 36) {
 			nombre.push(n%36);
 			n = parseInt(n/36);
@@ -1238,8 +819,13 @@ function ze_Base_10_36(n) {
  * Met en forme le pourcentage d'un nombre avec le signe
  * int -> string
 */
-function ze_Affichage_pourcentage(valeur) {
-	return ((valeur > 1) ? ('+' + parseInt((valeur - 1)*100)) : parseInt((valeur - 1)*100));
+function ze_Affichage_pourcentage(valeur, precision) {
+	if(typeof precision == 'undefined') {
+		precision = 2;
+	}
+	var p = Math.pow(10, precision);
+	valeur =  parseInt((valeur - 1)*p)*100/p;
+	return (valeur > 1) ? ('+' + valeur) : valeur;
 }
 
 function ze_Calcul_ecart_horaires(decalage) {
@@ -1252,14 +838,13 @@ function ze_Calcul_ecart_horaires(decalage) {
 				if(headers[i].match(new RegExp('date:(.*), ([0-9]+) (.*) ([0-9]+) ([0-9]+):([0-9]+):([0-9]+) gmt'))) {
 					var valeurs = new RegExp('date:(.*), ([0-9]+) (.*) ([0-9]+) ([0-9]+):([0-9]+):([0-9]+) gmt').exec(headers[i]),
 						ecart = parseInt(valeurs[6])*60+parseInt(valeurs[7])-PC.getMinutes()*60 - PC.getSeconds();
-					console.log(ecart)
 					if(ecart > 1800) {
 						ecart = ecart - 3600;
 					}
-					localStorage['zzzelp_ecart_horloge'] = ecart*1000 + decalage*1000*60*60;
+					localStorage.setItem('zzzelp_ecart_horloge', ecart*1000 + decalage*1000*60*60);
 				}
 			}
-		}
+		};
 		xdr.open("GET", document.location);
 		xdr.send(null);
 	}, 1000 - (new Date()).getMilliseconds() + 300);
@@ -1278,13 +863,13 @@ function ze_getTimeZone() {
 		var select = zone_page.querySelector('select[name="timezone"]'),
 			decalage = parseInt(new RegExp('UTC([0-9+:]+)').exec(select.options[select.selectedIndex].innerHTML)[1].replace(':','.'));
 		ze_Calcul_ecart_horaires(decalage);
-	}
+	};
 	xdr.open("GET", 'http://' + ze_serveur + '.fourmizzz.fr/compte.php');
 	xdr.send();
 }
 
 function time_fzzz() {
-	return parseInt((time(true) + parseFloat(localStorage['zzzelp_ecart_horloge']))/1000) + new Date().getTimezoneOffset();
+	return parseInt((time(true) + parseFloat(localStorage.getItem('zzzelp_ecart_horloge')))/1000) + new Date().getTimezoneOffset()*60;
 }
 
 
@@ -1339,23 +924,23 @@ function ze_Date_to_timestamp_v2(date) {
 	var day = currentTime.getDate();
 	var hours = currentTime.getHours();
 	var minutes = currentTime.getMinutes();
-	
+	var val;
 	
 	date = date.trim();
 	
 	if(date.match(new RegExp('^(à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		hours = val[2];
 		minutes = val[3];
 	}
 	else if(date.match(new RegExp('^hier (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^hier (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^hier (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		day--;
 		hours = val[2];
 		minutes = val[3];
 	}
 	else if(date.match(new RegExp('^(dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi) (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		var m_day = jours.indexOf(val[1]);
 		if(m_day <= day_week) {
 			day = day - (day_week-m_day);
@@ -1367,7 +952,7 @@ function ze_Date_to_timestamp_v2(date) {
 		minutes = val[4];
 	}
 	else if(date.match(new RegExp('^(le |)([0-3][0-9]|[0-9]) (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(le |)([0-3][0-9]|[0-9]) (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(le |)([0-3][0-9]|[0-9]) (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		day = val[2];
 		m_month = mois.indexOf(val[3]);
 		if(m_month <= month) {
@@ -1382,7 +967,7 @@ function ze_Date_to_timestamp_v2(date) {
 		minutes = val[6];
 	}
 	else if(date.match(new RegExp('^(le |)([0-3][0-9]|[0-9])/([0-1][0-9])/([0-2][0-9]) (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(le |)([0-3][0-9]|[0-9])/([0-1][0-9])/([0-2][0-9]) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(le |)([0-3][0-9]|[0-9])/([0-1][0-9])/([0-2][0-9]) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		day = val[2];
 		month = parseInt(val[3])-1;
 		year = parseInt(val[4])+2000;
@@ -1406,7 +991,7 @@ function ze_Date_to_timestamp_v2(date) {
 function ze_Timestamp_input(date) {
 	var donnees = new RegExp('([ 0-9]{4})-([ 0-9]{2})-([ 0-9]{2})( ([ 0-9]{2}):([ 0-9]{2})|)').exec(date);
 	if(donnees[4].length > 0) {
-		return Math.round(new Date(parseInt(donnees[1]), parseInt(donnees[2])-1, parseInt(donnees[3]), parseInt(donnees[4]), parseInt(donnees[5]), 0) / 1000);
+		return Math.round(new Date(parseInt(donnees[1]), parseInt(donnees[2])-1, parseInt(donnees[3]), parseInt(donnees[5]), parseInt(donnees[6]), 0) / 1000);
 	}
 	else {
 		return Math.round(new Date(parseInt(donnees[1]), parseInt(donnees[2])-1, parseInt(donnees[3]), 0, 0, 0) / 1000);
@@ -1424,7 +1009,7 @@ function ze_Secondes_date(secondes, affichage_sec) {
 	if(secondes == 'jamais') {
 		return secondes;
 	}
-	var annees = (secondes - secondes % 31557600) / 31557600; ;
+	var annees = (secondes - secondes % 31557600) / 31557600;
 	secondes = secondes % 31557600;
 	var jours = (secondes - secondes % 86400) / 86400;
 	secondes = secondes % 86400;
@@ -1468,7 +1053,7 @@ function ze_Generation_date_precise(timestamp) {
 }
 
 function Generation_date_rome(jours) {
-	var date = new Date((time_fzzz()-86400*jours)*1000);
+	var date = new Date((time()-86400*jours)*1000);
 	return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes();
 }
 
@@ -1553,7 +1138,7 @@ function ze_BBcode_to_HTML(message, serveur) {
 	message = String(message);
 	message = message.replace(/\[player\](.*?)\[\/player\]/g, '<a href="http://' + serveur + '.fourmizzz.fr/Membre.php?Pseudo=$1">$1</a>');
 	message = message.replace(/\[ally\](.*?)\[\/ally\]/g, '<a href="http://' + serveur + '.fourmizzz.fr/classementAlliance.php?alliance=$1">$1</a>');
-	message = message.replace(/\{(.*?)\}/g, '<img src="http://' + serveur + '.fourmizzz.fr/images/smiley/$1.gif">')
+	message = message.replace(/\{(.*?)\}/g, '<img src="http://' + serveur + '.fourmizzz.fr/images/smiley/$1.gif">');
 	message = message.replace(/\n/g, '<br>');
 	message = message.replace(/\[img\](.*?)\[\/img\]/g, '<img src="$1">');
 	message = message.replace(/\[url=(.*?)\](.*?)\[\/url\]/g, '<a href="$1" target="_blank">$2</a>');
@@ -1632,7 +1217,7 @@ function SHA256(s){
 		m[l >> 5] |= 0x80 << (24 - l % 32);
 		m[((l + 64 >> 9) << 4) + 15] = l;
  
-		for ( var i = 0; i<m.length; i+=16 ) {
+		for (i = 0; i<m.length; i+=16 ) {
 			a = HASH[0];
 			b = HASH[1];
 			c = HASH[2];
@@ -1642,7 +1227,7 @@ function SHA256(s){
 			g = HASH[6];
 			h = HASH[7];
  
-			for ( var j = 0; j<64; j++) {
+			for (j = 0; j<64; j++) {
 				if (j < 16) W[j] = m[j + i];
 				else W[j] = safe_add(safe_add(safe_add(Gamma1256(W[j - 2]), W[j - 7]), Gamma0256(W[j - 15])), W[j - 16]);
  

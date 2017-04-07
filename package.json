@@ -1,0 +1,15 @@
+{
+  "name": "zzzelp_test",
+  "version": "3.0.0",
+  "description": "Outils pour Fourmizzz",
+  "main": "index.php",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "delangle",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.7"
+  }
+}

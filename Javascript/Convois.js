@@ -91,6 +91,6 @@ function Valider_demande() {
 		alert('Champ incorrect : Raison')
 	}
 	else {
-		document.location.href = url_zzzelp + 'convois/stockage_demande?serveur=' + ze_Analyser_URL('serveur') + '&alliance=' + ze_Analyser_URL('alliance') + '&ressource=' + ze_Analyser_URL('ressource') + '&valeur=' + valeur + '&date=' + date + '&raison=' + raison + '&raison2=' + raison_2;
+		document.location.href = ZzzelpScript.url + 'convois/stockage_demande?serveur=' + ze_Analyser_URL('serveur') + '&alliance=' + ze_Analyser_URL('alliance') + '&ressource=' + ze_Analyser_URL('ressource') + '&valeur=' + valeur + '&date=' + date + '&raison=' + raison + '&raison2=' + raison_2;
 	}
 }

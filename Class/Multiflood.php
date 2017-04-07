@@ -411,19 +411,18 @@ class MultiFlood {
 	*/
 	public function create_json() {
 		$tableau = array(
-					'serveur' => $this->utilisateur->serveur,
-					'pseudo' => $this->utilisateur->pseudo,
-					'nombre_unites' => $this->nombre_unites,
+					'server' => $this->utilisateur->serveur,
+					'username' => $this->utilisateur->pseudo,
+					'capacity' => $this->nombre_unites,
 					'alliances' => array(),
-					'pseudos' => $this->pseudos,
-					'joueurs' => array(),
-					'rangs' => $this->rangs->rangs,
+					'players' => array(),
+					'ranks' => $this->rangs->rangs,
 					'chasses' => $this->chasses,
-					'variations_bis' => $this->floods,
-					'vitesse_attaque' => $this->utilisateur->niveaux->vitesse_attaque,
+					'floods' => $this->floods,
+					'attack_speed' => $this->utilisateur->niveaux->vitesse_attaque,
 					'mode_MF' => ($this->utilisateur->get_ModeMF() ? 'guerre' : 'chasse'),
 					'sondes' => $this->utilisateur->schema_sonde,
-					'antisonde' => $this->utilisateur->schema_antisonde,
+					'antisondes' => $this->utilisateur->schema_antisonde,
 					'lancement_zzzelp' => $this->script->options['zzzelpfloods']['parametres']['zzzelpfloods_stockage']['active'],
 					'placer_antisonde' => $this->script->options['zzzelpfloods']['parametres']['zzzelpfloods_antisonde']['active']
 						);
@@ -432,16 +431,16 @@ class MultiFlood {
 		}
 
 		foreach($this->joueurs as $pseudo => $valeurs) {
-			$tableau['joueurs'][$pseudo] = array(
-									'TDC' => $valeurs->TDC,
-									'rang' => $valeurs->rang,
-									'alliance' => $valeurs->alliance,
-									'ID' => $valeurs->id,
-									'x' => $valeurs->coordonnees['x'],
-									'y' => $valeurs->coordonnees['y'],
-									'chef' => $valeurs->chef,
-									'donnees_guerre' => $valeurs->donnees_guerre
-							);
+			$tableau['players'][$pseudo] = array(
+				'TDC' 		=> $valeurs->TDC,
+				'rang' 		=> $valeurs->rang,
+				'alliance' 	=> $valeurs->alliance,
+				'ID' 		=> $valeurs->id,
+				'x' 		=> $valeurs->coordonnees['x'],
+				'y' 		=> $valeurs->coordonnees['y'],
+				'chef' 		=> $valeurs->chef,
+				'donnees_guerre' => $valeurs->donnees_guerre
+			);
 		}
 
 		return json_encode($tableau);

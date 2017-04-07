@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -113,7 +113,6 @@
 		<script src="/Javascript/popupwindow.js"></script>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
 		<script src="/Javascript/Pontes.js"></script>
-		<script src="/ZzzelpScript/Armee.js"></script>
 		<script>
 
 			$(document).ready(function () {

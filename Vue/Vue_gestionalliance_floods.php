@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -50,7 +50,7 @@
 						<div class="col-1-1">
 						   <div class="zone_contenu zone_largeur_courte">
 								<div class="entete_cadre">Gestionnaire de guerre</div>
-								<?php if(in_array($alliance->alliance, array('ZOO', 'CDF', 'FP'))) { ?>
+								<?php if(in_array($alliance->alliance, array('ZOO', 'CDF', 'FP', 'FCGB', 'FCGB2'))) { ?>
 								<div class="ligne_cadre_structure">
 									<span>Multiflood de guerre :</span>
 									<input type="checkbox" name="MF_guerre" <?php if($alliance->modeMF) { ?>checked<?php } ?>>

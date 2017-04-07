@@ -1,47 +1,275 @@
-function InitialiserTraceur() {
-	var options = new Array(
-					{ nom : 'Alliances', id : 'alliances', type : 'text', modes : new Array('correspondances', 'variations') },
-					{ nom : 'Joueurs', id : 'joueurs', type : 'text', modes : new Array('correspondances', 'variations') },
-					{ nom : 'Alliance', id : 'alliance', type : 'text', modes : new Array('alliances') },
-					{ nom : 'Joueur', id : 'joueur', type : 'text', modes : new Array('joueurs') },
-					{ nom : 'Valeur min', id : 'valeur_min', type : 'text', modes : new Array('correspondances', 'variations', 'joueurs', 'alliances') },
-					{ nom : 'Valeur max', id : 'valeur_max', type : 'text', modes : new Array('correspondances', 'variations', 'joueurs', 'alliances') },
-					{ nom : 'Alliances différentes', id : 'alliances_diff', type : 'checkbox', modes : new Array('correspondances', 'joueurs', 'alliances') },
-					{ nom : 'Variations non résolues', id : 'variations_inconnues', type : 'checkbox', modes : new Array('variations', 'joueurs', 'alliances') }					
-						);
-		ancres = document.querySelectorAll('.ancre');
-	for(var i=0; i<options.length; i++) {
-		var ligne = document.createElement('div'),
+function ZzzelpDataAnalyser(area, source) {
+
+	this.defaultMode = 'variations';
+
+	this.prepareVariables(source);
+	this.createArea(area);
+}
+
+
+ZzzelpDataAnalyser.options = new Array(
+	{ 
+		nom 	: 'Alliances', 
+		id 		: 'alliances', 
+		type 	: 'text', 
+		modes 	: ['correspondances', 'variations']
+	},
+	{ 
+		nom 	: 'Joueurs', 
+		id 		: 'joueurs', 
+		type 	: 'text', 
+		modes 	: ['correspondances', 'variations']
+	},
+	{ 
+		nom 	: 'Alliance(s)', 
+		id 		: 'alliance', 
+		type 	: 'text', 
+		modes 	: ['alliances'],
+		needed  : true
+	},
+	{ 
+		nom 	: 'Joueur(s)', 
+		id 		: 'joueur', 
+		type 	: 'text', 
+		modes 	: ['joueurs'],
+		needed  : true
+	},
+	{ 
+		nom 	: 'Valeur min', 
+		id 		: 'valeur_min', 
+		type 	: 'text', 
+		modes	: ['correspondances', 'variations', 'joueurs', 'alliances']
+	},
+	{ 
+		nom 	: 'Valeur max', 
+		id 		: 'valeur_max', 
+		type 	: 'text', 
+		modes 	: ['correspondances', 'variations', 'joueurs', 'alliances']
+	},
+	{ 
+		nom 	: 'Alliances différentes', 
+		id 		: 'alliances_diff', 
+		type 	: 'checkbox', 
+		modes 	: ['correspondances', 'joueurs', 'alliances']
+	},
+	{ 
+		nom 	: 'Variations non résolues', 
+		id 		: 'variations_inconnues', 
+		type 	: 'checkbox', 
+		modes 	: ['variations', 'joueurs', 'alliances']
+	}					
+);
+
+ZzzelpDataAnalyser.anchors = new Array(
+	{
+		nom		: 'Floods trouvés',
+		id 		: 'ancre_principale',
+		mode 	: 'correspondances'
+	},
+	{
+		nom 	: 'Variations',
+		id 		: 'ancre_imports_manuels',
+		mode 	: 'variations'
+	},
+	{
+		nom 	: 'Joueurs',
+		id 		: 'ancre_sondes',
+		mode 	: 'joueurs'
+	},
+	{
+		nom 	: 'Alliances',
+		id 		: 'ancre_zzzelpscript',
+		mode 	: 'alliances'
+	}
+);
+
+ZzzelpDataAnalyser.correspondancesRows = new Array(
+	{ nom : ''			, ID : 'details' 	},
+	{ nom : 'Attaquant'	, ID : 'attaquant' 	},
+	{ nom : 'TAG'		, ID : 'TAG_att' 	},
+	{ nom : 'Défenseur'	, ID : 'defenseur' 	},
+	{ nom : 'TAG'		, ID : 'TAG_def' 	},
+	{ nom : 'Date mini'	, ID : 'date_mini' 	},
+	{ nom : 'Date maxi'	, ID : 'date_maxi' 	},
+	{ nom : 'Valeur'	, ID : 'valeur' 	}
+);
+
+ZzzelpDataAnalyser.variationsRows = new Array(
+	{ 
+		nom : ''			, ID : 'resolu', 
+		zone : 'neutre'		, important : 1 
+	},
+	{ 
+		nom : ''			, ID : 'resolu', 
+		zone : 'neutre'		, important : 1 
+	},
+	{ 
+		nom : 'Pseudo'		, ID : 'attaquant', 
+		zone : 'neutre'		, important : 1 
+	},
+	{ 
+		nom : 'TAG'			, ID : 'TAG_att', 
+		zone : 'neutre'		, important : 0 
+	},
+	{ 
+		nom : 'Date mini'	, ID : 'date_mini', 
+		zone : 'neutre'		, important : 0 
+	},
+	{ 
+		nom : 'Date maxi'	, ID : 'date_maxi', 
+		zone : 'neutre'		, important : 1 
+	},
+	{ 
+		nom : 'TDC avant'	, ID : 'valeur', 
+		zone : 'neutre', 	important : 1 
+	},
+	{ 
+		nom : 'TDC après'	, ID : 'valeur', 
+		zone : 'neutre'		, important : 1 
+	},
+	{ 
+		nom : 'Ecart'		, ID : 'valeur', 
+		zone : 'neutre'		, important : 1 
+	},
+	{ 
+		nom : ''			, ID : 'details', 
+		zone : 'neutre'		, important : 2 
+	}
+);
+
+ZzzelpDataAnalyser.prototype.prepareVariables = function(source) {
+	if(source == 'fourmizzz') {
+		this.serveur = ze_serveur;
+		this.domain = 'zzzelp';
+	}
+	else {
+		this.serveur = ze_Analyser_URL('serveur');
+		this.domain = 'zzzelp_interne';
+	}
+};
+
+ZzzelpDataAnalyser.prototype.createArea = function(parent) {
+	var headerArea = document.createElement('div');
+	headerArea.appendChild(this.createAnchors());
+	headerArea.appendChild(this.createOptionsTable());
+	parent.appendChild(headerArea);
+
+	var parentContentArea = document.createElement('div'),
+		contentArea = document.createElement('div');
+	parentContentArea.className = 'grid grid-pad';
+	contentArea.className = 'col-1-1';
+	parent.appendChild(parentContentArea);
+	parentContentArea.appendChild(contentArea);
+	this.contentArea = contentArea;
+
+	this.putOptions();
+};
+
+ZzzelpDataAnalyser.prototype.createAnchors = function() {
+	var area = document.createElement('div');
+	area.className = 'grid grid-pad grid_separee';
+
+	for(var i=0; i<ZzzelpDataAnalyser.anchors.length; i++) {
+		var anchor = ZzzelpDataAnalyser.anchors[i],
+			element = document.createElement('div'),
+			child = document.createElement('div');
+		element.className = 'col-1-' + ZzzelpDataAnalyser.anchors.length;
+		child.innerHTML = anchor.nom;
+		child.className = 'ancre';
+		child.id = anchor.id;
+		child.dataset.mode = anchor.mode;
+		element.appendChild(child);
+		area.appendChild(element);
+		child.onclick = this.onAnchorClick.bind(this);
+	}
+	return area;
+};
+
+ZzzelpDataAnalyser.prototype.onAnchorClick = function(event) {
+	this.mode = event.currentTarget.dataset.mode;
+	this.update();
+};
+
+ZzzelpDataAnalyser.prototype.createOptionsTable = function() {
+	var area_1 = document.createElement('div'),
+		area_2 = document.createElement('div'),
+		area_3 = document.createElement('div');
+
+	area_1.className = 'grid grid-pad';
+	area_2.className = 'col-1-1';
+	area_3.className = 'zone_contenu zone_largeur_courte';
+
+	area_1.appendChild(area_2);
+	area_2.appendChild(area_3);
+
+	this.optionsTable = area_3;
+
+	return area_1;
+};
+
+ZzzelpDataAnalyser.prototype.putOptions = function() {
+	this.addDateFields();
+	this.addOptionFields();
+	this.addButton();
+	this.addAutocompletions();
+	this.addEvents();
+
+	var mode = ze_Analyser_URL('mode');
+	this.mode = ((mode !== undefined) ? mode : this.defaultMode);
+	document.querySelector('.ancre[data-mode="' + this.mode + '"]').click();
+};
+
+ZzzelpDataAnalyser.prototype.addDateFields = function() {
+	var dates = [];
+	for(var i=0; i<2; i++) {
+		var line = document.createElement('div'),
 			span = document.createElement('span'),
 			input = document.createElement('input');
-		ligne.className = 'ligne_cadre_structure';
-		ligne.id = 'ligne_' + options[i].id;
-		span.innerHTML = options[i].nom;
-		input.type = options[i].type;
-		input.id = options[i].id;
-		if(options[i].type == 'text') {
+		line.className = 'ligne_cadre_structure';
+		span.innerHTML = ((i===0) ? 'Début' : 'Fin') + ' :';
+		input.type = 'text';
+		input.className = 'input_haut';
+		input.autocomplete = 'off';
+		dates.push(input);
+		line.appendChild(span);
+		line.appendChild(input);
+		this.optionsTable.appendChild(line);
+		rome(input, { initialValue: this.getRomeDate(0.2-i*0.2) });
+	}
+	this.dates = dates;
+};
+
+ZzzelpDataAnalyser.prototype.getRomeDate = function(day) {
+	var date = new Date((time()-86400*day)*1000);
+	return date.getFullYear() + 
+				'-' + (date.getMonth() + 1) + 
+				'-' + date.getDate() + 
+				' ' + date.getHours() + 
+				':' + date.getMinutes();
+};
+
+ZzzelpDataAnalyser.prototype.addOptionFields = function() {
+	var options = [];
+	for(var i=0; i<ZzzelpDataAnalyser.options.length; i++) {
+		var option = ZzzelpDataAnalyser.options[i],
+			line = document.createElement('div'),
+			span = document.createElement('span'),
+			input = document.createElement('input');
+		line.className = 'ligne_cadre_structure';
+		line.id = 'ligne_' + option.id;
+		span.innerHTML = option.nom;
+		input.type = option.type;
+		input.id = option.id;
+		if(option.type == 'text') {
 			input.className = 'input_haut';
 		}
-		ligne.appendChild(span);
-		ligne.appendChild(input);
-		document.querySelector('#options_traceur').insertBefore(ligne, document.querySelector('#options_traceur .bouton').parentNode);
-	}
-	autocompletion(document.querySelector('#alliances'), { mode : 'alliance', serveur : ze_Analyser_URL('serveur'), multiple : true });
-	autocompletion(document.querySelector('#joueurs'), { mode : 'joueur', serveur : ze_Analyser_URL('serveur'), multiple : true });
-	autocompletion(document.querySelector('#alliance'), { mode : 'alliance', serveur : ze_Analyser_URL('serveur'), multiple : false });
-	autocompletion(document.querySelector('#joueur'), { mode : 'joueur', serveur : ze_Analyser_URL('serveur'), multiple : false });
-	document.querySelector('#valeur_min').onkeyup = function onkeyup(event) {ze_Ajout_espaces(this);}
-	document.querySelector('#valeur_max').onkeyup = function onkeyup(event) {ze_Ajout_espaces(this);}
-	rome(document.querySelector('#debut'), { initialValue: Generation_date_rome(1) });
-	rome(document.querySelector('#fin'), { initialValue: Generation_date_rome(0) });
-
-	for(var i=0; i<ancres.length; i++) {
-		ancres[i].onclick = function onkeyup(event) {Generation_traceur_Zzzelp(this.dataset.mode, options);}
-	}
-
-	for(var i=0; i<options.length; i++) {
+		line.appendChild(span);
+		line.appendChild(input);
+		this.optionsTable.appendChild(line);
+		options.push(line);
+		/*
 		var valeur = ze_Analyser_URL(options[i].id);
-		if(valeur != '') {
+		if(valeur !== undefined && valeur !== 'undefined') {
 			if(options[i].type == 'checkbox') {
 				document.querySelector('#' + options[i].id).checked = (valeur == '1');
 			}
@@ -49,99 +277,327 @@ function InitialiserTraceur() {
 				document.querySelector('#' + options[i].id).value = valeur;
 			}
 		}
+		*/
 	}
-	document.querySelector('.ancre[data-mode="' + ((ze_Analyser_URL('mode') != '') ? ze_Analyser_URL('mode') : 'correspondances') + '"]').click()
-	document.querySelector('.bouton').onclick = function onclick(event) {Generation_traceur_Zzzelp(document.querySelector('#options_traceur').dataset.mode, options)}
-}
+	this.options = options;
+};
 
-function Generation_date_rome(jours) {
-	var date = new Date((time()-86400*jours)*1000);
-	return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes();
-}
+ZzzelpDataAnalyser.prototype.addButton = function() {
+	var line = document.createElement('div'),
+		button = document.createElement('button');
+	line.className = 'ligne_cadre_structure';
+	button.className = 'bouton';
+	button.innerHTML = 'Actualiser';
+	button.onclick = this.update.bind(this);
+	line.appendChild(button);
+	this.optionsTable.appendChild(line);
+};
 
-function Creation_URL_traceur(mode) {
-	var lien = url_zzzelp + 'traceur?serveur=' + ze_Analyser_URL('serveur') + '&mode=' + mode,
-		options = document.querySelectorAll('#options_traceur .ligne_cadre_structure');
-	for(var i=0; i<options.length-1; i++) {
-		if(options[i].style.display != 'none') {
-			if(options[i].querySelectorAll('input[type="checkbox"]').length > 0 && options[i].querySelector('input').checked) {
-				lien += '&' + options[i].querySelector('input').id + '=1';
-			}
-			else if(options[i].querySelectorAll('input[type="text"]').length > 0 && options[i].querySelector('input').value != '') {
-				lien += '&' + options[i].querySelector('input').id + '=' + encodeURIComponent(options[i].querySelector('input').value);
-			}
-		}
-	}
-	window.history.pushState('', '', lien);
-}
+ZzzelpDataAnalyser.prototype.addAutocompletions = function() {
+	autocompletion(document.querySelector('#alliances'), {
+		mode : 'alliance',
+		serveur : ze_Analyser_URL('serveur'),
+		multiple : true
+	});
+	autocompletion(document.querySelector('#joueurs'), {
+		mode : 'joueur',
+		serveur : ze_Analyser_URL('serveur'),
+		multiple : true
+	});
+	autocompletion(document.querySelector('#alliance'), {
+		mode : 'alliance',
+		serveur : ze_Analyser_URL('serveur'),
+		multiple : true
+	});
+	autocompletion(document.querySelector('#joueur'), {
+		mode : 'joueur',
+		serveur : ze_Analyser_URL('serveur'), 
+		multiple : true
+	});
+};
 
-function Generation_traceur_Zzzelp(mode, options) {
-	Creation_URL_traceur(mode)
-	var debut = ze_Timestamp_input(document.querySelector('#debut').value),
-		fin = ze_Timestamp_input(document.querySelector('#fin').value);
-	document.querySelector('#options_traceur').dataset.mode = mode;
-	for(var j=0; j<options.length; j++) {
-		document.querySelector('#ligne_' + options[j].id).style.display = in_array(mode, options[j].modes) ? '' : 'none';
-		options[j].valeur = (options[j].type == 'checkbox') ? (document.querySelector('#' + options[j].id).checked ? '1' : '0') : document.querySelector('#' + options[j].id).value;	
-	}
-	Recuperation_donnees_traceur(mode, debut, fin, options, 'zzzelp');
-}
-
-function Recuperation_donnees_traceur(mode, debut, fin, options, source) {
-	var xdr = ze_getXDomainRequest(),
-		sous_URL = '',
-		modes = {
-					correspondances : { fonction : Creation_tableau_correspondances },
-					variations : { fonction : Creation_tableau_variations },
-					joueurs : { fonction : Creation_tableau_joueurs },
-					alliances : { fonction : Creation_tableau_alliances }
-				};
-	if(typeof options != 'undefined') {
-		for(var i=0; i<options.length; i++) {
-			sous_URL += '&' + options[i].id + '=' + options[i].valeur;
-		}
-		sous_URL += '&manuel=1';
-	}
-	xdr.onload = function() {
-		document.querySelector('#donnees_traceur').innerHTML = '';
-		modes[mode].fonction(JSON.parse(xdr.responseText), source);
+ZzzelpDataAnalyser.prototype.addEvents = function() {
+	document.querySelector('#valeur_min').onkeyup = function onkeyup(event) {
+		ze_Ajout_espaces(this);
 	};
-	var lien;
-	if(source == 'zzzelp') {
-		lien = url_zzzelp + '/traceur_data?mode=' + mode + '&debut=' + debut + '&fin=' + fin + '&serveur=' + ((ze_Analyser_URL('serveur') != '') ? ze_Analyser_URL('serveur') : ze_serveur) + sous_URL;
+	document.querySelector('#valeur_max').onkeyup = function onkeyup(event) {
+		ze_Ajout_espaces(this);
+	};
+};
+
+ZzzelpDataAnalyser.prototype.update = function() {
+	//Creation_URL_traceur(mode)
+	var debut = ze_Timestamp_input(this.dates[0].value),
+		fin = ze_Timestamp_input(this.dates[1].value);
+	for(var i=0; i<ZzzelpDataAnalyser.options.length; i++) {
+		var option = ZzzelpDataAnalyser.options[i];
+		this.options[i].style.display = in_array(this.mode, option.modes) ? '' : 'none';
+	}
+	this.retrieve(debut, fin);
+};
+
+ZzzelpDataAnalyser.prototype.retrieve = function(debut, fin) {
+	if(!this.isRetrievePossible()) {
+		this.contentArea.innerHTML = '';
+		return false;
+	}
+	var url;
+	if(this.domain == 'zzzelp_interne') {
+		url = 'traceur_data?manuel=1';
+		for(var i=0; i<ZzzelpDataAnalyser.options.length; i++) {
+			var option = ZzzelpDataAnalyser.options[i],
+				value,
+				input = this.options[i].querySelector('input');
+			if(input.type == 'checkbox') {
+				value = input.checked ? '1' : '0';
+			}
+			else {
+				value = input.value;
+			}
+			url += '&' + option.id + '=' + value;
+		}
 	}
 	else {
-		lien = url_zzzelp + '/traceur_script?mode=' + mode +'&debut=' + debut + '&fin=' + fin + '&serveur=' + ((ze_Analyser_URL('serveur') != '') ? ze_Analyser_URL('serveur') : ze_serveur) + sous_URL + '&pseudo=' + gpseudo + '&token=' + getTokenZzzelp();
+		url = 'traceur_script?manuel=0';
 	}
-	console.log(lien);
-	xdr.open('GET', lien, true);
-	xdr.send();
-}
+	url += '&serveur=' + this.serveur;
+	url += '&mode=' + this.mode + '&debut=' + debut + '&fin=' + fin;
+	new ZzzelpAjax({ method : 'GET', domain : this.domain, url : url }, 
+		{ success : function(response) {
+			this.contentArea.innerHTML = '';
+			this[this.mode](response);
+		}.bind(this)
+	});
+};
 
-function Creation_tableau_joueurs(valeurs, source) {
-	if(source == 'zzzelp' && typeof valeurs.releves != 'undefined') {
-		Creation_graphique_TDC(valeurs.releves, valeurs.pseudo)
+ZzzelpDataAnalyser.prototype.isRetrievePossible = function() {
+	for(var i=0; i<ZzzelpDataAnalyser.options.length; i++) {
+		var option = ZzzelpDataAnalyser.options[i];
+		if(option.needed && in_array(this.mode, option.modes)) {
+			if(this.options[i].querySelector('input').value === '') {
+				return false;
+			}
+		}
 	}
-	Creation_tableau_correspondances(valeurs.correspondances, source);
-	Creation_tableau_variations(valeurs.variations, source);
-	if(source == 'zzzelp' && typeof valeurs.habitudes != 'undefined') {
-		Creation_tableau_habitudes_joueur(valeurs.habitudes, valeurs.pseudo);
-	}
-}
+	return true;
+};
 
-function Creation_tableau_alliances(valeurs, source) {
-	if(source == 'zzzelp' && typeof valeurs.releves != 'undefined') {
-		Creation_graphique_TDC(valeurs.releves, valeurs.alliance)
+ZzzelpDataAnalyser.prototype.createDataTable = function(rows) {
+	var	area = document.createElement('div'),
+		table = document.createElement('table'),
+		line = table.insertRow(0);
+	table.className = 'tableau_ombre simulateur';
+	table.id = 'tableau_traceur';
+	for(var i=0; i<rows.length; i++) {
+		var cell = document.createElement('th');
+		cell.innerHTML = rows[i].nom;
+		cell.id = 'colonne_' + rows[i].ID;
+		line.appendChild(cell);
 	}
-	Creation_tableau_correspondances(valeurs.correspondances);
-	Creation_tableau_variations(valeurs.variations, valeurs.alliance);
-}
+	area.setAttribute('style', 'margin-bottom:40px');
+	area.appendChild(table);
+	this.contentArea.appendChild(area);
+	return table;
+};
 
-function Creation_graphique_TDC(releves, identite) {
-	var zone = document.createElement('div');
-	zone.id = 'graph_TDC';
-	zone.setAttribute('style', 'margin-bottom:20px');
-	document.querySelector('#donnees_traceur').appendChild(zone);
+ZzzelpDataAnalyser.prototype.createVisibilityButton = function(mode, table) {
+	var line = table.insertRow(-1),
+		cell = line.insertCell(0);
+	cell.setAttribute('colspan', '8');
+	cell.innerHTML = 'Afficher les ' + mode;
+	cell.setAttribute('style', 'font-weight:bold;cursor:pointer');
+	cell.onclick = function onclick(event) {
+		var show = (this.innerHTML == 'Afficher les ' + mode),
+			lines = this.parentNode.parentNode.rows;
+		this.innerHTML = (show ? 'Cacher' : 'Afficher') + ' les ' + mode;
+		for(var k=2; k<lines.length; k++) {
+			lines[k].style.display = (show ? '' : 'none');
+		}
+	};
+};
+
+ZzzelpDataAnalyser.prototype.correspondances = function(data) {
+	var table = this.createDataTable(ZzzelpDataAnalyser.correspondancesRows);
+	var hidden = (
+			this.domain == 'zzzelp_interne' && 
+			this.mode != 'correspondances' && 
+			data.length > 20
+	);
+	if(hidden) {
+		this.createVisibilityButton('correspondances', table);
+	}
+	for(var i=0; i<data.length; i++) {
+		this.createLineCorrespondances(table, data[i], hidden);
+	}
+};
+
+ZzzelpDataAnalyser.prototype.createLineCorrespondances = function(table, content, hidden) {
+	var line = table.insertRow(-1),
+		plus = line.insertCell(0),
+		pseudo_att = line.insertCell(1),
+		TAG_att = line.insertCell(2),
+		pseudo_def = line.insertCell(3),
+		TAG_def = line.insertCell(4),
+		date_mini = line.insertCell(5),
+		date_maxi = line.insertCell(6),
+		valeur = line.insertCell(7),
+		img = document.createElement('img');
+	line.style.display = hidden ? 'none' : '';
+	line.dataset.ID = content.ID;
+	if(false) { // Ligne d'un membre de mon alliance
+		ligne.dataset.alliance = '1';
+	}
+	if(this.domain == 'zzzelp_interne') {
+		img.src = ZzzelpScript.url + 'Images/plus.png';
+		img.dataset.detail = '0';
+		img.width = '20';
+		img.setAttribute('style', 'vertical-align: text-bottom;cursor:pointer');
+		img.onclick = this.onClickCorrespondance.bind(this);
+		plus.appendChild(img);
+	}
+	pseudo_att.innerHTML = ze_Lien_profil(content.attaquant, this.serveur);
+	TAG_att.innerHTML = ze_Lien_alliance(content.alliance_att, this.serveur);
+	pseudo_def.innerHTML = ze_Lien_profil(content.cible, this.serveur);
+	TAG_def.innerHTML = ze_Lien_alliance(content.alliance_def, this.serveur);
+	date_mini.innerHTML = ze_Generation_date_v1(content.date_mini);
+	date_maxi.innerHTML = ze_Generation_date_v1(content.date_maxi);
+	valeur.innerHTML = ze_Nombre(parseInt(content.valeur));
+};
+
+ZzzelpDataAnalyser.prototype.onClickCorrespondance = function(event) {
+	var element;
+	if(event.currentTarget.dataset.detail == '0') {
+		event.currentTarget.dataset.detail = '1';
+		element = event.currentTarget.parentNode.parentNode;
+		this.getDetailsCorrespondance(element);
+	}
+	else {
+		element = event.currentTarget.parentNode.parentNode.nextSibling;
+		ze_Supprimer_element(element);
+		event.currentTarget.dataset.detail = '0';
+	}
+};
+
+ZzzelpDataAnalyser.prototype.getDetailsCorrespondance = function(element) {
+	var url = 'traceur_data?mode=detail_correspondances';
+	url += '&serveur=' + this.serveur + '&ID=' + element.dataset.ID;
+	new ZzzelpAjax({ method : 'GET', domain : this.domain, url : url }, 
+		{ success : function(data) {
+			var line = element.parentNode.insertRow(element.rowIndex + 1),
+				cell_1 = line.insertCell(0),
+				cell_2 = line.insertCell(1);
+			cell_1.className = 'taille_normale detail_traceur_cell';
+			cell_2.className = 'taille_normale detail_traceur_cell';
+			cell_1.setAttribute('colspan', '4');
+			cell_2.setAttribute('colspan', '4');
+			cell_1.appendChild(this.createDetailsCorrespondance(data));
+			cell_2.appendChild(this.createAnalyseCorrespondance(data));
+		}.bind(this)
+	});
+};
+
+ZzzelpDataAnalyser.prototype.createDetailsCorrespondance = function(data) {
+	var table = document.createElement('table'),
+		header = table.insertRow(0),
+		rows = 	['', 'Avant', 'Après'],
+		line = table.insertRow(0);
+	table.className = 'detail_traceur';
+	for(var i=0; i<rows.length; i++) {
+		var cell = document.createElement('th');
+		cell.innerHTML = rows[i];
+		line.appendChild(cell);
+	}
+	for(i=0; i<2; i++) {
+		line = table.insertRow(-1);
+		var index = (i===0) ? 'att' : 'def',
+			label = line.insertCell(0),
+			before = line.insertCell(1),
+			after = line.insertCell(2);
+		label.innerHTML = ((i===0) ? 'Attaquant' : 'Défenseur') + ' :';
+		before.innerHTML = ze_Nombre(parseInt(data['TDC_avant_' + index]));
+		after.innerHTML = ze_Nombre(parseInt(data['TDC_apres_' + index]));
+	}
+	return table;
+};
+
+ZzzelpDataAnalyser.prototype.createAnalyseCorrespondance = function(data) {
+	var table = document.createElement('table'),
+		header = table.insertRow(0),
+		line = table.insertRow(0),
+		avant = data.TDC_avant_def,
+		apres = data.TDC_apres_def,
+		lines = new Array(
+		{ 
+			name : 'Part prise', 
+			valeur : parseInt(((avant-apres)/avant)*1000)/10 + '%'
+		}
+	);
+	table.className = 'detail_traceur';
+	for(var i=0; i<lines.length; i++) {
+		line = table.insertRow(-1);
+		var	cell1 = line.insertCell(0),
+			cell2 = line.insertCell(1);
+		cell1.innerHTML = lines[i].name + ' :';
+		cell2.innerHTML = lines[i].valeur;
+	}
+	return table;
+};
+
+ZzzelpDataAnalyser.prototype.variations = function(data) {
+	var table = this.createDataTable(ZzzelpDataAnalyser.variationsRows);
+	var hidden = (
+			this.domain == 'zzzelp_interne' && 
+			this.mode != 'variations' && 
+			data.length > 20
+	);
+	if(hidden) {
+		this.createVisibilityButton('variations', table);
+	}	
+	for(var i=0; i<data.length; i++) {
+		new ZzzelpTraceurVariation(
+			data[i],
+			table, 
+			hidden, 
+			this.serveur, 
+			this.domain
+		);
+	}
+};
+
+ZzzelpDataAnalyser.prototype.joueurs = function(data) {
+	if(this.domain == 'zzzelp_interne' && typeof data.releves != 'undefined') {
+		this.createTDCTable(data.releves, data.pseudo);
+	}
+	this.correspondances(data.correspondances);
+	this.variations(data.variations);
+	if(this.domain == 'zzzelp_interne' && typeof data.habitudes != 'undefined') {
+		this.createHabitTable(data.habitudes, data.pseudo);
+	}
+};
+
+ZzzelpDataAnalyser.prototype.alliances = function(data) {
+	if(this.domain == 'zzzelp_interne' && typeof data.releves != 'undefined') {
+		this.createTDCTable(data.releves, data.alliance);
+	}
+	this.correspondances(data.correspondances);
+	this.variations(data.variations);
+};
+
+ZzzelpDataAnalyser.prototype.createGraphArea = function(mode) {
+	var area_1 = document.createElement('div'),
+		area_2 = document.createElement('div'),
+		area_3 = document.createElement('div');
+	area_1.setAttribute('style', 'margin-bottom:40px');
+	area_2.className = 'zone_contenu zone_invisible';
+	area_2.id = 'graph_' + mode;
+	area_1.appendChild(area_2);
+	area_2.appendChild(area_3);
+	this.contentArea.appendChild(area_1);
+};
+
+ZzzelpDataAnalyser.prototype.createTDCTable = function(data, identite) {
+	this.createGraphArea('TDC');
+	console.log(data);
 	$(function () {
 		$('#graph_TDC').highcharts({
 			chart: {
@@ -164,11 +620,14 @@ function Creation_graphique_TDC(releves, identite) {
 				title: {
 					text: 'Terrain de Chasse'
 				},
-				min: 0
+				min: data.min,
+				max: data.max
 			},
 			tooltip: {
 				headerFormat: '<b>{series.name}</b><br>',
-				formatter: function() {return ze_Generation_date_v1(this.x/1000) + ' : ' + ze_Nombre(this.y); }
+				formatter: function() {
+					return ze_Generation_date_v1(this.x/1000) + ' : ' + ze_Nombre(this.y);
+				}
 			},
 
 			plotOptions: {
@@ -181,216 +640,13 @@ function Creation_graphique_TDC(releves, identite) {
 				    }
 				}
 			},
-			series: [{
-				name : 'TDC ' + identite,
-				data : releves,
-				step: true
-			}]
+			series: data.content
 		});
 	});
-}
+};
 
-function Creation_tableau_correspondances(valeurs, source) {
-	var serveur = (ze_Analyser_URL('serveur') != '') ? ze_Analyser_URL('serveur') : ze_serveur,
-		colonnes = new Array(
-						{ nom : '', ID : 'details' },
-						{ nom : 'Attaquant', ID : 'attaquant' },
-						{ nom : 'TAG', ID : 'TAG_att' },
-						{ nom : 'Défenseur', ID : 'defenseur' },
-						{ nom : 'TAG', ID : 'TAG_def' },
-						{ nom : 'Date mini', ID : 'date_mini' },
-						{ nom : 'Date maxi', ID : 'date_maxi' },
-						{ nom : 'Valeur', ID : 'valeur' }
-							),
-		cache = (source == 'zzzelp' && document.querySelector('#options_traceur').dataset.mode != 'correspondances' && valeurs.length > 20),
-		tableau = document.createElement('table'),
-		ligne = tableau.insertRow(0);
-	tableau.className = 'tableau_ombre simulateur';
-	tableau.id = 'tableau_traceur';
-	for(var i=0; i<colonnes.length; i++) {
-		var cell = document.createElement('th');
-		cell.innerHTML = colonnes[i].nom;
-		cell.id = 'colonne_' + colonnes[i].ID;
-		ligne.appendChild(cell);
-	}
-
-	if(cache) {
-		var ligne = tableau.insertRow(-1),
-			cell = ligne.insertCell(0);
-		cell.setAttribute('colspan', '8');
-		cell.innerHTML = 'Afficher les correspondances';
-		cell.setAttribute('style', 'font-weight:bold;cursor:pointer');
-		cell.onclick = function onclick(event) {
-			var afficher = (this.innerHTML == 'Afficher les correspondances'),
-				lignes = this.parentNode.parentNode.rows;
-			this.innerHTML = afficher ? 'Cacher les correspondances' : 'Afficher les correspondances';
-			for(var k=2; k<lignes.length; k++) {
-				lignes[k].style.display = (afficher ? '' : 'none');
-			}
-		}
-	}
-	document.querySelector('#donnees_traceur').appendChild(tableau);
-	document.querySelector('#donnees_traceur').appendChild(document.createElement('br'));
-	document.querySelector('#donnees_traceur').appendChild(document.createElement('br'));
-	
-	for(var i=0; i<valeurs.length; i++) {
-		var ligne = tableau.insertRow(-1),
-			plus = ligne.insertCell(0),
-			pseudo_att = ligne.insertCell(1),
-			TAG_att = ligne.insertCell(2),
-			pseudo_def = ligne.insertCell(3),
-			TAG_def = ligne.insertCell(4),
-			date_mini = ligne.insertCell(5),
-			date_maxi = ligne.insertCell(6),
-			valeur = ligne.insertCell(7),
-			img = document.createElement('img');
-		ligne.style.display = cache ? 'none' : '';
-		ligne.dataset.ID = valeurs[i].ID;
-		if(typeof galliances != 'undefined' && ((valeurs[i].alliance_att != '' && in_array(valeurs[i].alliance_att, galliances[serveur])) || (valeurs[i].alliance_def != '' && in_array(valeurs[i].alliance_def, galliances[serveur])))) {
-			ligne.dataset.alliance = '1';
-		}
-		if(source == 'zzzelp') {
-			img.src = url_zzzelp + '/Images/plus.png';
-			img.dataset.detail = '0';
-			img.width = '20';
-			img.setAttribute('style', 'vertical-align: text-bottom;cursor:pointer');
-			img.onclick = function onclick(event) {
-				if(this.dataset.detail == '0') {
-					this.dataset.detail = '1';
-					Charger_details_correspondances(this.parentNode.parentNode);
-				}
-				else {
-					ze_Supprimer_element(this.parentNode.parentNode.nextSibling);
-					this.dataset.detail = '0';
-				}
-			}
-			plus.appendChild(img);
-		}
-		pseudo_att.innerHTML = ze_Lien_profil(valeurs[i].attaquant, serveur);
-		TAG_att.innerHTML = ze_Lien_alliance(valeurs[i].alliance_att, serveur);
-		pseudo_def.innerHTML = ze_Lien_profil(valeurs[i].cible, serveur);
-		TAG_def.innerHTML = ze_Lien_alliance(valeurs[i].alliance_def, serveur);
-		date_mini.innerHTML = ze_Generation_date_v1(valeurs[i].date_mini);
-		date_maxi.innerHTML = ze_Generation_date_v1(valeurs[i].date_maxi);
-		valeur.innerHTML = ze_Nombre(parseInt(valeurs[i].valeur));
-	}
-}
-
-function Charger_details_correspondances(correspondance) {
-	var xdr = ze_getXDomainRequest();
-	xdr.onload = function() {
-		var donnees = JSON.parse(xdr.responseText),
-			conteneur = correspondance.parentNode.insertRow(correspondance.rowIndex + 1),
-			zone = conteneur.insertCell(0);
-			tableau = document.createElement('table'),
-			colonnes = new Array(
-					{ nom : 'Valeur du flood', index : 'valeur', type : 'nombre' },
-					{ nom : 'TDC de l\'attaquant avant', index : 'TDC_avant_att', type : 'nombre' },
-					{ nom : 'TDC de l\'attaquant après', index : 'TDC_apres_att', type : 'nombre'  },
-					{ nom : 'TDC du défenseur avant', index : 'TDC_avant_def', type : 'nombre'  },
-					{ nom : 'TDC du défenseur après', index : 'TDC_apres_def', type : 'nombre'  } 
-								);
-		tableau.className = 'detail_traceur';
-		zone.className = 'taille_normale';
-		zone.setAttribute('colspan', '7');
-		for(var i=0; i<colonnes.length; i++) {
-			var ligne = tableau.insertRow(-1),
-				titre = ligne.insertCell(0),
-				valeur = ligne.insertCell(1);
-			titre.innerHTML = colonnes[i].nom + ' : ';
-			valeur.innerHTML = (colonnes[i].type == 'nombre') ? ze_Nombre(parseInt(donnees[colonnes[i].index])) : donnees[colonnes[i].index];
-		}		
-		zone.appendChild(tableau);
-	}
-	xdr.open('GET', url_zzzelp + 'traceur_data?mode=detail_correspondances&serveur=' + ((ze_Analyser_URL('serveur') != '') ? ze_Analyser_URL('serveur') : ze_serveur) + '&ID=' + correspondance.dataset.ID, true);
-	xdr.send();
-}
-
-function Creation_tableau_variations(valeurs, source) {
-	var serveur = (ze_Analyser_URL('serveur') != '') ? ze_Analyser_URL('serveur') : ze_serveur,
-		colonnes = new Array(
-						{ nom : '', ID : 'resolu', zone : 'neutre', important : 1 },
-						{ nom : 'Pseudo', ID : 'attaquant', zone : 'neutre', important : 1 },
-						{ nom : 'TAG', ID : 'TAG_att', zone : 'neutre', important : 0 },
-						{ nom : 'Date mini', ID : 'date_mini', zone : 'neutre', important : 0 },
-						{ nom : 'Date maxi', ID : 'date_maxi', zone : 'neutre', important : 1 },
-						{ nom : 'TDC avant', ID : 'valeur', zone : 'neutre', important : 1 },
-						{ nom : 'TDC après', ID : 'valeur', zone : 'neutre', important : 1 },
-						{ nom : 'Ecart', ID : 'valeur', zone : 'neutre', important : 1 },
-						{ nom : '', ID : 'details', zone : 'neutre', important : 2 }
-							),
-		cache = (source == 'zzzelp' && document.querySelector('#options_traceur').dataset.mode != 'variations' && valeurs.length > 20),
-		tableau = document.createElement('table'),
-		ligne = tableau.insertRow(0);
-	tableau.className = 'tableau_ombre simulateur';
-	tableau.id = 'tableau_traceur';
-	for(var i=0; i<colonnes.length; i++) {
-		var cell = document.createElement('th');
-		cell.innerHTML = colonnes[i].nom;
-		cell.dataset.zone = colonnes[i].zone;
-		cell.id = 'colonne_' + colonnes[i].ID;
-		ligne.appendChild(cell);
-	}
-
-	if(cache) {
-		var ligne = tableau.insertRow(-1),
-			cell = ligne.insertCell(0);
-		cell.setAttribute('colspan', '9');
-		cell.innerHTML = 'Afficher les variations';
-		cell.setAttribute('style', 'font-weight:bold;cursor:pointer');
-		cell.onclick = function onclick(event) {
-			var afficher = (this.innerHTML == 'Afficher les variations'),
-				lignes = this.parentNode.parentNode.rows;
-			this.innerHTML = afficher ? 'Cacher les variations' : 'Afficher les variations';
-			for(var k=2; k<lignes.length; k++) {
-				lignes[k].style.display = (afficher ? '' : 'none');
-			}
-		}
-	}
-
-	document.querySelector('#donnees_traceur').appendChild(tableau);
-	document.querySelector('#donnees_traceur').appendChild(document.createElement('br'));
-	document.querySelector('#donnees_traceur').appendChild(document.createElement('br'));
-	
-	
-	
-	for(var i=0; i<valeurs.length; i++) {
-		var ligne = tableau.insertRow(-1),
-			resolu = ligne.insertCell(0),
-			pseudo = ligne.insertCell(1),
-			TAG = ligne.insertCell(2),
-			date_mini = ligne.insertCell(3),
-			date_maxi = ligne.insertCell(4),
-			TDC_avant = ligne.insertCell(5),
-			TDC_apres = ligne.insertCell(6),
-			ecart = ligne.insertCell(7),
-			details = ligne.insertCell(8),
-			img = document.createElement('img');
-		
-		if(typeof galliances != 'undefined' && ((valeurs[i].alliance != '' && in_array(valeurs[i].alliance, galliances[serveur])))) {
-			ligne.dataset.alliance = '1';
-		}
-		
-		ligne.style.display = cache ? 'none' : '';
-		pseudo.innerHTML = ze_Lien_profil(valeurs[i].pseudo, serveur);
-		TAG.innerHTML = ze_Lien_alliance(valeurs[i].alliance, serveur);
-		date_mini.innerHTML = ze_Generation_date_v1(valeurs[i].date_mini);
-		date_maxi.innerHTML = ze_Generation_date_v1(valeurs[i].date_maxi);
-		TDC_avant.innerHTML = ze_Nombre(parseInt(valeurs[i].valeur_avant));
-		TDC_apres.innerHTML = ze_Nombre(parseInt(valeurs[i].valeur_apres));
-		ecart.innerHTML = ze_Nombre(parseInt(valeurs[i].valeur_apres) - parseInt(valeurs[i].valeur_avant));
-		img.src = url_zzzelp + '/Images/' + (valeurs[i].resolu == '1' ? 'pastille_verte' : 'pastille_rouge') + '.png';
-					
-		img.width = '20';
-		resolu.appendChild(img);
-	}
-}
-
-function Creation_tableau_habitudes_joueur(valeurs, identite) {
-	var zone = document.createElement('div');
-	zone.id = 'graph_habitudes';
-	zone.setAttribute('style', 'margin-bottom:20px');
-	document.querySelector('#donnees_traceur').appendChild(zone);
+ZzzelpDataAnalyser.prototype.createHabitTable = function(data, identite) {
+	this.createGraphArea('habitudes');
 	$(function () {
 		$('#graph_habitudes').highcharts({
 	        chart: {
@@ -400,7 +656,11 @@ function Creation_tableau_habitudes_joueur(valeurs, identite) {
 	            text: 'Horaires des variations de ' + identite
 	        },
 		    xAxis: {
-		       categories: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+		       categories: [
+			       	0,1,2,3,4,5,6,7,8,9,
+			       	10,11,12,13,14,15,16,17,18,19,
+			       	20,21,22,23
+		       	]
 		    },
 	        yAxis: {
 	            min: 0,
@@ -415,8 +675,179 @@ function Creation_tableau_habitudes_joueur(valeurs, identite) {
 	            }
 	        },
 	        series: [{
-	            data: valeurs
+	            data: data
 	        }]
 	    });
-	});
+	});	
+};
+
+
+
+
+function ZzzelpTraceurVariation(variation, table, hidden, serveur, domain) {
+	this.variation = variation;
+	this.serveur = serveur;
+	this.domain = domain;
+	this.details = false;
+	this.createInterface(table, hidden);
 }
+
+ZzzelpTraceurVariation.prototype.createInterface = function(table, hidden) {
+	var line = table.insertRow(-1),
+		plus = line.insertCell(0),
+		resolved = line.insertCell(1),
+		pseudo = line.insertCell(2),
+		TAG = line.insertCell(3),
+		date_mini = line.insertCell(4),
+		date_maxi = line.insertCell(5),
+		TDC_avant = line.insertCell(6),
+		TDC_apres = line.insertCell(7),
+		ecart = line.insertCell(8),
+		details = line.insertCell(9),
+		imgResolved = document.createElement('img');
+
+	line.style.display = hidden ? 'none' : '';
+	pseudo.innerHTML = ze_Lien_profil(this.variation.pseudo, this.serveur);
+	TAG.innerHTML = ze_Lien_alliance(this.variation.alliance, this.serveur);
+	date_mini.innerHTML = ze_Generation_date_v1(this.variation.date_mini);
+	date_maxi.innerHTML = ze_Generation_date_v1(this.variation.date_maxi);
+	TDC_avant.innerHTML = ze_Nombre(parseInt(this.variation.valeur_avant));
+	TDC_apres.innerHTML = ze_Nombre(parseInt(this.variation.valeur_apres));
+	ecart.innerHTML = ze_Nombre(
+						parseInt(this.variation.valeur_apres) - 
+					  	parseInt(this.variation.valeur_avant)
+					  );
+
+	var imageName = 'pastille_' + (this.variation.resolu == '1' ? 'verte' : 'rouge');
+	imgResolved.src = ZzzelpScript.url + 'Images/' + imageName + '.png';
+	imgResolved.width = '20';
+	resolved.appendChild(imgResolved);
+
+	if(this.variation.resolu === '0') {
+		plus.appendChild(this.createDetailsImage());
+	}
+	this.line = line;
+};
+
+ZzzelpTraceurVariation.prototype.createDetailsImage = function() {
+	var imgPlus = document.createElement('img');
+	imgPlus.src = ZzzelpScript.url + 'Images/plus.png';
+	imgPlus.width = '20';
+	imgPlus.setAttribute('style', 'vertical-align: text-bottom;cursor:pointer');
+	imgPlus.onclick = this.onClick.bind(this);
+	imgPlus.dataset.id = this.variation.ID;
+	return imgPlus;
+};
+
+ZzzelpTraceurVariation.prototype.onClick = function(event) {
+	if(!this.details) {
+		this.details = true;
+		this.launchResolver();
+	}
+	else {
+		ze_Supprimer_element(this.resolverLine);
+	}
+};
+
+ZzzelpTraceurVariation.prototype.launchResolver = function() {
+	var line = this.line.parentNode.insertRow(this.line.rowIndex + 1),
+		cell = line.insertCell(0),
+		table = document.createElement('table');
+	cell.className = 'taille_normale detail_traceur_cell';
+	cell.setAttribute('colspan', '9');
+	cell.appendChild(table);
+	this.table = table;
+
+	var v = this.variation;
+	v.valeur_avant = parseInt(v.valeur_avant);
+	v.valeur_apres = parseInt(v.valeur_apres);
+	this.getCompatibleVariations({
+		date_mini 	: v.date_mini,
+		date_maxi 	: v.date_maxi,
+		valeur_min	: Math.min(v.valeur_avant, v.valeur_apres)*0.2,
+		valeur_max	: Math.max(v.valeur_avant, v.valeur_apres)*5,
+		signe		: ((v.valeur_avant > v.valeur_apres) ? 1 : -1)
+	});
+};
+
+ZzzelpTraceurVariation.prototype.getCompatibleVariations = function(conditions) {
+	var url;
+	if(this.domain == 'zzzelp_interne') {
+		url = 'traceur_data?manuel=1';
+	}
+	else {
+		url = 'traceur_script?manuel=1';
+	}
+	for(var key in conditions) {
+		if(key != 'ID') {
+			url += '&' + key + '=' + conditions[key];
+		}		
+	}
+	url += '&serveur=' + this.serveur;
+	url += '&mode=compatible_variations';
+	new ZzzelpAjax({ method : 'GET', domain : this.domain, url : url }, 
+		{ success : function(response) {
+			this.updateTable(response);
+		}.bind(this)
+	});
+};
+
+ZzzelpTraceurVariation.prototype.updateTable = function(variations) {
+	this.table.innerHTML = '';
+	for(var i=0; i<variations.length; i++) {
+		this.createLine(variations[i]);
+	}
+};
+
+ZzzelpTraceurVariation.prototype.createLine = function(variation) {
+	var line = this.table.insertRow(-1),
+		pseudo = line.insertCell(0),
+		TAG = line.insertCell(1),
+		date_mini = line.insertCell(2),
+		date_maxi = line.insertCell(3),
+		TDC_avant = line.insertCell(4),
+		TDC_apres = line.insertCell(5),
+		ecart = line.insertCell(6);
+
+	pseudo.innerHTML = ze_Lien_profil(variation.pseudo, this.serveur);
+	TAG.innerHTML = ze_Lien_alliance(variation.alliance, this.serveur);
+	date_mini.innerHTML = ze_Generation_date_v1(variation.date_mini);
+	date_maxi.innerHTML = ze_Generation_date_v1(variation.date_maxi);
+	TDC_avant.innerHTML = ze_Nombre(parseInt(variation.valeur_avant));
+	TDC_apres.innerHTML = ze_Nombre(parseInt(variation.valeur_apres));
+	ecart.innerHTML = ze_Nombre(
+						parseInt(variation.valeur_apres) - 
+					  	parseInt(variation.valeur_avant)
+					  );
+};
+
+ZzzelpTraceurVariation.prototype.selectVariation = function() {
+
+};
+
+ZzzelpTraceurVariation.prototype.updateCompatibleVariations = function() {
+
+};
+
+
+
+
+/*
+
+function Creation_URL_traceur(mode) {
+	var lien = ZzzelpScript.url + 'traceur?serveur=' + ze_Analyser_URL('serveur') + '&mode=' + mode,
+		options = document.querySelectorAll('#options_traceur .ligne_cadre_structure');
+	for(var i=0; i<options.length-1; i++) {
+		if(options[i].style.display != 'none') {
+			if(options[i].querySelectorAll('input[type="checkbox"]').length > 0 && options[i].querySelector('input').checked) {
+				lien += '&' + options[i].querySelector('input').id + '=1';
+			}
+			else if(options[i].querySelectorAll('input[type="text"]').length > 0 && options[i].querySelector('input').value != '') {
+				lien += '&' + options[i].querySelector('input').id + '=' + encodeURIComponent(options[i].querySelector('input').value);
+			}
+		}
+	}
+	window.history.pushState('', '', lien);
+}
+
+*/

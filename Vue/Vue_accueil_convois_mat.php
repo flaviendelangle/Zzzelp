@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header() ?>
 	</head>
@@ -18,11 +18,11 @@
 								<?php if(count($convois->a_envoyer) > 0) { ?>
 								<?php $total = 0;foreach($convois->a_envoyer as $joueur) {$total+=$joueur['valeur']; ?>
 								<div class="ligne_cadre_structure">
-									<span><a href="http://<?php echo $convois->alliance->serveur ?>.fourmizzz.fr/Membre.php?Pseudo=<?php echo $joueur['receveur'] ?>" target="_BLANK"><?php echo $joueur['receveur'] ?></a></span>
-									<span class="ligne_inputs">
-										<span class="input_fige non_tel"><?php echo number_format($joueur['valeur'], 0, '.' , ' ') ?></span>
-										<span class="input_fige tel"><?php echo Nombre::Resume($joueur['valeur']) ?></span>
-										<span class="input_fige"><?php echo date('H:i', $convois->distances[$joueur['receveur']]-3600) ?></span>
+									<span><a  href="http://<?php echo $convois->alliance->serveur ?>.fourmizzz.fr/Membre.php?Pseudo=<?php echo $joueur['receveur'] ?>" target="_BLANK"><?php echo $joueur['receveur'] ?></a></span>
+									<span class="ligne_inputs" style="line-height: 2.4em;">
+										<span class="input_fige non_tel" style="font-size: 0.9em;"><?php echo number_format($joueur['valeur'], 0, '.' , ' ') ?></span>
+										<span class="input_fige tel" style="font-size: 0.9em;"><?php echo Nombre::Resume($joueur['valeur']) ?></span>
+										<span class="input_fige" style="font-size: 0.9em;"><?php echo date('H:i', $convois->distances[$joueur['receveur']]-3600) ?></span>
 										<a href="preparation?ressource=materiaux&serveur=<?php echo $convois->alliance->serveur ?>&alliance=<?php echo $convois->alliance->alliance ?>&pseudo=<?php echo $joueur['receveur'] ?>&valeur_convois=<?php echo $joueur['valeur'] ?>">
 											<input type="image" src="/Images/Fleche_droite.png"/>
 										</a>

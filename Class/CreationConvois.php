@@ -53,6 +53,9 @@ class CreationConvois extends Alliance  {
 			if($this->parametres_convois['formule_repartition'] == 1) {
 				$this->compute_ftdp();
 			}
+			elseif($this->parametres_convois['formule_repartition'] == 2) {
+				$this->compute_fVIP();
+			}
 		}
 		elseif($_GET['mode'] == 'externe') {
 			$this->unserialize_dataConvoisExterne();
@@ -144,7 +147,6 @@ class CreationConvois extends Alliance  {
 		}
 	}
 
-
 	public function get_salaires_ftdp() {
 		$coeff_revenu = $this->recolte_totale / $this->besoins_totaux;
 		foreach ($this->membres as $pseudo => $valeurs) {
@@ -174,6 +176,80 @@ class CreationConvois extends Alliance  {
 
 
 
+	/*
+		CALCUL CONVOIS METHODE -VIP-
+	*/
+	public function apply_TDCpersos() {
+		$this->recolte_perso = 0;
+		$this->get_TDCPersos();
+		foreach($this->membres as $pseudo => $valeurs) {
+			$this->membres[$pseudo]->data_convois['revenu'] = 0;
+		}
+		foreach($this->TDCpersos as $valeur) {
+			if(isset($this->membres[$valeur['pseudo']])) {
+				$recolte = (int)$valeur['valeur']*$this->parametres_convois['duree_repartition'];
+				$this->recolte_perso += $recolte;
+				$this->membres[$valeur['pseudo']]->data_convois['revenu'] = $recolte;
+			}
+		}
+	}
+
+	public function get_besoins_fVIP() {
+		$this->besoins_totaux = 0;
+		$this->recolte_totale = -$this->recolte_perso;
+		$this->revenus_fixes = array();
+		foreach($this->membres as $pseudo => $valeurs) {
+			if($valeurs->data_convois['activation'] == 'true') {
+				if ($valeurs->data_convois['revenu_fixe'] != 'NON') {
+					$this->revenus_fixes[$pseudo] = (int)$valeurs->data_convois['revenu_fixe'];
+					$this->recolte_totale += (int)($valeurs->data_convois['recolte']*$this->parametres_convois['duree_repartition']);
+					$this->recolte_totale -= (int)$valeurs->data_convois['revenu_fixe'];
+				}
+				else {
+					$this->membres[$pseudo]->get_tdp_unite(13);
+					$formule = str_replace('n_tdp', $valeurs->niveaux->tdp, $this->parametres_convois['formule_tdp']);
+					$formule = str_replace('tdp', $valeurs->niveaux->tdp_TE, $formule);
+					if ($valeurs->data_convois['bonus'] != 0) {
+						$this->membres[$pseudo]->data_convois['besoin'] = eval('return '.Text::carToPow($formule).';') * (1+$valeurs->data_convois['bonus']/100);
+					}
+					else {
+						$this->membres[$pseudo]->data_convois['besoin'] = eval('return '.Text::carToPow($formule).';');
+					}
+					$this->besoins_totaux += $this->membres[$pseudo]->data_convois['besoin'];
+					$this->recolte_totale += (int)($valeurs->data_convois['recolte']*$this->parametres_convois['duree_repartition']);
+				}
+			}
+			else {
+				$this->recolte_totale += (int)($valeurs->data_convois['recolte']*$this->parametres_convois['duree_repartition']);
+			}
+		}
+	}
+
+	public function get_salaires_fVIP() {
+		$coeff_revenu = $this->recolte_totale / $this->besoins_totaux;
+		foreach ($this->membres as $pseudo => $valeurs) {
+			if(isset($this->revenus_fixes[$pseudo])) {
+				$this->membres[$pseudo]->data_convois['revenu'] += $this->revenus_fixes[$pseudo];
+			}
+			elseif($valeurs->data_convois['activation'] == 'true') {
+				$this->membres[$pseudo]->data_convois['revenu'] += $valeurs->data_convois['besoin']*$coeff_revenu;
+			}
+			$this->membres[$pseudo]->data_convois['convois'] = round($valeurs->data_convois['recolte']*$this->parametres_convois['duree_repartition'] - $this->membres[$pseudo]->data_convois['revenu']);
+		}	
+	}
+
+	public function compute_fVIP() {
+		if(empty($this->parametres_convois['formule_tdp'])) {
+			$this->erreurs[] = 'Formule de répartition inconnue, formule de test 1/tdp utilisée';
+			$this->parametres_convois['formule_tdp'] = '1/tdp';
+		}
+		$this->apply_TDCpersos();
+		$this->get_besoins_fVIP();
+		$this->get_salaires_fVIP();		
+	}
+
+
+
 
 
 
@@ -186,6 +262,9 @@ class CreationConvois extends Alliance  {
 
 	public function create_Interface() {
 		$this->show_errors();
+		if($_POST['methode'] >= 0) {
+			$this->parametres_convois['algorithme_optimisation'] = $_POST['methode'];
+		}
 		?>
 		<form method="POST" action="<?php echo Zzzelp::$url_site ?>creationconvois/stockage?serveur=<?php echo $this->serveur ?>&alliance=<?php echo $this->alliance ?>">
 			<br><br>

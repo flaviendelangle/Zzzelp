@@ -1,28 +1,12 @@
 /*
- * Auteur : delangle
- * Version 1.0 (09/2014)
- * Adresse : http://zzzelp.fr/Javascript/base_zzzelp.js
- * 
- * Le but de cette librairie est d'alléger Zzzelp, Zzzelpfloods, ZzzelpScript ainsi que dépendances en évitant les doublons de fonctions classiques
- * Elle est accessible à tous et utilisable sans restriction pour permettre aux développeurs débutant dans les outils Fourmizzz de se concentrer sur leurs outils
-*/
-
-/*
- * SECTIONS DE LA LIBRAIRIE :
- * - Variables generales
- * - Fonctions PHP
- * - Fonctions Fourmizzz
- * - Fonctions Zzzelp
- * - Fonctions diverses
- * - Gestion des dates 
- * - Gestion DOM
-*/
-
-
-/*
  * VARIABLES GENERALES
 */
 
+
+if(typeof ZzzelpScript === 'undefined') {
+	ZzzelpScript = {
+	};
+}
 
 var url =  decodeURIComponent(document.location.href),
 	ze_serveurs = new Array('s1', 's2', 's3', 's4', 'test'),
@@ -35,11 +19,11 @@ var url =  decodeURIComponent(document.location.href),
 	};
 
 if(~document.location.href.indexOf('fourmizzz.fr')) {
-	ze_serveur = in_array(new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4], ze_serveurs) ? new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4] : undefined,
+	ze_serveur = in_array(new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4], ze_serveurs) ? new RegExp("((http://|)(www|)(.*).|)fourmizzz.fr").exec(url)[4] : undefined;
 	Connecte = document.querySelectorAll('#loginForm').length ? false : true;
 }
 else if(~document.location.href.indexOf('zzzelp.fr')) {
-	url_zzzelp = url_site;
+	ZzzelpScript.url = url_site;
 }
 if(document.location.href.indexOf('fourmizzz.fr') < 0 || Connecte) {
 	if(~document.location.href.indexOf('fourmizzz.fr')) {
@@ -405,7 +389,7 @@ function ze_Inserer_message(message, duree) {
 	conteneur.appendChild(lien_zzzelp);
 	conteneur.appendChild(contenu);
 	contenu.onmouseover = function onmouseover() {ze_Supprimer_element(conteneur);return false;};
-	if(duree != 0) {
+	if(duree !== 0) {
 		setTimeout(function(){ze_Supprimer_element(conteneur);return false;}, duree);
 	}
 }
@@ -522,8 +506,7 @@ function autocompletion(element, parametres) {
 					zone_resultats.style.zIndex = 999;
 				}				
 			};
-			console.log(url_zzzelp + '/autocomplete?mode=' + parametres.mode + '&serveur=' + parametres.serveur + '&valeur=' + valeur);
-			xdr.open("GET", url_zzzelp + '/autocomplete?mode=' + parametres.mode + '&serveur=' + parametres.serveur + '&valeur=' + valeur,true);
+			xdr.open("GET", ZzzelpScript.url + '/autocomplete?mode=' + parametres.mode + '&serveur=' + parametres.serveur + '&valeur=' + valeur,true);
 			xdr.send(null);
 		}
 		else {
@@ -571,10 +554,10 @@ function ze_Nombre(nbr) {
 		signe = (nbr >= 0) ? '' :  '-',
 		res = '';
 	for(var i=entier.length-1; i>=0; i--) {
-		res = (((entier.length - i - 1)%3 == 2 && i != 0) ? ' ' : '') + entier[i] + res;
+		res = (((entier.length - i - 1)%3 == 2 && i !== 0) ? ' ' : '') + entier[i] + res;
 	}
-	for(var i=0; i<decimales.length; i++) {
-		res += ((i == 0) ? '.' : '') + ((i%3 == 0 && i != 0) ? ' ' : '') + decimales[i];
+	for(i=0; i<decimales.length; i++) {
+		res += ((i === 0) ? '.' : '') + ((i%3 === 0 && i !== 0) ? ' ' : '') + decimales[i];
 		
 	}
 	return signe + res;
@@ -602,13 +585,14 @@ function ze_Nombre_raccourci(n, precision) {
 	if(typeof precision == 'undefined') {
 		precision = String(n).length;
 	}
-	var divis = Math.pow(10, String(n).length - precision);
+	var divis = Math.pow(10, String(n).length - precision),
+		res;
 	n = parseInt(n/divis)*divis;
-	n = String(n)
+	n = String(n);
 	if(n >= 1000) {
 		var multiplicateurs = new Array('', 'k', 'M', 'G', 'T'),
-			lettre = multiplicateurs[parseInt((n.length-1)/3)]
-			res = n.substr(0, n.length - multiplicateurs.indexOf(lettre)*3) + lettre + n.substr(n.length - multiplicateurs.indexOf(lettre)*3, multiplicateurs.indexOf(lettre)*3);
+			lettre = multiplicateurs[parseInt((n.length-1)/3)];
+		res = n.substr(0, n.length - multiplicateurs.indexOf(lettre)*3) + lettre + n.substr(n.length - multiplicateurs.indexOf(lettre)*3, multiplicateurs.indexOf(lettre)*3);
 		for(var i=res.length-1; i>res.indexOf(lettre); i--) {
 			if(res[i] == '0') {
 				res = res.substr(0, res.length-1);
@@ -619,7 +603,7 @@ function ze_Nombre_raccourci(n, precision) {
 		}
 	}
 	else {
-		var res = n;
+		res = n;
 	}
 	return res;
 }
@@ -642,11 +626,11 @@ function ze_Ajout_espaces(element) {
  * str -> str
 */
 function ze_Analyser_URL(key, default_) {
-	if (default_==null) default_="";
+	if (default_=== null) default_="";
 	key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 	var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
 	var qs = regex.exec(decodeURIComponent(document.location.href));
-	if(qs == null) return default_; else return qs[1];
+	if(qs === null) return default_; else return qs[1];
 }
 
 /*
@@ -654,11 +638,11 @@ function ze_Analyser_URL(key, default_) {
  * str -> str
 */
 function ze_Analyser_URL_2(url,key, default_) {
-			 if (default_==null) default_="";
+			 if (default_=== null) default_="";
 			 key = key.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
 			 var regex = new RegExp("[\\?&]"+key+"=([^&#]*)");
 			 var qs = regex.exec(url);
-			 if(qs == null) return default_; else return qs[1];
+			 if(qs === null) return default_; else return qs[1];
 }
 
 /*
@@ -666,12 +650,13 @@ function ze_Analyser_URL_2(url,key, default_) {
  * (str, str, int) -> None
 */
 function ze_createCookie(name,value,days) {
+	var expires;
 	if (days) {
 		var date = new Date();
 		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires="+date.toGMTString();
+		expires = "; expires="+date.toGMTString();
 	}
-	else var expires = "";
+	else expires = "";
 	document.cookie = name+"="+value+expires+"; domain=fourmizzz.fr; path=/";
 }
 
@@ -685,7 +670,7 @@ function ze_readCookie(name) {
 	for(var i=0;i < ca.length;i++) {
 		var c = ca[i];
 		while (c.charAt(0)==' ') c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
 	}
 	return null;
 }
@@ -750,12 +735,12 @@ function ze_Base_36_10(n) {
  * int -> string
 */
 function ze_Base_10_36(n) {
-	if(n == 0) {
+	if(n === 0) {
 		return 0;
 	}
-	var nombre = new Array(),
-		res = new String;
-	while(n != 0) {
+	var nombre = [],
+		res = '';
+	while(n !== 0) {
 		if(n >= 36) {
 			nombre.push(n%36);
 			n = parseInt(n/36);
@@ -777,10 +762,10 @@ function ze_Base_10_36(n) {
 */
 function ze_Affichage_pourcentage(valeur, precision) {
 	if(typeof precision == 'undefined') {
-		precision == 2;
+		precision = 2;
 	}
-	var p = Math.pow(10, precision),
-		valeur =  parseInt((valeur - 1)*p)*100/p;
+	var p = Math.pow(10, precision);
+	valeur =  parseInt((valeur - 1)*p)*100/p;
 	return (valeur > 1) ? ('+' + valeur) : valeur;
 }
 
@@ -794,14 +779,13 @@ function ze_Calcul_ecart_horaires(decalage) {
 				if(headers[i].match(new RegExp('date:(.*), ([0-9]+) (.*) ([0-9]+) ([0-9]+):([0-9]+):([0-9]+) gmt'))) {
 					var valeurs = new RegExp('date:(.*), ([0-9]+) (.*) ([0-9]+) ([0-9]+):([0-9]+):([0-9]+) gmt').exec(headers[i]),
 						ecart = parseInt(valeurs[6])*60+parseInt(valeurs[7])-PC.getMinutes()*60 - PC.getSeconds();
-					console.log(ecart)
 					if(ecart > 1800) {
 						ecart = ecart - 3600;
 					}
-					localStorage['zzzelp_ecart_horloge'] = ecart*1000 + decalage*1000*60*60;
+					localStorage.setItem('zzzelp_ecart_horloge', ecart*1000 + decalage*1000*60*60);
 				}
 			}
-		}
+		};
 		xdr.open("GET", document.location);
 		xdr.send(null);
 	}, 1000 - (new Date()).getMilliseconds() + 300);
@@ -820,7 +804,7 @@ function ze_getTimeZone() {
 		var select = zone_page.querySelector('select[name="timezone"]'),
 			decalage = parseInt(new RegExp('UTC([0-9+:]+)').exec(select.options[select.selectedIndex].innerHTML)[1].replace(':','.'));
 		ze_Calcul_ecart_horaires(decalage);
-	}
+	};
 	xdr.open("GET", 'http://' + ze_serveur + '.fourmizzz.fr/compte.php');
 	xdr.send();
 }
@@ -881,23 +865,23 @@ function ze_Date_to_timestamp_v2(date) {
 	var day = currentTime.getDate();
 	var hours = currentTime.getHours();
 	var minutes = currentTime.getMinutes();
-	
+	var val;
 	
 	date = date.trim();
 	
 	if(date.match(new RegExp('^(à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		hours = val[2];
 		minutes = val[3];
 	}
 	else if(date.match(new RegExp('^hier (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^hier (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^hier (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		day--;
 		hours = val[2];
 		minutes = val[3];
 	}
 	else if(date.match(new RegExp('^(dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi) (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(dimanche|lundi|mardi|mercredi|jeudi|vendredi|samedi) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		var m_day = jours.indexOf(val[1]);
 		if(m_day <= day_week) {
 			day = day - (day_week-m_day);
@@ -909,7 +893,7 @@ function ze_Date_to_timestamp_v2(date) {
 		minutes = val[4];
 	}
 	else if(date.match(new RegExp('^(le |)([0-3][0-9]|[0-9]) (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(le |)([0-3][0-9]|[0-9]) (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(le |)([0-3][0-9]|[0-9]) (janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		day = val[2];
 		m_month = mois.indexOf(val[3]);
 		if(m_month <= month) {
@@ -924,7 +908,7 @@ function ze_Date_to_timestamp_v2(date) {
 		minutes = val[6];
 	}
 	else if(date.match(new RegExp('^(le |)([0-3][0-9]|[0-9])/([0-1][0-9])/([0-2][0-9]) (à |)([0-2][0-9])h([0-5][0-9])$'))) {
-		var val = new RegExp('^(le |)([0-3][0-9]|[0-9])/([0-1][0-9])/([0-2][0-9]) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
+		val = new RegExp('^(le |)([0-3][0-9]|[0-9])/([0-1][0-9])/([0-2][0-9]) (à |)([0-2][0-9])h([0-5][0-9])$').exec(date);
 		day = val[2];
 		month = parseInt(val[3])-1;
 		year = parseInt(val[4])+2000;
@@ -966,7 +950,7 @@ function ze_Secondes_date(secondes, affichage_sec) {
 	if(secondes == 'jamais') {
 		return secondes;
 	}
-	var annees = (secondes - secondes % 31557600) / 31557600; ;
+	var annees = (secondes - secondes % 31557600) / 31557600;
 	secondes = secondes % 31557600;
 	var jours = (secondes - secondes % 86400) / 86400;
 	secondes = secondes % 86400;
@@ -1095,7 +1079,7 @@ function ze_BBcode_to_HTML(message, serveur) {
 	message = String(message);
 	message = message.replace(/\[player\](.*?)\[\/player\]/g, '<a href="http://' + serveur + '.fourmizzz.fr/Membre.php?Pseudo=$1">$1</a>');
 	message = message.replace(/\[ally\](.*?)\[\/ally\]/g, '<a href="http://' + serveur + '.fourmizzz.fr/classementAlliance.php?alliance=$1">$1</a>');
-	message = message.replace(/\{(.*?)\}/g, '<img src="http://' + serveur + '.fourmizzz.fr/images/smiley/$1.gif">')
+	message = message.replace(/\{(.*?)\}/g, '<img src="http://' + serveur + '.fourmizzz.fr/images/smiley/$1.gif">');
 	message = message.replace(/\n/g, '<br>');
 	message = message.replace(/\[img\](.*?)\[\/img\]/g, '<img src="$1">');
 	message = message.replace(/\[url=(.*?)\](.*?)\[\/url\]/g, '<a href="$1" target="_blank">$2</a>');
@@ -1174,7 +1158,7 @@ function SHA256(s){
 		m[l >> 5] |= 0x80 << (24 - l % 32);
 		m[((l + 64 >> 9) << 4) + 15] = l;
  
-		for ( var i = 0; i<m.length; i+=16 ) {
+		for (i = 0; i<m.length; i+=16 ) {
 			a = HASH[0];
 			b = HASH[1];
 			c = HASH[2];
@@ -1184,7 +1168,7 @@ function SHA256(s){
 			g = HASH[6];
 			h = HASH[7];
  
-			for ( var j = 0; j<64; j++) {
+			for (j = 0; j<64; j++) {
 				if (j < 16) W[j] = m[j + i];
 				else W[j] = safe_add(safe_add(safe_add(Gamma1256(W[j - 2]), W[j - 7]), Gamma0256(W[j - 15])), W[j - 16]);
  
@@ -1261,1541 +1245,6 @@ function SHA256(s){
 	s = Utf8Encode(s);
 	return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
 }
-var url_zzzelp = 'http://zzzelp.fr/',
-	lieux = new Array('TDC', 'Dôme', 'Loge'),
-	caracteres = new Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-	mode = (~document.location.href.indexOf('fourmizzz.fr')) ? 'fourmizzz' : 'zzzelp';
-
-
-function Generation_floods(zone, donnees) {
-	if(document.querySelectorAll('.zone_zzzelpfloods').length == 0) {
-		var pseudos = Preparation_donnees(donnees);
-		if(!donnees.sondes) {
-			donnees.sondes = [
-						[{ unite : 0, valeur : Math.pow(10, String(parseInt(donnees.nombre_unites/100000)).length) }],
-						[{ unite : 0, valeur : 1 }]
-							];
-		}
-		if(!donnees.antisonde) {
-			donnees.antisonde = [
-						[{ unite : 0, valeur : 1 }],
-						[{ unite : 0, valeur : Math.pow(10, String(parseInt(donnees.nombre_unites/100000)).length) }]
-							];
-		}
-		donnees.sondes[0].valeur = parseInt(donnees.sondes[0].valeur);
-		donnees.sondes[1].valeur = parseInt(donnees.sondes[1].valeur);
-		donnees.antisonde[0].valeur = parseInt(donnees.antisonde[0].valeur);
-		donnees.antisonde[1].valeur = parseInt(donnees.antisonde[1].valeur);		
-		Initialisation_interface(pseudos);
-	}
-	
-	
-	/*
-	FONCTIONS PRELEMINAIRES
-	* - Preparation_donnees
-	* - Initialisation_interface
-	* - Generation_nom_theme
-	*/
-	function Preparation_donnees(donnees) {
-		var pseudos = new Array();
-		for(var joueur in donnees.coordonnees[0]) {
-			donnees.coordonnees[0][joueur].TDC_actuel = donnees.coordonnees[0][joueur].TDC;
-			if(typeof donnees.coordonnees[0][joueur].active == 'string' && donnees.coordonnees[0][joueur].active == 'NON') {
-			}
-			else {
-				donnees.coordonnees[0][joueur].distance = ze_Calcul_distance(parseInt(donnees.coordonnees[0][donnees.pseudo].x), parseInt(donnees.coordonnees[0][donnees.pseudo].y), parseInt(donnees.coordonnees[0][joueur].x), parseInt(donnees.coordonnees[0][joueur].y));
-				pseudos.push(joueur);
-			}
-		}
-		var coordonnees = donnees.coordonnees[0];
-		pseudos.sort(function (a,b) {
-						if(donnees.coordonnees[0][a].distance === donnees.coordonnees[0][b].distance) {
-							return 0;
-						}
-						return (donnees.coordonnees[0][a].distance < donnees.coordonnees[0][b].distance) ? -1 : 1;
-					});
-		return pseudos;
-	}
-	
-	function Initialisation_interface(pseudos) {
-		var zone_zzzelpfloods = document.createElement('div');
-		zone_zzzelpfloods.setAttribute('class', 'zone_zzzelpfloods');
-		zone_zzzelpfloods.setAttribute('id', Generation_nom_theme());
-		zone.appendChild(zone_zzzelpfloods);
-		if(donnees.options) {
-			Creation_tableau_options();
-		}
-		var floods_annules = document.createElement('div');
-		floods_annules.setAttribute('id', 'floods_annules');
-		zone_zzzelpfloods.appendChild(floods_annules);
-		for(var i=0; i<pseudos.length; i++) {
-			if(pseudos[i] != donnees.pseudo) {
-				Creation_tableau_flood(pseudos[i], donnees.coordonnees[0][pseudos[i]]);
-			}
-		}
-		if(donnees.resume) {
-			Creation_tableau_resume();
-		}
-		var lancement = document.createElement('div');
-		lancement.innerHTML = 'Lancer';
-		lancement.setAttribute('class', 'bouton_lancement');
-		lancement.onclick = function onclick(event) { Lancer_floods(); return false; }
-		zone_zzzelpfloods.appendChild(lancement);
-		var contact = document.createElement('a');
-		contact.setAttribute('class', 'lien_contact');
-		contact.setAttribute('target', '_BLANK');
-		contact.href = url_zzzelp + '/contact/redaction';
-		//contact.innerHTML = 'Reporter un bug, une erreur';
-		zone_zzzelpfloods.appendChild(contact);
-		Actualisation_floods(true);
-		Actualiser_heures_arrivee();
-	}
-	
-	function Generation_nom_theme() {
-		if(donnees.theme) {
-			return 'theme_' + donnees.theme;
-		}
-		else {
-			return 'theme_fourmizzz';
-		}
-	}
-	
-	
-	
-	
-	
-	/*
-	FONCTIONS PRINCIPALES
-	* - Actualisation_floods
-	* - Creation_tableau_flood
-	* - Calcul_CF_initiale
-	* - 
-	*/
-
-	function Calcul_variations_TDC_externes(debut, fin, joueur, valeurs) {
-		donnees.coordonnees[0][donnees.pseudo].TDC_actuel = valeurs.TDC_attaquant;
-		if(donnees.variations) {
-			for(i=0; i<donnees.variations.length; i++) {
-				if(donnees.variations[i][0].date >= debut && donnees.variations[i][0].date <= fin) {
-					donnees.variations[i].valeur = parseInt(donnees.variations[i].valeur); 
-					var	valeur = Flood_externe_possible(donnees.variations[i][0]);
-					if(donnees.coordonnees[0][donnees.variations[i][0].attaquant]) {
-						donnees.coordonnees[0][donnees.variations[i][0].attaquant].TDC_actuel += valeur;
-					}
-					if(donnees.coordonnees[0][donnees.variations[i][0].cible]) {
-						donnees.coordonnees[0][donnees.variations[i][0].cible].TDC_actuel -= valeur;
-					}
-					if(valeur == -1 && valeurs.floods_annules.indexOf(i) == -1) {
-						valeurs.floods_annules.push(i);
-					}
-				}
-			}
-		}
-		valeurs.TDC_cible = donnees.coordonnees[0][joueur].TDC_actuel;
-		valeurs.TDC_attaquant = donnees.coordonnees[0][donnees.pseudo].TDC_actuel;
-		return valeurs;
-	}
-
-		
-	function Flood_externe_possible(flood) {
-		if(donnees.coordonnees[0][flood.cible] && donnees.coordonnees[0][flood.attaquant]) {
-			if(donnees.coordonnees[0][flood.attaquant].TDC_actuel <= 2*donnees.coordonnees[0][flood.cible].TDC_actuel && donnees.coordonnees[0][flood.cible].TDC_actuel <= donnees.coordonnees[0][flood.attaquant].TDC_actuel*3) {
-				return parseInt(ze_Majoration(flood.valeur, donnees.coordonnees[0][flood.cible].TDC_actuel*0.2));
-			}
-			else {
-				return 0;
-			}
-		}
-		else {
-			return flood.valeur;
-		}
-	}
-	
-	function Actualisation_floods(primaire) {
-		if(~document.location.href.indexOf('fourmizzz.fr')) { //MAJ des paramètres en cache
-			var parametres = JSON.parse(localStorage['zzzelp_parametres_' + ze_serveur]);
-			parametres.parametres.zzzelpfloods.parametres.zzzelpfloods_stockage.active = Lancement_via_Zzzelp();
-			parametres.parametres.zzzelpfloods.parametres.zzzelpfloods_antisonde.active = Placement_antisonde();
-			if(typeof donnees.aide_relance != 'undefined') {
-				parametres.parametres.zzzelpfloods.parametres.zzzelpfloods_relance.active = Aide_relance();
-				parametres.zzzelpfloods_prive.mode_relance = Valeur_aide_relance();
-			}
-			if(typeof donnees.anti_synchro != 'undefined') {
-				parametres.parametres.zzzelpfloods.parametres.zzzelpfloods_antisynchro.active = Anti_synchronisation();
-				parametres.zzzelpfloods_prive.seconde = Valeur_anti_synchronisation();
-			}
-			console.log(parametres);
-			localStorage['zzzelp_parametres_' + ze_serveur] = JSON.stringify(parametres);
-		}
-		for(var joueur in donnees.coordonnees[0]) {
-			donnees.coordonnees[0][joueur].TDC_actuel = donnees.coordonnees[0][joueur].TDC;
-		}
-		if(typeof donnees.aide_relance != 'undefined') {
-			document.querySelector('#choix_aide_relance').disabled = !Aide_relance();
-		}
-		if(typeof donnees.anti_synchro != 'undefined') {
-			document.querySelector('#seconde_anti_synchro').disabled = !Anti_synchronisation();	
-		}
-		var valeurs = { 
-					nombre_unites : Calcul_CF_initiale(), 
-					TDC_attaquant : parseInt(donnees.coordonnees[0][donnees.pseudo].TDC), 
-					TDC_cible : 0, 
-					TDC_attaquant_depart : parseInt(donnees.coordonnees[0][donnees.pseudo].TDC), 
-					marge : -1, 
-					floods : [], 
-					floods_annules : [] 
-						},
-			ancien_temps = time();
-		for(var t=0; t<pseudos.length; t++) {
-			if(pseudos[t] != donnees.pseudo) {
-				var ID = parseInt(donnees.coordonnees[0][pseudos[t]].ID);
-				valeurs.TDC_cible = parseInt(donnees.coordonnees[0][pseudos[t]].TDC);
-				valeurs = Calcul_variations_TDC_externes(ancien_temps, time() + donnees.coordonnees[0][pseudos[t]].temps, pseudos[t], valeurs);
-				var mode = document.querySelector('.optimisation_' + ID).dataset.mode_opti,
-					ancien_temps = donnees.coordonnees[0][pseudos[t]].temps;
-				Affichage_mode_courant(ID, mode);
-				if(mode != 'inconnu') { 
-					Nettoyer_tableau(ID);
-				}
-				document.querySelector('#TDC_depart_' + ID).innerHTML = ze_Nombre(valeurs.TDC_attaquant);
-				if(mode == 'classique' || mode == 'armee_debut' || mode == 'armee_fin') {
-					document.querySelector('#TDC_depart_' + ID).innerHTML = ze_Nombre(valeurs.TDC_attaquant);
-					document.querySelectorAll('.optimisation_' + ID + ' tr')[1].cells[2].innerHTML = ze_Nombre(valeurs.TDC_cible);
-					valeurs.floods = [];
-					valeurs.marge = -1;
-					valeurs.armee_debut = (mode == 'armee_debut');
-					valeurs.armee_fin = (mode == 'armee_fin');
-					var valeurs = Optimisation_flood(valeurs);
-					Insertion_optimisation_flood(ID, valeurs);
-				}
-				else if(mode == 'armee_complete') {
-					valeurs.floods = [ze_Majoration(valeurs.nombre_unites, valeurs.TDC_cible*0.2)];
-					valeurs.armee_complete = 0;
-					valeurs.nombre_unites -= ze_Majoration(valeurs.nombre_unites, valeurs.TDC_cible*0.2);
-					Insertion_optimisation_flood(ID, valeurs);
-				}
-				else if(mode == 'armee_complete_sonde') {
-					Validation_sonde_manuelle(ID, 0, 1,donnees.sondes[0].unite, donnees.sondes[0].nombre, false);
-					valeurs.floods = [ze_Majoration(valeurs.nombre_unites, valeurs.TDC_cible*0.2)];
-					valeurs.armee_complete = 0;
-					valeurs.nombre_unites -= ze_Majoration(valeurs.nombre_unites, valeurs.TDC_cible*0.2);
-					Insertion_optimisation_flood(ID, valeurs);
-					
-				}
-				else if(mode == 'TDC_attaquant' || mode == 'TDC_cible') {
-					Preparation_TDC_voulu(mode, ID);
-				}
-				else if(mode == 'TDC_attaquant_validation' || mode == 'TDC_cible_validation') {
-					document.querySelector('#TDC_depart_' + ID).innerHTML = ze_Nombre(valeurs.TDC_attaquant);
-					valeurs.floods = [];
-					var valeur = parseInt(document.querySelector('.optimisation_' + ID).dataset.TDCvoulu);
-					valeurs.marge = (mode == 'TDC_attaquant_validation') ? (valeur - valeurs.TDC_attaquant) : (valeurs.TDC_cible - valeur),
-					valeurs = Optimisation_flood(valeurs),
-					Insertion_optimisation_flood(ID, valeurs);
-				}
-				else if(mode == 'serie_attaques') {
-					Preparation_serie_attaques(ID);
-				}
-				else if(mode == 'serie_attaques_validation') {
-					document.querySelector('#TDC_depart_' + ID).innerHTML = ze_Nombre(valeurs.TDC_attaquant);
-					var nombre = parseInt(document.querySelector('.optimisation_' + ID).dataset.nombreattaques),
-						valeur = parseInt(document.querySelector('.optimisation_' + ID).dataset.valeurattaques);
-					valeurs.floods = [];
-					for(var i=0; i<nombre; i++) {
-						if(valeurs.nombre_unites >= valeur) {
-							valeurs.floods.push(valeur);
-							valeurs.nombre_unites -= valeur;
-						}
-						else if(valeurs.nombre_unites > 0) {
-							valeurs.floods.push(valeurs.nombre_unites);
-							valeurs.nombre_unites = 0;
-						}
-					}
-					Insertion_optimisation_flood(ID, valeurs);
-				}
-				else if(mode == 'sonde') {
-					Validation_sonde_manuelle(ID, 0, 1, donnees.sondes[0].unite, donnees.sondes[0].valeur, false);
-					Validation_sonde_manuelle(ID, 0, 2, donnees.sondes[1].unite, donnees.sondes[1].valeur, false);
-				}
-				else if(mode == 'manuel') {
-					document.querySelector('#TDC_depart_' + ID).innerHTML = ze_Nombre(valeurs.TDC_attaquant);
-					Initialisation_mode_manuel_joueur(ID);
-				}
-				else if(mode == 'inconnu') {
-					var lignes = document.querySelectorAll('.optimisation_' + ID + ' tr');
-					for(var i=2;i<lignes.length;i++) {
-						if(lignes[i].className != 'ligne_preparation' && lignes[i].className != 'ligne_sonde') {
-							var colonnes = lignes[i].cells,
-							valeur_prise = (valeurs.TDC_attaquant <= 2*valeurs.TDC_cible && valeurs.TDC_cible <= valeurs.TDC_attaquant*3) ? (ze_Majoration(parseInt(colonnes[0].innerHTML.replace(/ /g, "")), valeurs.TDC_cible*0.2)) : 0;
-							valeurs.nombre_unites -= parseInt(colonnes[0].innerHTML.replace(/ /g, ""));
-							valeurs.TDC_attaquant = valeurs.TDC_attaquant + valeur_prise;
-							valeurs.TDC_cible = valeurs.TDC_cible - valeur_prise;
-							colonnes[1].innerHTML = ze_Nombre(valeurs.TDC_attaquant);
-							colonnes[2].innerHTML = ze_Nombre(valeurs.TDC_cible);
-						}
-					}
-				}
-				Calcul_variations_TDC_externes(((ancien_temps) ? ancien_temps : 0), 1000000, pseudos[t], valeurs);
-			}
-		}
-		if(document.querySelectorAll('[data-type="armee_complete"]').length > 0) {
-		}
-		var floods = document.querySelectorAll('[data-type="armee_complete"]');
-		for(var i=0; i<floods.length; i++) {
-			if(i==0) {
-					floods[i].cells[0].innerHTML = ze_Nombre(parseInt(floods[i].cells[0].innerHTML.replace(/ /g, '')) + parseInt(valeurs.nombre_unites));
-			}
-			else {
-				floods[i].dataset.type = 'attaque';
-			}
-		}
-		if(primaire) {
-			Actualisation_floods(false);
-		}
-		else if(donnees.lancement_auto) {
-			Lancer_floods();
-		}
-		Actualisation_tableau_resume();
-		Affichage_floods_annules(valeurs.floods_annules);
-	}
-	
-	
-	function Affichage_mode_courant(ID, mode) {
-		var modes = document.querySelectorAll('.optimisation_' + ID + ' td')[4].querySelectorAll('.ligne_mode');
-		for(var i=0; i<modes.length; i++) {
-			if(modes[i].querySelectorAll('img').length > 0) {
-				ze_Supprimer_element(modes[i].querySelector('img'));
-			}
-		}
-		if(mode != 'impossible') {
-			if(mode.match(new RegExp('(.*)_validation'))) {
-				mode = new RegExp('(.*)_validation').exec(mode)[1];
-			}
-			var span = document.querySelectorAll('.optimisation_' + ID + ' td')[4].querySelectorAll('[data-mode="' + mode + '"] span')[1],
-				img = document.createElement('img');
-			img.src = url_zzzelp + '/Images/icone_attaque.gif';
-			span.appendChild(img);
-		}
-	}
-	
-	function Affichage_floods_annules(floods) {
-		var zone = document.querySelector('#floods_annules'),
-			anciennes = zone.querySelectorAll('.ligne_flood_annule');
-		for(var i=0; i<anciennes.length; i++) {
-			ze_Supprimer_element(anciennes[i]);
-		}
-		for(var i=0; i<floods.length; i++) {
-			var flood = document.createElement('div');
-			flood.setAttribute('class', 'ligne_flood_annule');
-			flood.innerHTML = 'Annulation n°' + (zone.querySelectorAll('.ligne_flood_annule').length + 1) + ' : ' + ze_Nombre(donnees.variations[floods[i]][0].valeur) + ' cm2 de ' + donnees.variations[floods[i]][0].attaquant + ' sur ' + donnees.variations[floods[i]][0].cible;
-			zone.appendChild(flood);
-		}
-	}
-
-	function Creation_tableau_flood(joueur, donnees_joueur, valeurs) {
-		var modes = [
-						{nom : 'Choix du mode', valeur : 'false' },
-						{nom : 'Optimisation classique', valeur : 'classique'},
-						{nom : 'TDC voulu attaquant', valeur : 'TDC_attaquant'},
-						{nom : 'TDC voulu cible', valeur : 'TDC_cible'},
-						{nom : 'Optimisation + armée au début', valeur : 'armee_debut'},
-						{nom : 'Optimisation + armée en fin', valeur : 'armee_fin'},
-						{nom : 'Série d\'attaques identiques', valeur : 'serie_attaques' },
-						{nom : 'Attaque classique', valeur : 'armee_complete'},
-						{nom : 'Sonde + Attaque classique', valeur : 'armee_complete_sonde'},
-						{nom : 'Sondes Dôme + Loge', valeur : 'sonde' },
-						{nom : 'Manuel', valeur : 'inconnu' }
-					];
-		var manuels = [
-						{nom : 'Type de ligne à ajouter', valeur : 'false' },
-						{nom : 'Flood manuel', valeur : 'manuel'},
-						{nom : 'Sonde manuelle', valeur : 'sonde'}
-					]
-		var tableau_joueur = document.createElement('table');
-		tableau_joueur.dataset.nfloods = 0;
-		if(donnees.coordonnees[0][donnees.pseudo].TDC > 2*donnees_joueur.TDC || donnees_joueur.TDC > donnees.coordonnees[0][donnees.pseudo].TDC*3) {
-			tableau_joueur.dataset.mode_opti = 'impossible';
-		}
-		else if(donnees.mode) {
-			tableau_joueur.dataset.mode_opti = donnees.mode;
-		}
-		else {
-			tableau_joueur.dataset.mode_opti = 'classique';
-		}
-		tableau_joueur.setAttribute('ID', 'optimisation_zzzelpfloods');
-		tableau_joueur.setAttribute('class', 'optimisation_' + donnees_joueur.ID);
-		document.querySelector('.zone_zzzelpfloods').appendChild(tableau_joueur);
-		ligne = tableau_joueur.insertRow(0);
-		cell = ligne.insertCell(0);
-		var temps_trajet = parseInt(ze_Calcul_temps_trajet(donnees_joueur.distance, donnees.vitesse_attaque));
-		donnees.coordonnees[0][joueur].temps = temps_trajet;
-		var zone_duree = document.createElement('span');
-		zone_duree.innerHTML = temps_trajet;
-		zone_duree.setAttribute('class', 'invisible');
-		zone_duree.setAttribute('id', 'duree_attaque');
-		var zone_arrivee = document.createElement('span');
-		zone_arrivee.setAttribute('class', 'heure_arrivee');
-		cell.appendChild(zone_duree);
-		cell.appendChild(zone_arrivee);
-		cell = ligne.insertCell(1);
-		var lien_joueur = document.createElement('a');
-		lien_joueur.href = 'http://' + donnees.serveur + '.fourmizzz.fr/Membre.php?Pseudo=' + donnees.pseudo;
-		lien_joueur.setAttribute('target', '_blank');
-		lien_joueur.innerHTML = donnees.pseudo;
-		cell.appendChild(lien_joueur);
-		cell = ligne.insertCell(2);
-		var lien_joueur = document.createElement('a');
-		lien_joueur.href = 'http://' + donnees.serveur + '.fourmizzz.fr/Membre.php?Pseudo=' + joueur;
-		lien_joueur.setAttribute('target', '_blank');
-		lien_joueur.innerHTML = joueur;
-		cell.appendChild(lien_joueur);
-		if(tableau_joueur.dataset.mode_opti != 'impossible') {
-			cell = ligne.insertCell(3);
-			cell.setAttribute('class', 'menu_modes');
-			var ajout = document.createElement('img'),
-				zone_liens = document.createElement('div');
-			ajout.src = url_zzzelp + '/Images/plus.png';
-			zone_liens.setAttribute('class', 'liste_modes');
-			for(var p=0; p<manuels.length; p++) {
-				var zone_lien = document.createElement('div'),
-					choisi = document.createElement('span'),
-					contenu = document.createElement('span');
-				contenu.innerHTML = manuels[p].nom;
-				zone_lien.setAttribute('class', 'ligne_mode');
-				zone_lien.dataset.mode = manuels[p].valeur;
-				if(p > 0) {
-					zone_lien.setAttribute('class', 'ligne_mode');
-					zone_lien.onclick = function onclick(event) {Application_choix_ajout_attaque(donnees_joueur.ID, this.dataset.mode); return false }
-				}
-				else {
-					zone_lien.setAttribute('class', 'entete_mode');
-				}
-				zone_lien.appendChild(contenu);
-				zone_lien.appendChild(choisi);
-				zone_liens.appendChild(zone_lien);
-			}
-			cell.appendChild(ajout);
-			cell.appendChild(zone_liens);
-			cell = ligne.insertCell(4);
-			cell.setAttribute('class', 'menu_modes');
-			var edit = document.createElement('img'),
-				zone_liens = document.createElement('div');
-			edit.src = url_zzzelp + '/Images/edit.png';
-			zone_liens.setAttribute('class', 'liste_modes');
-			for(var p=0; p<modes.length; p++) {
-				var zone_lien = document.createElement('div'),
-					choisi = document.createElement('span'),
-					contenu = document.createElement('span');
-				contenu.innerHTML = modes[p].nom;
-				zone_lien.dataset.mode = modes[p].valeur;
-				if(p > 0) {
-					zone_lien.setAttribute('class', 'ligne_mode');
-					zone_lien.onclick = function onclick(event) {Nettoyer_tableau(donnees_joueur.ID);Application_choix_mode_joueur(donnees_joueur.ID, this.dataset.mode); return false }
-				}
-				else {
-					zone_lien.setAttribute('class', 'entete_mode');
-				}
-				zone_lien.appendChild(contenu);
-				zone_lien.appendChild(choisi);
-				zone_liens.appendChild(zone_lien);
-			}
-			cell.appendChild(edit);
-			cell.appendChild(zone_liens);
-		}
-		else {
-			cell = ligne.insertCell(3);
-			cell.setAttribute('colspan', '2');
-			var intouchable = document.createElement('span');
-			intouchable.innerHTML = 'Joueur HDP';
-			intouchable.setAttribute('class', 'joueur_intouchable');
-			cell.appendChild(intouchable);	
-		}
-			
-		ligne = tableau_joueur.insertRow(1);
-		cell = ligne.insertCell(0);
-		cell.innerHTML = 'TDC départ : ';
-		cell = ligne.insertCell(1);
-		cell.setAttribute('ID', 'TDC_depart_' + donnees_joueur.ID);
-		cell.innerHTML = '0';
-		cell = ligne.insertCell(2);
-		cell.innerHTML = ze_Nombre(donnees_joueur.TDC);
-		cell = ligne.insertCell(3);
-		cell = ligne.insertCell(4);
-	}
-	
-	function Actualiser_heures_arrivee() {
-		var tableaux = document.querySelectorAll('#optimisation_zzzelpfloods');
-		for(var l=0; l<tableaux.length; l++) {
-			tableaux[l].querySelector('.heure_arrivee').innerHTML = ze_Generation_date_precise((~document.location.href.indexOf('fourmizzz.fr') ? time_fzzz() : time()) + parseInt(tableaux[l].querySelector('#duree_attaque').innerHTML));
-		}
-		setTimeout(Actualiser_heures_arrivee, 1000);
-	}
-	
-	function Calcul_CF_initiale() {
-		var capa_flood = parseInt(donnees.nombre_unites),
-			sondes = document.querySelectorAll('#nombre_sonde');
-		for(var i=0;i<sondes.length;i++) {
-			capa_flood -= parseInt(sondes[i].innerHTML.replace(/ /g, ''));
-		}
-		if(Placement_antisonde()) {
-			console.log(donnees);
-			capa_flood -= parseInt(donnees.antisonde[0].valeur);
-			capa_flood -= parseInt(donnees.antisonde[1].valeur);
-		}
-		return capa_flood;
-	}
-	
-	
-	
-	
-	
-	/*
-	INITIALISATION DES MODES
-	* - Reinitialiser_mode_joueur
-	* - Initialisation_mode_manuel_joueur
-	* - Application_choix_mode_joueur
-	*/
-
-	function Reinitialiser_mode_joueur(ID) {
-		document.querySelector('.optimisation_' + ID).dataset.mode_opti = 'manuel';
-		var lignes = document.querySelectorAll('.optimisation_' + ID + ' tr');
-		Nettoyer_tableau(ID);
-		Initialisation_mode_manuel_joueur(ID);
-		Actualisation_floods(true);
-	}
-	
-	function Application_choix_mode_joueur(ID, valeur) {
-		if(valeur == 'inconnu') {
-			Nettoyer_tableau(ID);
-		}
-		document.querySelectorAll('.optimisation_' + ID + ' td')[3].querySelector('img').onclick = function onclick(event) {Ajout_ligne(ID); return false;}
-		document.querySelector('.optimisation_' + ID).dataset.mode_opti = valeur;
-		Actualisation_floods(true);
-	}
-	
-	function Preparation_TDC_voulu(mode, ID) {
-		var tableau = document.querySelector('.optimisation_' + ID),
-			ligne = tableau.insertRow(2);
-		var cell = ligne.insertCell(0),
-			input = document.createElement('input');
-		input.type = 'text';
-		input.placeholder = 'TDC voulu pour ' + ((mode == 'TDC_attaquant') ? 'l\'attaquant' : 'la cible');
-		input.setAttribute('id', 'TDC_voulu');
-		input.onkeyup = function onkeyup(event) {ze_Ajout_espaces(this);return false;}
-		cell.appendChild(input);
-		cell.setAttribute('colspan', '5');
-		var validation = document.createElement('img');
-		validation.src = url_zzzelp + '/Images/valider.png';
-		validation.onclick = function onclick(event) {Validation_TDC_voulu(mode, ID); return false;}
-		validation.setAttribute('class', 'preparation_libre');
-		cell.appendChild(validation);
-	}
-	
-	function Preparation_serie_attaques(ID) {
-		var tableau = document.querySelector('.optimisation_' + ID),
-			ligne = tableau.insertRow(-1),
-			cell = ligne.insertCell(0),
-			nombre = document.createElement('input'),
-			texte_1 = document.createElement('span'),
-			valeur = document.createElement('input'),
-			texte_2 = document.createElement('span'),
-			validation = document.createElement('img');
-		tableau.dataset.nfloods = parseInt(tableau.dataset.nfloods) + 1;
-		ligne.dataset.numero = tableau.dataset.nfloods;
-		cell.setAttribute('colspan', '5');
-		nombre.type = 'text';
-		nombre.setAttribute('class', 'petit_input');
-		texte_1.innerHTML = 'attaques de';
-		valeur.type = 'text';
-		valeur.onkeyup = function onkeyup(event) {ze_Ajout_espaces(this);return false;}
-		texte_2.innerHTML = ' unités';
-		validation.src = url_zzzelp + '/Images/valider.png';
-		validation.onclick = function onclick(event) {Validation_serie_attaques(ID); return false;}
-		validation.setAttribute('class', 'preparation_libre');
-		cell.appendChild(nombre);
-		cell.appendChild(texte_1);
-		cell.appendChild(valeur);
-		cell.appendChild(texte_2);
-		cell.appendChild(validation);
-	}
-	
-	function Validation_TDC_voulu(mode, ID) {
-		document.querySelector('.optimisation_' + ID).dataset.mode_opti = mode + '_validation';
-		document.querySelector('.optimisation_' + ID).dataset.TDCvoulu = parseInt(document.querySelector('.optimisation_' + ID + ' #TDC_voulu').value.replace(/ /g,""));
-		Actualisation_floods(true);
-	}
-	
-	function Validation_serie_attaques(ID) {
-		document.querySelector('.optimisation_' + ID).dataset.mode_opti = 'serie_attaques_validation';
-		document.querySelector('.optimisation_' + ID).dataset.nombreattaques = parseInt(document.querySelectorAll('.optimisation_' + ID + ' input')[0].value);
-		document.querySelector('.optimisation_' + ID).dataset.valeurattaques = parseInt(document.querySelectorAll('.optimisation_' + ID + ' input')[1].value.replace(/ /g, ''));
-		Actualisation_floods(true);
-	}
-	
-	
-	/* 
-	 * FONCTIONS DE CREATION D'UNE LIGNE DE FLOOD
-	*/
-
-	function Insertion_optimisation_flood(ID, valeurs) {
-		for(var k=0; k<valeurs.floods.length; k++) {
-			Creation_ligne_flood(ID, valeurs, k, 0);
-		}
-	}
-	
-	function Creation_ligne_flood(ID, valeurs, k) {
-		var tableau = document.querySelector('.optimisation_' + ID);
-		tableau.dataset.nfloods = parseInt(tableau.dataset.nfloods) + 1;
-		if(valeurs.manuel) {
-			ligne = tableau.insertRow(valeurs.manuel);
-		}
-		else {	
-			ligne = tableau.insertRow(-1);
-		}
-		ligne.dataset.numero = tableau.dataset.nfloods;
-		ligne.dataset.type = (valeurs.armee_complete == k) ? 'armee_complete' : 'attaque';
-		cell = ligne.insertCell(0);
-		cell.innerHTML = ze_Nombre(valeurs.floods[k]);
-		var i = ligne.dataset.numero;
-		for(var t=1;t<ligne.rowIndex;t++) {
-			if(tableau.rows[t].className != 'ligne_sonde') {
-				ancien_att = parseInt(tableau.rows[t].cells[1].innerHTML.replace(/ /g,"")),
-				ancien_def = parseInt(tableau.rows[t].cells[2].innerHTML.replace(/ /g,""));
-			}
-		}
-		if(ancien_att <= 2*ancien_def && ancien_def <= ancien_att*3) {
-			valeur_flood = ze_Majoration(valeurs.floods[k], ancien_def*0.2);
-			cell = ligne.insertCell(1);
-			cell.setAttribute('class', 'TDC_attaquant');
-			if(valeur_flood == -2) {
-				valeur_flood = ancien_def*0.2;
-			}
-			cell.innerHTML = ze_Nombre(ancien_att + valeur_flood);
-			cell = ligne.insertCell(2);
-			cell.innerHTML =  ze_Nombre(ancien_def - valeur_flood);
-		}
-		else {
-			cell = ligne.insertCell(1);
-			cell.setAttribute('class', 'TDC_attaquant');
-			cell.innerHTML = ze_Nombre(ancien_att);
-			cell = ligne.insertCell(2);
-			cell.innerHTML =  ze_Nombre(ancien_def);
-		}
-		cell = ligne.insertCell(3);
-		Inserer_lieu(cell, ID, ligne.dataset.numero);
-		cell = ligne.insertCell(4);
-		Inserer_liens_modifs(cell, ID, ligne.dataset.numero);
-	}
-	
-	function Inserer_lieu(cell, ID, i) {
-		var lieu = document.createElement('span');
-		lieu.innerHTML = 'TDC';
-		lieu.setAttribute('class', 'lieu');
-		lieu.onclick = function onclick(event) {Modifier_lieu(ID, i); return false };
-		cell.appendChild(lieu);
-	}
-	
-	function Inserer_liens_modifs(cell, ID, i) {
-		var liens = [
-						{ lien_image : 'suppression.png', action : 'supprimer', title : 'Supprimer la ligne' },
-						{ lien_image : 'edit.png', action : 'modifier', title : 'Modifier la ligne' }
-					],
-			img = document.createElement('img'),
-			zone_liens = document.createElement('div');
-		cell.setAttribute('class', 'menu_options');
-		img.src = url_zzzelp + '/Images/quitter.png';
-		zone_liens.setAttribute('class', 'liste_options');
-		for(var k=0; k<liens.length; k++) {
-			zone_lien = document.createElement('div');
-			zone_lien.setAttribute('title', liens[k].title);
-			zone_lien.setAttribute('class', 'zone_lien_option');
-			zone_lien.dataset.action = liens[k].action;
-			img_lien = document.createElement('img');
-			img_lien.src = url_zzzelp + '/Images/' + liens[k].lien_image;
-			zone_lien.onclick = function onclick(event) { Application_option_ligne(this.dataset.action, ID, i) };
-			zone_liens.appendChild(zone_lien);
-			zone_lien.appendChild(img_lien);
-		}
-		cell.appendChild(img);
-		cell.appendChild(zone_liens);
-	}
-	
-	
-	/*
-	 * FONCTIONS AJOUT MANUEL D'UNE LIGNE
-	*/	
-	function Application_choix_ajout_attaque(ID, valeur) {	
-		if(valeur == 'manuel') {
-			Insertion_preparation_flood(ID, 0, -1);
-		}
-		else if(valeur == 'sonde') {
-			var lieu = (document.querySelectorAll('.optimisation_' + ID + ' .ligne_sonde').length == 0) ? 1 : 2,
-				nombre = ((document.querySelectorAll('.optimisation_' + ID + ' .ligne_sonde').length == 0) ? donnees.sondes[0].valeur : donnees.sondes[1].valeur),
-				unite = (document.querySelectorAll('.optimisation_' + ID + ' .ligne_sonde').length == 0) ? donnees.sondes[0].unite : donnees.sondes[1].unite;	
-			Insertion_preparation_sonde(ID, lieu, nombre, unite, -1);
-		}
-	}
-	
-	function Insertion_preparation_flood(ID, valeur, place) {
-		var tableau = document.querySelector('.optimisation_' + ID);
-		tableau.dataset.nfloods = parseInt(tableau.dataset.nfloods) + 1;
-		tableau.dataset.mode_opti = 'inconnu';
-		var ligne = tableau.insertRow(place),
-			cell = ligne.insertCell(0);
-		ligne.setAttribute('class', 'ligne_preparation');
-		ligne.dataset.numero = parseInt(tableau.dataset.nfloods);
-		cell.setAttribute('colspan', '3');
-		var entree = document.createElement('input');
-		entree.type = 'text';
-		entree.placeholder = 'entrer la valeur du flood';
-		entree.value = (valeur == 0) ? '' : ze_Nombre(valeur);
-		cell.appendChild(entree);
-		entree.onkeyup = function onkeyup(event) {ze_Ajout_espaces(this); return false;};
-		var validation = document.createElement('img');
-		validation.src = url_zzzelp + '/Images/valider.png';
-		validation.onclick = function onclick(event) {Validation_flood_manuel(ID, ligne.dataset.numero); return false;}
-		validation.setAttribute('class', 'preparation_libre');
-		document.querySelectorAll('.optimisation_' + ID + ' [data-numero="' + ligne.dataset.numero + '"] td')[0].appendChild(validation);
-		cell = ligne.insertCell(1);
-		Inserer_lieu(cell, ID, ligne.dataset.numero);
-		cell = ligne.insertCell(2);
-		Inserer_liens_modifs(cell, ID, ligne.dataset.numero);
-	}
-	
-	function Validation_flood_manuel(ID, n) {
-		var valeur = parseInt(document.querySelectorAll('.optimisation_' + ID + ' [data-numero="' + n + '"] input')[0].value.replace(/ /g,"")),
-			index = document.querySelector('.optimisation_' + ID + ' [data-numero="' + n + '"]').rowIndex;
-		Suppression_flood(ID, n);
-		var valeurs = { nombre_unites : donnees.nombre_unites, TDC_attaquant : donnees.coordonnees[0][donnees.pseudo].TDC, TDC_cible : 'inconnu', marge : -1, floods : [valeur], manuel:index};
-		Creation_ligne_flood(ID, valeurs, 0);
-		Actualisation_floods(true);
-	}
-
-	/*
-	 * TABLEAUX UNIQUES (RESUME + OPTIONS)
-	*/
-	
-	function Creation_tableau_options() {
-		var tableau = document.createElement('table'),
-			options = [
-						{ titre : 'Stockage sur Zzzelp', ID : 'lancement_zzzelp', auto : donnees.lancement_zzzelp },
-						{ titre : 'Replacer l\'antisonde', ID : 'placer_antisonde', auto : donnees.placer_antisonde }
-					];
-		if(typeof donnees.aide_relance != 'undefined') {
-			options.push({ titre : 'Prévenir du retour', ID : 'aide_relance', auto : donnees.aide_relance, valeur : donnees.valeur_aide_relance });
-		}
-		if(typeof donnees.anti_synchro != 'undefined') {
-			options.push({ titre : 'Lancer en fin de minute', ID : 'anti_synchro', auto : donnees.anti_synchro, valeur : donnees.seconde_renvoi });			
-		}
-		tableau.setAttribute('id', 'tableau_option');
-		document.querySelector('.zone_zzzelpfloods').appendChild(tableau);
-		var ligne = tableau.insertRow(0),
-			cell = ligne.insertCell(0),
-			lien = document.createElement('a');
-		cell.onclick = function onclick(event) {Affichage_options(); return false };
-		cell.setAttribute('colspan', '2');
-		lien.innerHTML = 'Options du module';
-		cell.appendChild(lien);
-		for(var i=0; i<options.length; i++) {
-			var ligne = tableau.insertRow(-1);
-			ligne.setAttribute('style', 'display:none');
-			ligne.insertCell(0).innerHTML = options[i].titre;
-			var cell = ligne.insertCell(1),
-				choix = document.createElement('input');
-			choix.type = 'checkbox';
-			choix.setAttribute('id', options[i].ID);
-			choix.checked = options[i].auto;
-			choix.onchange = function onchange(event) { Actualisation_floods(true); return false; }
-			cell.appendChild(choix);
-			if(options[i].ID == 'anti_synchro') {
-				var ligne = tableau.insertRow(-1),
-					cell = ligne.insertCell(0);
-					choix = document.createElement('select');
-				ligne.setAttribute('style', 'display:none');
-				cell.setAttribute('colspan', '2');
-				choix.disabled = !options[i].auto;
-				choix.id = 'seconde_anti_synchro';
-				for(var j=55;j<61;j++) {
-					var option = document.createElement('option');
-					option.value = j%60;
-					option.innerHTML = j + 'ème seconde'
-					choix.appendChild(option);
-				}
-				cell.appendChild(choix);
-				choix.value = options[i].valeur;
-				choix.onchange = function onchange(event) { Actualisation_floods(true); return false; }
-			}
-			else if(options[i].ID == 'aide_relance') {
-				var ligne = tableau.insertRow(-1),
-					cell = ligne.insertCell(0);
-					choix = document.createElement('select'),
-					possibilites = new Array('Toutes les attaques', 'L\'attaque principale');
-				ligne.setAttribute('style', 'display:none');
-				cell.setAttribute('colspan', '2');
-				choix.disabled = !options[i].auto;
-				choix.id = 'choix_aide_relance';
-				for(var j=0; j<possibilites.length; j++) {
-					var option = document.createElement('option');
-					option.value = j+1;
-					option.innerHTML = possibilites[j];
-					choix.appendChild(option);
-				}
-				cell.appendChild(choix);
-				choix.value = options[i].valeur;
-				choix.onchange = function onchange(event) { Actualisation_floods(true); return false; }
-			}
-		}
-	}
-	
-	function Affichage_options() {
-		var mode = (document.querySelectorAll('#tableau_option tr')[1].style.display == 'none') ? '' : 'none',
-			lignes = document.querySelectorAll('#tableau_option tr');
-		for(var i=1; i<lignes.length; i++) {
-			lignes[i].style.display = mode;
-		}
-	}
-	
-	function Creation_tableau_resume() {
-		var tableau = document.createElement('table'),
-			ligne = tableau.insertRow(0);
-		ligne.insertCell(0).innerHTML = 'TDC floodé :';
-		ligne.insertCell(1).innerHTML = '0' 
-		var ligne = tableau.insertRow(1);
-		ligne.insertCell(0).innerHTML = 'Nombre de floods : ';
-		ligne.insertCell(1).innerHTML = '0' 
-		var ligne = tableau.insertRow(2);
-		ligne.insertCell(0).innerHTML = 'Nombre de sondes : ';
-		ligne.insertCell(1).innerHTML = '0' 
-		tableau.setAttribute('id', 'resume_floods');
-		document.querySelector('.zone_zzzelpfloods').appendChild(tableau);
-	}
-	
-	function Actualisation_tableau_resume() {
-		if(document.querySelector('#resume_floods')) {
-			var lignes = document.querySelectorAll('#resume_floods tr');
-			if(document.querySelectorAll('.TDC_attaquant').length > 0) {
-				lignes[0].cells[1].innerHTML = ze_Nombre(parseInt(document.querySelectorAll('.TDC_attaquant')[document.querySelectorAll('.TDC_attaquant').length - 1].innerHTML.replace(/ /g,"")) - parseInt(document.querySelectorAll('td[id*="TDC_depart"]')[0].innerHTML.replace(/ /g,"")));
-			}
-			else {
-				lignes[0].cells[1].innerHTML = 0;
-			}
-			lignes[1].cells[1].innerHTML = document.querySelectorAll('.TDC_attaquant').length;
-			lignes[2].cells[1].innerHTML = document.querySelectorAll('.ligne_sonde').length;
-		}
-	}
-
-	function Modifier_lieu(ID, i) {
-		var lieu = document.querySelector('.optimisation_' + ID + ' [data-numero="' + i + '"] .lieu').innerHTML;
-		document.querySelector('.optimisation_' + ID + ' [data-numero="' + i + '"] .lieu').innerHTML = (lieux.indexOf(lieu) == 2) ? 'TDC' : lieux[lieux.indexOf(lieu) + 1];
-	}
-	
-	function Application_option_ligne(action, ID, n) {
-		if(action == 'supprimer') {
-			Suppression_flood(ID, n);
-		}
-		else if(action == 'modifier') {
-			var ligne = document.querySelector('.optimisation_' + ID + ' [data-numero="' + n + '"]'),
-				classe = ligne.className;
-			document.querySelector('.optimisation_' + ID).dataset.mode_opti = 'inconnu';
-			ligne.setAttribute('class', 'ligne_preparation');
-			if(classe == 'ligne_sonde') {
-				var nombre = parseInt(ligne.querySelector('#nombre_sonde').innerHTML.replace(/ /g, '')),
-					unite = ZzzelpScriptArmee.TAGs.indexOf(ligne.querySelector('#unite_sonde').innerHTML),
-					lieu = lieux.indexOf(ligne.querySelector('.lieu').innerHTML),
-					place = ligne.rowIndex;
-				ze_Supprimer_element(ligne);
-				Insertion_preparation_sonde(ID, lieu, nombre, unite, place);
-			}
-			else {
-				var valeur = ligne.querySelector('td').innerHTML.replace(/ /g, ''),
-					place = ligne.rowIndex;
-				ze_Supprimer_element(ligne);
-				Insertion_preparation_flood(ID, valeur, place);
-			}
-		}
-		Actualisation_floods();
-	}
-	
-	function Suppression_flood(ID, n) {
-		ze_Supprimer_element(document.querySelector('.optimisation_' + ID + ' [data-numero="' + n + '"]'));
-		document.querySelector('.optimisation_' + ID).dataset.mode_opti = 'inconnu';
-		Actualisation_floods(true);
-	}
-	
-	function Nettoyer_tableau(ID) {
-		var lignes = document.querySelectorAll('.optimisation_' + ID + ' tr');
-		for(var i=2;i<lignes.length;i++) {
-			lignes[i].parentNode.removeChild(lignes[i]);
-		}
-	}
-	
-	function Lancement_via_Zzzelp() {
-		return document.querySelector('#lancement_zzzelp') && document.querySelector('#lancement_zzzelp').checked;
-	}
-	
-	function Placement_antisonde() {
-		return document.querySelector('#placer_antisonde') && document.querySelector('#placer_antisonde').checked;
-	}
-	
-	function Aide_relance() {
-		return document.querySelector('#aide_relance') && document.querySelector('#aide_relance').checked;
-	}
-	
-	function Valeur_aide_relance() {
-		return document.querySelector('#choix_aide_relance') ? parseInt(document.querySelector('#choix_aide_relance').value) : 1;
-	}
-	
-	function Anti_synchronisation() {
-		return document.querySelector('#anti_synchro') && document.querySelector('#anti_synchro').checked;
-	}
-	
-	function Valeur_anti_synchronisation() {
-		return document.querySelector('#seconde_anti_synchro') ? parseInt(document.querySelector('#seconde_anti_synchro').value) : 58;
-	}
-	
-	/*
-	 * GESTION DES SONDES
-	*/
-	
-	function Insertion_preparation_sonde(ID, lieu, nombre, unite, place) {
-		var tableau = document.querySelector('.optimisation_' + ID);
-		tableau.dataset.nfloods = parseInt(tableau.dataset.nfloods) + 1;
-		tableau.dataset.mode_opti = 'inconnu';
-		var ligne = tableau.insertRow(place),
-			cell = ligne.insertCell(0);
-		ligne.setAttribute('class', 'ligne_preparation');
-		ligne.dataset.numero = parseInt(tableau.dataset.nfloods);
-		var	input = document.createElement('input');
-		ligne.setAttribute('class', 'ligne_preparation');
-		cell.setAttribute('colspan', '3');
-		input.type = 'text';
-		input.onkeyup = function onkeyup(event) {ze_Ajout_espaces(this);return false;}
-		input.value = ze_Nombre(nombre);
-		ligne.cells[0].appendChild(input);
-		var choix = document.createElement('select');
-		ligne.cells[0].appendChild(choix);
-		for(var i=0;i<ZzzelpScriptArmee.TAGs.length;i++) {
-			var option = document.createElement('option');
-			option.value = i;
-			option.innerHTML = ZzzelpScriptArmee.TAGs[i];
-			choix.appendChild(option);
-		}
-		var validation = document.createElement('img');
-		validation.src = url_zzzelp + '/Images/valider.png';
-		cell = ligne.insertCell(1);
-		Inserer_lieu(cell, ID, ligne.dataset.numero);
-		cell = ligne.insertCell(2);
-		Inserer_liens_modifs(cell, ID, ligne.dataset.numero);		
-		ligne.querySelector('.lieu').innerHTML = lieux[lieu];
-		validation.onclick = function onclick(event) {Validation_sonde_manuelle(ID, parseInt(ligne.dataset.numero), lieux.indexOf(ligne.querySelector('.lieu').innerHTML), choix.value, parseInt(input.value.replace(/ /g, '')), true); return false;}
-		validation.setAttribute('class', 'preparation_libre');
-		ligne.cells[0].appendChild(validation);
-		choix.value = unite;
-	}
-	
-	function Validation_sonde_manuelle(ID, n, lieu, unite, nombre, nettoyage) {
-		if(!nettoyage) {
-			var tableau = document.querySelector('.optimisation_' + ID);
-			tableau.dataset.nfloods = parseInt(tableau.dataset.nfloods) + 1;
-			var ligne = tableau.insertRow(-1);
-			ligne.dataset.numero = tableau.dataset.nfloods;
-			var	cell = ligne.insertCell(0);
-			cell.setAttribute('colspan', '3');
-			cell = ligne.insertCell(1);
-			Inserer_lieu(cell, ID, ligne.dataset.numero);
-			cell = ligne.insertCell(2);
-			Inserer_liens_modifs(cell, ID, ligne.dataset.numero);
-			var n = parseInt(ligne.dataset.numero);
-		}
-		document.querySelector('.optimisation_' + ID + ' [data-numero="' + n + '"]').setAttribute('class', 'ligne_sonde');
-		var cell = document.querySelectorAll('.optimisation_' + ID + ' [data-numero="' + n + '"] td')[0],
-			valeur = document.createElement('span');
-		if(nettoyage) {
-			ze_Supprimer_element(cell.querySelector('img'));
-			ze_Supprimer_element(cell.querySelector('select'));
-			ze_Supprimer_element(cell.querySelector('input'));
-		}
-		cell.innerHTML = 'Sonde de ';
-		valeur.innerHTML = ze_Nombre(nombre) + ' ';
-		valeur.setAttribute('id', 'nombre_sonde');
-		cell.appendChild(valeur);
-		var nom_unite = document.createElement('span');
-		nom_unite.innerHTML = ZzzelpScriptArmee.TAGs[unite]
-		nom_unite.setAttribute('id', 'unite_sonde');
-		cell.appendChild(nom_unite);
-		document.querySelectorAll('.optimisation_' + ID + ' [data-numero="' + n + '"] td')[1].querySelector('.lieu').innerHTML = lieux[lieu];
-		
-	}
-	
-	/*
-	 * LANCEMENT DES FLOODS
-	*/
-	
-	function Lancer_floods() {
-		var URL = '[',
-			vide = true;
-			
-		for(var t=0; t<pseudos.length; t++) { //Encodage des attaques
-			if(pseudos[t] != donnees.pseudo && document.querySelectorAll('.optimisation_' + donnees.coordonnees[0][pseudos[t]].ID + ' tr').length > 2) {
-				var URL_2 = '';
-				var lignes = document.querySelectorAll('.optimisation_' + donnees.coordonnees[0][pseudos[t]].ID + ' tr');
-				for(var i=2; i<lignes.length; i++) {
-					if(lignes[i].className == 'ligne_sonde') {
-						vide = false;
-						var nombre = ze_Base_10_36(parseInt(lignes[i].querySelector('#nombre_sonde').innerHTML.replace(/ /g, ''))),
-							unite = ze_Base_10_36(ZzzelpScriptArmee.TAGs.indexOf(lignes[i].querySelector('#unite_sonde').innerHTML)),
-							lieu = parseInt(lieux.indexOf(lignes[i].querySelector('.lieu').innerHTML)) + 1;
-						URL_2 += ((URL_2 == '')? '' : ';') + '1' + nombre + ',' + unite + ',' + lieu;
-					}
-					else if(lignes[i].dataset.type != 'hors_opti') {
-						vide = false;
-						var valeur = ((lignes[i].dataset.type  == 'armee_complete') ? '-1' : ze_Base_10_36(lignes[i].querySelector('td').innerHTML.replace(/ /g, ''))),
-							lieu = parseInt(lieux.indexOf(lignes[i].querySelector('.lieu').innerHTML)) + 1;
-						URL_2 += ((URL_2 == '')? '' : ';') + '0' + valeur + ',' + lieu;
-					}
-				}
-				URL += (URL_2 != '') ? (((URL == '[') ? '' : ':') + URL_2 + ';' + ze_Base_10_36(donnees.coordonnees[0][pseudos[t]].ID) + ';' + ze_Base_10_36(donnees.coordonnees[0][pseudos[t]].temps) + ';' + pseudos[t]) : '';
-			}
-		}
-		URL += ']&s=' + donnees.serveur;
-		if(Placement_antisonde()) {
-			URL += '&as=[' + ze_Base_10_36(donnees.antisonde[0].unite) + ',' + ze_Base_10_36(donnees.antisonde[0].valeur) + ',' + ze_Base_10_36(donnees.antisonde[1].unite) + ',' + ze_Base_10_36(donnees.antisonde[1].valeur) + ']';
-		}
-		if(Anti_synchronisation()) {
-			var seconde_att = Valeur_anti_synchronisation()*1000,
-				seconde_duree = parseInt(((1-Math.exp(-donnees.coordonnees[0][pseudos[1]].distance/350))*7.375*Math.pow(0.9,donnees.vitesse_attaque))*86400000)%60000;
-			URL += '&sec=' + ((seconde_att + 60000 - seconde_duree)%60000);
-		}
-		URL = 'http://' + donnees.serveur + '.fourmizzz.fr/Armee.php?fl=' + URL;
-		if(donnees.token && donnees.token.length > 0) {
-			URL += '&token=' + donnees.token;
-		}
-		if(Aide_relance()) {
-			URL += '&relance=' + Valeur_aide_relance();
-		}
-		if(Lancement_via_Zzzelp()) {
-			URL += '&lz';
-		}
-		else {
-			URL += '&lf';
-		}
-		if(vide) {
-			alert('Aucune attaque à envoyer');
-		}
-		else {
-			if(donnees.stockage_parametres_zzzelp) {
-				Stockage_parametres_Zzzelp(URL, 1);
-			}
-			else {
-				document.location.href = URL;
-			}
-		}
-	}
-	
-	function Stockage_parametres_Zzzelp(URL, mode) {
-		var parametres = new Array(
-							Lancement_via_Zzzelp() ? 1 : 0,
-							Placement_antisonde() ? 1 : 0
-		);
-		if(typeof donnees.aide_relance != 'undefined') {
-			parametres.push(Aide_relance() ? 1 : 0);
-			parametres.push(Valeur_aide_relance());
-		}
-		else {
-			parametres.push(0);
-			parametres.push(0);			
-		}
-		if(typeof donnees.anti_synchro != 'undefined') {
-			parametres.push(Anti_synchronisation() ? 1 : 0);
-			parametres.push(Valeur_anti_synchronisation());	
-		}
-		else {
-			parametres.push(0);
-			parametres.push(0);				
-		}
-		var niveaux = '';
-		for(var i=0; i<parametres.length; i++) {
-			niveaux += ((niveaux == '') ? '' : ',') + parametres[i];
-		}
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'niveaux_script?lieu=zzzelpfloods&niveaux=[' + niveaux + ']&', force : mode },
-			{ success : function(valeurs) {
-				document.location.href = URL;
-			}, authentication_issue : function() {
-				Stockage_parametres_Zzzelp(URL, 2);
-			}
-		});
-	}
-	
-	/*
-	 * OPTIMISATION AUTOMATIQUE
-	*/
-	function Calcul_flood(valeurs, flood) {
-		if(flood == -2) {
-			valeurs.armee_complete = valeurs['floods'].length;
-			flood = Math.floor(valeurs.TDC_cible * 0.2);
-		}
-		valeurs.TDC_cible -= flood
-		valeurs.TDC_attaquant += flood;
-		valeurs.nombre_unites -= flood;
-		valeurs.marge -= flood;
-		valeurs['floods'].push(flood);
-		return valeurs;
-	}
-	
-	function Optimisation_flood(valeurs) {
-		var valeurs_2 = JSON.parse(JSON.stringify(valeurs));
-		valeurs_2.marge = -1;
-		if(valeurs.TDC_attaquant <= 2*valeurs.TDC_cible && valeurs.TDC_cible <= valeurs.TDC_attaquant*3) {
-			if (valeurs.marge == -1) {
-				while (valeurs.TDC_attaquant < Math.floor(valeurs.TDC_cible*1.4) && valeurs.nombre_unites >= valeurs.TDC_cible*0.2) {
-					(valeurs.floods.length == 0 && valeurs.armee_debut) ? (valeurs = Calcul_flood(valeurs, -2)) : (valeurs = Calcul_flood(valeurs, Math.floor(valeurs.TDC_cible * 0.2)));
-				}
-				valeurs.marge = Math.floor((valeurs.TDC_cible*2 - valeurs.TDC_attaquant)/3);
-				if (valeurs.nombre_unites >= valeurs.marge) {
-					if(valeurs.floods.length == 0 && valeurs.armee_debut) {
-						valeurs = Calcul_flood(valeurs, -2);
-					}
-					else {
-						valeurs = Calcul_flood(valeurs, valeurs.marge);
-						if(valeurs.armee_fin) {
-							valeurs = Calcul_flood(valeurs, -2);
-						}
-						else if (valeurs.nombre_unites >= valeurs.TDC_cible*0.2) {
-							valeurs = Calcul_flood(valeurs, Math.floor(valeurs.TDC_cible * 0.2));
-						}
-						else {
-							valeurs = Calcul_flood(valeurs, valeurs.nombre_unites);
-						}
-					}
-				}
-				else if (valeurs.nombre_unites > 0) {
-					valeurs = Calcul_flood(valeurs, valeurs.nombre_unites);
-				}
-			}
-			else if (valeurs.marge > 0) {
-				while (valeurs.marge > valeurs.TDC_cible*0.2 && valeurs.TDC_attaquant < Math.floor(valeurs.TDC_cible*1.4) && valeurs.nombre_unites >= valeurs.TDC_cible*0.2) {
-					valeurs = Calcul_flood(valeurs, Math.floor(valeurs.TDC_cible * 0.2));
-				}
-				if (valeurs.marge > valeurs.TDC_cible*0.36) {
-					return Optimisation_flood(valeurs_2)
-				}
-				else if (valeurs.marge <= valeurs.TDC_cible*0.2 && valeurs.nombre_unites >= valeurs.marge) {
-					valeurs = Calcul_flood(valeurs, valeurs.marge);
-				}
-				else if (valeurs.marge > valeurs.TDC_cible*0.2 && valeurs.nombre_unites >= valeurs.marge) {
-					marge_2 = Math.floor((valeurs.TDC_cible*2-valeurs.TDC_attaquant)/3);
-					valeurs = Calcul_flood(valeurs, marge_2);
-					valeurs = Calcul_flood(valeurs, valeurs.marge);
-				}
-				else if (capa_flood > 0) {
-					valeurs = Calcul_flood(valeurs, valeurs.nombre_unites);
-				}
-			}
-		}
-		return valeurs;
-	}
-}
-
-
-
-
-/*
- * Exécutée sur la page Armee de Fourmizzz pour répartir les unités entre les différents floods
- * Génère ensuite les URL pour chaque attaque et exécute la 1ère attaque
-*/
-
-
-function LancementZzzelpflood(valeurs) {
-	if(!valeurs) {
-		valeurs = Analyse_URL();
-	};
-	
-	valeurs.armee = ZzzelpScriptArmee.getArmee(document, 0).unites;
-	valeurs = Calcul_armee_dispo(valeurs);
-	valeurs = Calcul_unites_sondes(valeurs);
-	valeurs = Calcul_unites_floods(valeurs);
-	console.log(valeurs);
-	Envoi_attaques(valeurs);
-	
-	function Analyse_URL() {
-		localStorage['zzzelp_aide_relance_' + ze_serveur] = JSON.stringify(new Array());
-		var lancements = ze_Analyser_URL('fl'),
-			valeurs = {schemas : new Array(), interface : true};
-		lancements = lancements.substr(1, lancements.length - 2).split(':');
-		for(var i=0; i<lancements.length; i++) {
-			var floods = lancements[i].split(';'),
-				ID = ze_Base_36_10(floods[floods.length - 3]),
-				temps = ze_Base_36_10(floods[floods.length - 2]),
-				pseudo = floods[floods.length - 1];
-			for(var n=0; n<floods.length - 3; n++) {
-				var flood = floods[n].substr(1, floods[n].length - 1).split(',');
-				if(floods[n].substr(0,1) == 0) { // On a un flood
-					valeurs.schemas.push({mode : 'flood', valeur : (flood[0] == '-1') ? -1 : ze_Base_36_10(flood[0]), lieu : flood[1], ID : ID, pseudo : pseudo, duree : temps});
-				}
-				else { // On a une sonde
-					valeurs.schemas.push({mode : 'sonde', nombre : ze_Base_36_10(flood[0]), lieu : flood[2], unite : ze_Base_36_10(flood[1]), ID : ID, pseudo : pseudo, duree : temps });
-				}
-			}
-		}
-		if(ze_Analyser_URL('sec')) {
-			valeurs.seconde = parseInt(ze_Analyser_URL('sec'));
-		}
-		else {
-			valeurs.seconde = -1;
-		}
-		if(ze_Analyser_URL('relance')) {
-			valeurs.relance = parseInt(ze_Analyser_URL('relance'));
-		}
-		else {
-			valeurs.relance = -1;
-		}
-		return valeurs;
-	}
-	
-	function Calcul_armee_dispo(valeurs) {
-		valeurs.armee_floods = valeurs.armee;
-		valeurs.antisonde = new Array();
-		valeurs.etape_antisonde = 0;
-		if(ze_Analyser_URL('as')) {
-			var antisonde = ze_Analyser_URL('as').substr(1, ze_Analyser_URL('as').length - 2).split(',');
-			for(var i=0; i<2; i++) {
-				var unite = ze_Base_36_10(antisonde[2*i]),
-					nombre = ze_Base_36_10(antisonde[2*i+1]);
-				valeurs.antisonde.push(new Array(unite, ze_Majoration(nombre, valeurs.armee_floods[unite])));
-				valeurs.armee_floods[unite] -= (valeurs.armee_floods[unite] > nombre) ? nombre : valeurs.armee_floods[unite];
-			}
-		}
-		return valeurs;
-	}
-	
-	function Calcul_unites_sondes(valeurs) {
-		for(var i=0; i<valeurs.schemas.length; i++) {
-			if(valeurs.schemas[i].mode == 'sonde') {
-				var unites_sonde = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-					manquantes = valeurs.schemas[i].nombre;
-				for(var n=valeurs.schemas[i].unite; n<valeurs.schemas[i].unite + 14; n++) {
-					if(valeurs.armee_floods[n%14] > manquantes) {
-						unites_sonde[n%14] = manquantes;
-					}
-					else {
-						unites_sonde[n%14] = valeurs.armee_floods[n%14];
-					}
-					manquantes -= unites_sonde[n%14];
-					valeurs.armee_floods[n%14] -= unites_sonde[n%14];
-				}
-				valeurs.schemas[i].unites = unites_sonde;
-			}
-		}
-		return valeurs;
-	}
-	
-	function Calcul_unites_floods(valeurs) {
-		var aide_relance = new Array(),
-			pseudos_pris = new Array();
-		for(var i=0; i<valeurs.schemas.length; i++) {
-			if(valeurs.schemas[i].mode == 'flood') {
-				if(valeurs.relance == 2 && (aide_relance.length == 0 || valeurs.schemas[i].valeur > valeurs.schemas[aide_relance[0]].valeur)) {
-					aide_relance[0] = i;
-				}
-				else if(valeurs.relance == 1 && !in_array(valeurs.schemas[i].pseudo, pseudos_pris)) {
-					aide_relance.push(i);
-					pseudos_pris.push(valeurs.schemas[i].pseudo);
-				}
-				 if(valeurs.schemas[i].valeur >= 0) {
-					var unites_flood = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0),
-						manquantes = valeurs.schemas[i].valeur;
-					for(var n=0; n<14; n++) {
-						if(valeurs.armee_floods[n] > manquantes) {
-							unites_flood[n] = manquantes;
-						}
-						else {
-							unites_flood[n] = valeurs.armee_floods[n];
-						}
-						manquantes -= unites_flood[n];
-						valeurs.armee_floods[n] -= unites_flood[n];
-					}
-					valeurs.schemas[i].unites = unites_flood;	
-				}
-			}
-		}
-		for(var i=0; i<valeurs.schemas.length; i++) {
-			if(valeurs.schemas[i].mode == 'flood' && valeurs.schemas[i].valeur == -1) {
-				valeurs.schemas[i].unites = valeurs.armee_floods;	
-				valeurs.armee_floods = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);			
-			}
-		}
-		for(var i=0; i<valeurs.schemas.length; i++) {
-			valeurs.schemas[i].aide_relance = in_array(i, aide_relance);
-		}
-		return valeurs;
-	}
-	
-	function Stockage_liens(valeurs) {
-		var liens = new Array();
-		for(var i=0; i<valeurs.schemas.length; i++) {		
-			liens.push('/ennemie.php?unites=[' + (valeurs.schemas[i].unites) + ']&lieu=' + valeurs.schemas[i].lieu + '&Attaquer=' + valeurs.schemas[i].ID + '&mode=' + valeurs.schemas[i].mode + '&lieu=' + (parseInt(valeurs.schemas[i].lieu)+1) + '&s=' + ze_Analyser_URL('s') + '&n=' + (i+1) + '&z=' + (document.location.href.substr(-3, 3) == '&lz') + ((i == valeurs.schemas.length - 1 && valeurs.antisonde.length > 0) ? '&as=[' + valeurs.antisonde[0][0] + ',' + valeurs.antisonde[0][1] + ',' + valeurs.antisonde[1][0] + ',' + valeurs.antisonde[1][1] + ']': ''));
-		}
-		for(var i=0; i<valeurs.antisonde.length; i++) {
-			if(i ==0) {
-				liens.push('/Armee.php?dlz=true&paz');
-			}
-			if(valeurs.antisonde[i][1] > 0) {
-				liens.push('/Armee.php?antisonde=[' + i + ',' + valeurs.antisonde[i][0] + ',' + valeurs.antisonde[i][1] + ']&paz');
-			}
-		}
-		localStorage['attaques_zzzelpfloods_' + ze_Analyser_URL('s')] = JSON.stringify(liens);
-		localStorage['index_attaque_zzzelp'] = 1;
-		document.location.href = 'http://' + ze_Analyser_URL('s') + '.fourmizzz.fr' + liens[0];
-	}
-	
-	function Generation_tableau_attaques(valeurs) {
-		var titre = document.createElement('h1');
-		titre.innerHTML = 'Aperçu des attaques';
-		titre.setAttribute('style', 'text-align:center');
-		document.querySelector('body').appendChild(titre);
-		
-		var tableau = document.createElement('table'),
-			ligne = tableau.insertRow(0);
-		tableau.setAttribute('style', 'margin: 50px auto;border-collapse: collapse;background:white');
-		var cell = ligne.insertCell(0);
-		cell.setAttribute('style', 'width : 100px');
-		for(var i=0; i<14; i++) {
-			var cell = ligne.insertCell(i+1);
-			cell.innerHTML = ZzzelpScriptArmee.TAGs[i];
-			cell.setAttribute('style', 'width : 100px');
-		}
-		for(var i=0; i<valeurs.schemas.length; i++) {
-			var ligne = tableau.insertRow(i+1);
-			var cell = ligne.insertCell(0);
-			cell.setAttribute('style', 'height:2em');
-			cell.innerHTML = 'Attaque ' + i;
-			for(var n=0; n<14; n++) {
-				ligne.insertCell(n+1).innerHTML = valeurs.schemas[i].unites[n];
-			}
-		}
-		var ligne = tableau.insertRow(-1);
-		ligne.insertCell(0).innerHTML = 'Reste';
-		for(var i=0; i<14; i++) {
-			ligne.insertCell(i+1).innerHTML = valeurs.armee_floods[i];
-		}
-		document.querySelector('body').appendChild(tableau);
-	}
-
-	function Envoi_attaques(valeurs) {
-		ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'ennemie.php?Attaquer=' + valeurs.schemas[0].ID + '&lieu=0' },
-			{ success : function(contenu) {
-				var tokens = new Array(new RegExp('<input type="hidden" name="t" id="t" value="(.*)"/>').exec(contenu)[1], document.querySelector('#t').value),
-					zone = document.createElement('div'),
-					tableau = document.createElement('table'),
-					ligne = tableau.insertRow(0);
-					stockage_zzzelp = (document.location.href.substr(-3, 3) == '&lz');
-				var sdam_zone = document.querySelector('#sd_showhidecopy');
-				if(sdam_zone) {
-					ze_Supprimer_element(sdam_zone);
-					ze_Supprimer_element(document.querySelector('#sd_tablecopy'));
-					ze_Supprimer_element(document.querySelector('#Sdversion'));
-				}
-				
-				ze_Supprimer_element(document.querySelector('.pas_sur_telephone'));
-				ze_Supprimer_element(document.querySelector('.simulateur'));
-				ze_Supprimer_element(document.querySelector('.simulateur'));
-				
-				zone.setAttribute('class', 'zone_zzzelpfloods');
-				zone.setAttribute('id', 'theme_fourmizzz');
-				tableau.setAttribute('id', 'lancement_zzzelp');
-				tableau.setAttribute('class', 'tableau_recap');
-				tableau.dataset.lancement_fini = 0;
-				ligne.insertCell(0).innerHTML = 'Cible';
-				ligne.insertCell(1).innerHTML = 'Type';
-				ligne.insertCell(2).innerHTML = 'Unités';
-				ligne.insertCell(3).innerHTML = 'Envoyé';
-				ligne.insertCell(4).innerHTML = 'Stocké';
-				for(var i=0; i<valeurs.schemas.length; i++) {
-					var ligne = tableau.insertRow(-1),
-						cell = ligne.insertCell(0),
-						cell2 = ligne.insertCell(1),
-						cell3 = ligne.insertCell(2),
-						cell4 = ligne.insertCell(3),
-						cell5 = ligne.insertCell(4);
-					cell.setAttribute('style', 'font-weight:bold;');
-					cell.innerHTML = ze_Lien_profil(valeurs.schemas[i].pseudo) + ' :';
-					cell2.innerHTML = (valeurs.schemas[i].mode == 'flood') ? 'Flood' : 'Sonde';
-					
-					var entete = document.createElement('div'),
-						zone_unites = document.createElement('div'),
-						img = document.createElement('img');
-					entete.innerHTML = ze_Nombre(array_sum(valeurs.schemas[i].unites));
-					entete.setAttribute('class', 'entete_liste_unites');
-					img.src = url_zzzelp + '/Images/fourmis.png';
-					cell3.setAttribute('class', 'menu_unites');
-					zone_unites.setAttribute('class', 'liste_unites');
-					var unite = document.createElement('div'),
-						nombre = document.createElement('span'),
-						tag = document.createElement('span');			
-					unite.setAttribute('class', 'ligne_unite');
-					nombre.innerHTML = ze_Nombre(array_sum(valeurs.schemas[i].unites));
-					tag.innerHTML = 'unités'
-					zone_unites.appendChild(unite);
-					unite.appendChild(nombre);
-					unite.appendChild(tag);
-					for(var k=0; k<14; k++) {
-						var unite = document.createElement('div'),
-							nombre = document.createElement('span'),
-							tag = document.createElement('span');			
-						unite.setAttribute('class', 'ligne_unite');
-						nombre.innerHTML = ze_Nombre(valeurs.schemas[i].unites[k]);
-						tag.innerHTML = ZzzelpScriptArmee.TAGs[k];
-						zone_unites.appendChild(unite);
-						unite.appendChild(nombre);
-						unite.appendChild(tag);
-					}
-					cell3.appendChild(entete);
-					entete.appendChild(img);
-					cell3.appendChild(zone_unites);				
-					
-					
-					cell4.setAttribute('style', 'color:red;');
-					cell5.setAttribute('style', ((stockage_zzzelp && valeurs.schemas[i].mode == 'flood') ? 'color:red;' : ''));
-					cell4.innerHTML = 'NON';
-					cell5.innerHTML = (stockage_zzzelp && valeurs.schemas[i].mode == 'flood') ? 'NON' : '-';	
-				}
-				if(valeurs.antisonde.length > 0) {
-					var ligne = tableau.insertRow(-1),
-						cell = ligne.insertCell(0);
-					cell.setAttribute('colspan', '5');
-					cell.innerHTML = 'Antisonde non placée';
-					cell.setAttribute('style', 'color:red;font-weight:bold;text-align:center');
-					cell.id = 'placement_antisonde';
-				}
-				if(valeurs.seconde > -1) {
-					var ligne = tableau.insertRow(-1),
-						cell = ligne.insertCell(0);
-					cell.setAttribute('colspan', '5');
-					cell.innerHTML = '<span id="attente_lancement_zzzelp"></span> secondes avant le lancement';
-					cell.setAttribute('style', 'font-weight:bold;text-align:center');
-				}
-				zone.appendChild(tableau);
-				document.querySelector('center').insertBefore(zone, document.querySelector('center br'));
-				Lancement_floods(valeurs, tokens, 1);
-			}
-		});
-	}
-
-	function Lancement_floods(valeurs, tokens, n) {
-		if(valeurs.schemas.length > 0) {
-			if(valeurs.seconde == -1 || parseInt(valeurs.seconde/1000) == (new Date(time_fzzz()*1000)).getSeconds() || n > 1) {
-				if(valeurs.seconde > -1 && n == 1) {
-					ze_Supprimer_element(document.querySelector('#attente_lancement_zzzelp').parentNode.parentNode)
-				}
-				var flood = valeurs.schemas[0];
-				valeurs.schemas.shift();
-				if(flood.aide_relance) {
-					var stockages = JSON.parse(localStorage['zzzelp_aide_relance_' + ze_serveur]);
-					stockages.push({ pseudo : flood.pseudo, retour : time_fzzz() + flood.duree, id : +new Date() });
-					localStorage['zzzelp_aide_relance_' + ze_serveur] = JSON.stringify(stockages);
-				}
-				var url_ajax = 'ennemie.php?Attaquer=' + flood.ID + '&lieu=' + flood.lieu,
-					texte = '';
-				for(var k=0; k<14; k++) {
-					if(flood.unites[k] != 0) {
-						texte += ((texte != '')? '&' : '') + 'unite' + ZzzelpScriptArmee.ID[k] + '=' + flood.unites[k];
-					}
-				}
-				texte += '&lieu=' + flood.lieu + '&ChoixArmee=1&t=' + tokens[0];
-				new ZzzelpScriptAjax({ method : 'POST', domain : 'fourmizzz', url : url_ajax, data : texte, contentType : "application/x-www-form-urlencoded"},
-					{ success : function(txt) {
-						var en_cours = new RegExp('<h3([^!]+)').exec(txt)[1].split('- Vous allez attaquer'),
-							dernier = { retour : 0, ID : 0, heure : '', pseudo : '', alliance : '' };
-						for(var k=0; k<en_cours.length;k++) {
-							if(en_cours[k].match(new RegExp('Pseudo=(.*)">(.*)alliance=(.*)">(.*)id="attaque_([0-9]+)">(.*) </span><script language="JavaScript">reste\\(([0-9]+)'))) {
-								var donnees = new RegExp('Pseudo=(.*)">(.*)alliance=(.*)">(.*)id="attaque_([0-9]+)">(.*) </span><script language="JavaScript">reste\\(([0-9]+)').exec(en_cours[k]);
-								if(parseInt(donnees[5]) > dernier.ID) {
-									dernier = { retour : parseInt(donnees[7]), ID : parseInt(donnees[5]), heure : donnees[6], pseudo : donnees[1], alliance : donnees[3] };
-								}
-							}
-						}
-						document.querySelector('center').innerHTML += '- Vous allez attaquer <span class="gras"><a href="Membre.php?Pseudo=' + dernier.pseudo + '">' + dernier.pseudo + '</a>(<a href="classementAlliance.php?alliance=' + dernier.alliance + '">' + dernier.alliance + '</a>)</span> dans <span class="gras" id="attaque_' + dernier.ID + '">' + dernier.heure + '</span> - <a href="/Armee.php?annuler=' + dernier.ID + '">Annuler</a>';
-						var script = document.createElement('script');
-						script.setAttribute('language', 'JavaScript');
-						script.innerHTML = 'reste(' + dernier.retour + ', "attaque_' + dernier.ID + '");';
-						document.querySelector('center').appendChild(script);
-						document.querySelector('center').appendChild(document.createElement('br'));
-						document.querySelector('#lancement_zzzelp').rows[n].cells[3].style.color = 'green';
-						document.querySelector('#lancement_zzzelp').rows[n].cells[3].innerHTML = 'OUI';
-						Stockage_flood_Zzzelp(valeurs, flood, tokens, n, 1);
-					}
-				});
-			}
-			else {
-				setTimeout(function() {Lancement_floods(valeurs, tokens, n)},1);
-				document.querySelector('#attente_lancement_zzzelp').innerHTML = parseInt((valeurs.seconde/1000 - (new Date(time_fzzz()*1000)).getSeconds() + 60)%60)
-			}
-		}
-		else if(valeurs.antisonde.length > 0) {
-			Placement_antisonde_Ajax(valeurs.antisonde, tokens[1], 1);
-		}
-		else {
-			document.querySelector('#lancement_zzzelp').dataset.lancement_fini = 1;
-		}
-	}
-	
-	function Stockage_flood_Zzzelp(donnees, flood, tokens, n, mode) {
-		if(document.location.href.substr(-3, 3) == '&lz' && document.querySelector('#lancement_zzzelp').rows[n].cells[1].innerHTML == 'Flood') {
-			new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'floods_script?unites=[' + flood.unites + ']&cible=' + flood.ID + '&', force : mode },
-				{ success : function(valeurs) {
-					document.querySelector('#lancement_zzzelp').rows[n].cells[4].style.color = 'green';
-					document.querySelector('#lancement_zzzelp').rows[n].cells[4].innerHTML = 'OUI';					
-					Lancement_floods(donnees, tokens, (n+1));
-				}, authentication_issue : function() {
-					Stockage_flood_Zzzelp(donnees, flood, tokens, n, 2);
-				}
-			});
-		}
-		else {
-			Lancement_floods(donnees, tokens, (n+1));
-		}
-	}
-}
-
-function Placement_antisonde_Ajax(antisonde, token, n, rediriger) {
-	if(n == 1) {
-		ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'Armee.php?deplacement=3&t=' + token },
-			{ success : function(zone_page, ajax) {
-				Placement_antisonde_Ajax(antisonde, token, n+1, rediriger);
-			}
-		});
-	}
-	else if(n == 2) {
-		var url = 'Armee.php?Transferer=Envoyer&LieuOrigine=3&LieuDestination=1';
-		url += '&ChoixUnite=' + ZzzelpScriptArmee.ordre[antisonde[0][0]];
-		url += '&nbTroupes=' + antisonde[0][1] + '&t=' + token;
-		ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : url },
-			{ success : function(zone_page, ajax) {
-				Placement_antisonde_Ajax(antisonde, token, n+1, rediriger);
-			}
-		});
-	}
-	else if(n == 3) {
-		var url = 'Armee.php?Transferer=Envoyer&LieuOrigine=3&LieuDestination=2';
-		url += '&ChoixUnite=' + ZzzelpScriptArmee.ordre[antisonde[1][0]]
-		url += '&nbTroupes=' + antisonde[1][1] + '&t=' + token;
-		ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : url },
-			{ success : function(zone_page, ajax) {
-				Placement_antisonde_Ajax(antisonde, token, n+1, rediriger);
-			}
-		});
-	}
-	else if(n == 4 && rediriger) {
-		document.location.href = 'http://' + ze_serveur + '.fourmizzz.fr/Armee.php';
-	}
-	else if(n == 4) {
-		document.querySelector('#placement_antisonde').innerHTML = 'Antisonde placée';
-		document.querySelector('#placement_antisonde').style.color = 'green';
-		document.querySelector('#lancement_zzzelp').dataset.lancement_fini = 1;
-	}
-}
-
-
 function ZzzelpScriptBotChasse() {
 	var that = this;
 
@@ -2849,7 +1298,7 @@ function ZzzelpScriptBotChasse() {
 		console.log(data);
 		var form = new FormData();
 		form.append('data', JSON.stringify(data));
-		new ZzzelpScriptAjax({ method : 'POST', data : form, force : mode, domain : 'zzzelp', url : 'stockagesimulation?mode=chasse&' }, 
+		new ZzzelpAjax({ method : 'POST', data : form, force : mode, domain : 'zzzelp', url : 'stockagesimulation?mode=chasse&' }, 
 			{ success : function(values) {
 				var el = document.querySelector('#nombre_similations_zzzelp');
 				el.innerHTML = ze_Nombre(parseInt(el.innerHTML.replace(/ /g, '')) + 1);
@@ -2874,14 +1323,14 @@ function ZzzelpScriptBotChasse() {
 		}
 
 		for(var i=0; i<14; i++) {
-			form.append('ATTunite' + ZzzelpScriptArmee.ID[i], that.armee[i]);
+			form.append('ATTunite' + ZzzelpArmy.ID[i], that.armee[i]);
 		}
 		return form;
 	};
 
 	this.submitForm = function(form) {
 		var url_ajax = 'simulateurChasse.php';
-		new ZzzelpScriptAjax({ method : 'POST', data : form, domain : 'fourmizzz', url : url_ajax, addDOM : true }, 
+		new ZzzelpAjax({ method : 'POST', data : form, domain : 'fourmizzz', url : url_ajax, addDOM : true }, 
 			{ success : function(zone_page) {
 				that.analyse(zone_page.querySelectorAll('#centre p')[1].innerHTML);
 			}
@@ -2956,13 +1405,13 @@ function ZzzelpScriptPageLancementAttaques(zzzelp) {
 	};
 
 	this.updateStatistiques = function() {
-		var armee = new ZzzelpScriptArmee(),
+		var armee = new ZzzelpArmy(),
 			tableau = document.querySelector('#tabChoixArmee'),
 			lignes = tableau.querySelectorAll('tr');
 		for(var n=1;n<lignes.length;n++) {
 			var colonnes = lignes[n].querySelectorAll('td'),
 				unite = colonnes[0].innerHTML,
-				index_unite = ZzzelpScriptArmee.noms_singulier.indexOf(unite);
+				index_unite = ZzzelpArmy.noms_singulier.indexOf(unite);
 			if(~index_unite && colonnes[4].querySelector('input')) {
 				var valeur = parseInt(colonnes[4].querySelector('input').value.replace(/ /g,""));
 				armee.unites[index_unite] += valeur;
@@ -2989,12 +1438,12 @@ function ZzzelpScriptCompte() {
 	this.init = function() {
 		var niveaux = that.getLocalStorage();
 		if(niveaux === null) {
-			that.getNiveauxAjax('construction', that.nextStepUpdateNiveaux);
+			that.update('construction', that.nextStepUpdateNiveaux);
 		}
 		else {
 			var last_update = Math.min(that.niveaux.construction.update_local, that.niveaux.laboratoire.update_local);
 			if(time_fzzz() - last_update > 86400) {
-				that.getNiveauxAjax('construction', that.nextStepUpdateNiveaux);
+				that.update('construction', that.nextStepUpdateNiveaux);
 			}
 		}
 	};
@@ -3066,8 +1515,8 @@ function ZzzelpScriptCompte() {
 		});
 	};
 
-	this.getNiveauxAjax = function(lieu, callback) {
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : lieu + '.php', addDOM : true },
+	this.update = function(lieu, callback) {
+		new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : lieu + '.php', addDOM : true },
 			{ success : function(zone_page) {
 				var niveaux = that.getNiveauxDOM(zone_page, lieu, 1);	
 				if(callback) {
@@ -3101,7 +1550,7 @@ function ZzzelpScriptCompte() {
 			niveaux[i] = parseInt(valeurs[1]);			
 		}
 		if(url.indexOf('&iz') > 0 || ZzzelpScript.parameters('parametres', ['synchronisation', 'synchro_niveaux'])) {
-			new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'niveaux_script?lieu=' + lieu + '&niveaux=[' + niveaux + ']&' },
+			new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'niveaux_script?lieu=' + lieu + '&niveaux=[' + niveaux + ']&' },
 				{ authentication_issue : function(valeurs) {
 					that.getNiveauxDOM(zone, lieu, interne, 2);
 				}
@@ -3202,7 +1651,7 @@ function ZzzelpScriptCompte() {
 					nourriture = parseInt(entrepots[1].innerHTML.replace(/ /g, '')),
 					materiaux = parseInt(entrepots[2].innerHTML.replace(/ /g, '')),
 					url_ajax = 'niveaux_script?lieu=ouvrieres&ouvrieres=' + ouvrieres + '&nourriture=' + nourriture + '&materiaux=' + materiaux + '&';
-				new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax },
+				new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax },
 					{ authentication_issue : function(valeurs) {
 						that.updateOuvrieres(2, ouvrieres);	
 					}
@@ -3215,7 +1664,7 @@ function ZzzelpScriptCompte() {
 
 
 	that.getOuvrieresAjax = function(mode) {
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'commerce.php', addDOM : true },
+		new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'commerce.php', addDOM : true },
 			{ success : function(zone_page) {
 				var elements = zone_page.querySelectorAll('#centre strong'),
 					convois = [],
@@ -3227,7 +1676,7 @@ function ZzzelpScriptCompte() {
 						convois.push(parseInt(resultats[3].replace(/ /g, '')));
 					}
 				}
-				new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'construction.php', addDOM : true },
+				new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'construction.php', addDOM : true },
 					{ success : function(zone_page) {
 						var ligne = zone_page.querySelectorAll('.niveau_amelioration')[11],
 							etable;
@@ -3475,7 +1924,7 @@ function ZzzelpScriptCoordonnees(joueurs, alliances, callback) {
 			joueurs = [];
 		}
 		var url_ajax = 'coordonnees?alliances=[' + alliances + ']&joueurs=[' + joueurs_2 + ']&';
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, brute : true },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, brute : true },
 			{ success : function(valeurs) {
 				var pseudo;
 				for(var i=0;i<valeurs.length;i++) {
@@ -3593,7 +2042,7 @@ function ZzzelpScriptRightClick() {
 				a_ouvrir = 'http://' + ze_serveur + '.fourmizzz.fr/Membre.php?Pseudo=' + pseudo;
 			}
 			else if(action == 'traceur') {
-				a_ouvrir = url_zzzelp + 'traceur?serveur=' + ze_serveur + '&mode=joueurs&joueur=' + pseudo;
+				a_ouvrir = ZzzelpScript.url + 'traceur?serveur=' + ze_serveur + '&mode=joueurs&joueur=' + pseudo;
 			}
 			else if(action == 'guerre') {
 				new ZzzelpScriptModalGuerre(pseudo);
@@ -3613,8 +2062,7 @@ function ZzzelpScriptRightClick() {
 
 	this.init();
 }
-function ZzzelpScriptAjax(values, callBacks) {
-	var ajax = this;
+function ZzzelpAjax(values, callBacks) {
 
 	this.callBacks = callBacks;
 	this.method = values.method;
@@ -3625,154 +2073,153 @@ function ZzzelpScriptAjax(values, callBacks) {
 	this.requestLog = {};
 	this.logs_enable = false;
 
-	this.init = function() {
-		ajax.url = ajax.getFullURL(values.url, values.force);
-		console.log('AJAX : ' + ajax.url);
-		ajax.createXDR();
-		ajax.send();
-	};
-
-	this.createXDR = function() {
-		if (window.XDomainRequest) {
-			ajax.xdr = new XDomainRequest(); 
-		} 
-		else if (window.XMLHttpRequest) {
-			ajax.xdr = new XMLHttpRequest(); 
-		} 
-		else {
-			alert("Votre navigateur ne gère pas l'AJAX cross-domain !");
-	    }
-	};
-
-	this.send = function() {
-		ajax.xdr.onload = function() {
-			if(ajax.domain == 'fourmizzz') {
-				ajax.logRequest();
-			}
-			ajax.callBack();
-		};
-		ajax.xdr.open(ajax.method, ajax.url, true);
-		if(ajax.values.contentType) {
-			ajax.xdr.setRequestHeader("Content-Type", ajax.values.contentType);
-		}
-		this.requestLog.beginning = time(true);
-		ajax.xdr.send(ajax.data);
-	};
-
-	this.callBack = function() {
-		if(ajax.domain == 'zzzelp' || ajax.domain == 'zzzelp_interne') {
-			if(ajax.values.brute) {
-				var valeur;
-				try {
-					valeur = JSON.parse(ajax.xdr.responseText);
-				}
-				catch(e) {
-					valeur = ajax.xdr.responseText;
-				}
-				ajax.callBacks.success(valeur, ajax);
-			}
-			else {
-				var response_maping = ['unknown_player', 'authentication_issue', 'success'],
-					data = ajax.response(ajax.xdr.responseText),
-					response_type = response_maping[data.etat];
-				if(response_type in ajax.callBacks) {
-					ajax.callBacks[response_type](data.resultats, ajax);
-				}
-			}
-		}
-		else {
-			if(ajax.values.addDOM) {
-				ajax.addResponseDOM();
-			}
-			else if(ajax.callBacks.success) {
-				ajax.callBacks.success(ajax.xdr.responseText, ajax);
-			}
-		}
-	};
-
-	this.getFullURL = function(partial_url, force) {
-		if(ajax.domain == 'zzzelp') {
-			var token = (ajax.force == 2) ? getToken() : getTokenZzzelp();
-			return url_zzzelp + partial_url + 'serveur=' + ze_serveur + '&pseudo=' + gpseudo + '&token=' + token;
-		}
-		else if(ajax.domain == 'zzzelp_interne') {
-			return url_zzzelp + partial_url;
-		}
-		else {
-			return 'http://' + ze_serveur + '.fourmizzz.fr/' + partial_url;
-		}
-	};
-
-	this.response = function(data) {
-		try {
-			data = JSON.parse(data);
-			if(typeof ze_serveur != 'undefined') {
-				ze_createCookie('zzzelp_etat_auth_' + ze_serveur, data.etat, 365);
-				if(typeof data.token == 'string') {
-					ze_createCookie('zzzelp_token_' + ze_serveur, data.token, 365);
-				}
-				if(data.etat == 2) {
-					localStorage.setItem('zzzelp_authreussie', time_fzzz());
-				}
-			}
-		}
-		catch(e) {
-			console.log(data);
-			console.log(e);
-		}
-		return data;
-	};
-
-	this.addResponseDOM = function() {
-		var page = ze_getBody(ajax.xdr.responseText),
-			zone_page = document.createElement('div');
-		zone_page.setAttribute('id','contenu_zzzelp');
-		zone_page.setAttribute('style','display:none');
-		zone_page.innerHTML = page;
-		document.querySelector('body').appendChild(zone_page);
-		if(ajax.callBacks.success) {
-			ajax.callBacks.success(zone_page, this);
-		}
-		if(typeof ajax.values.destroyDOM == 'undefined' || ajax.values.destroyDOM) {
-			setTimeout(function() {
-				try {
-					ze_Supprimer_element(zone_page);
-				}
-				catch(e) {
-
-				}
-			}, 1000);
-		}
-	};
-
-	this.logRequest = function() {
-		if(ajax.logs_enable) {
-			ajax.requestLog.end = time(true);
-			ajax.requestLog.duration = ajax.requestLog.end - ajax.requestLog.beginning;
-			ajax.requestLog.size = ajax.xdr.getResponseHeader("Content-Length");
-			ajax.requestLog.url = ajax.url;
-			var logs = ZzzelpScriptAjax.getLogs();
-			logs.push(ajax.requestLog);
-			ajax.saveLogs(logs);
-		}
-
-
-	};
-
-
-	this.saveLogs = function(logs) {
-		localStorage.setItem(ZzzelpScriptAjax.localStorageKey, JSON.stringify(logs));
-	};
-
 	this.init();
 }
 
+ZzzelpAjax.prototype.init = function() {
+	this.url = this.getFullURL(this.values.url, this.values.force);
+	console.log('AJAX : ' + this.url);
+	this.createXDR();
+	this.send();
+};
+
+ZzzelpAjax.prototype.createXDR = function() {
+	if (window.XDomainRequest) {
+		this.xdr = new XDomainRequest(); 
+	} 
+	else if (window.XMLHttpRequest) {
+		this.xdr = new XMLHttpRequest(); 
+	} 
+	else {
+		alert("Votre navigateur ne gère pas l'AJAX cross-domain !");
+    }
+};
+
+ZzzelpAjax.prototype.send = function() {
+	this.xdr.onload = this.callBack.bind(this);
+	this.xdr.open(this.method, this.url, true);
+	if(this.values.contentType) {
+		this.xdr.setRequestHeader("Content-Type", this.values.contentType);
+	}
+	this.requestLog.beginning = time(true);
+	this.xdr.send(this.data);
+};
+
+ZzzelpAjax.prototype.callBack = function() {
+	if(this.domain == 'fourmizzz') {
+		this.logRequest();
+	}
+	if(this.domain == 'zzzelp' || this.domain == 'zzzelp_interne') {
+		if(this.values.brute) {
+			var valeur;
+			try {
+				valeur = JSON.parse(this.xdr.responseText);
+			}
+			catch(e) {
+				valeur = this.xdr.responseText;
+			}
+			this.callBacks.success(valeur, this);
+		}
+		else {
+			var response_maping = ['unknown_player', 'authentication_issue', 'success'],
+				data = this.response(this.xdr.responseText),
+				response_type = response_maping[data.etat];
+			if(response_type in this.callBacks) {
+				this.callBacks[response_type](data.resultats, this);
+			}
+		}
+	}
+	else {
+		if(this.values.addDOM) {
+			this.addResponseDOM();
+		}
+		else if(this.callBacks.success) {
+			this.callBacks.success(this.xdr.responseText, this);
+		}
+	}
+};
+
+ZzzelpAjax.prototype.getFullURL = function(partial_url, force) {
+	if(this.domain == 'zzzelp') {
+		var token = (this.force == 2) ? getToken() : getTokenZzzelp();
+		return ZzzelpScript.url + partial_url + 'serveur=' + ze_serveur + '&pseudo=' + gpseudo + '&token=' + token;
+	}
+	else if(this.domain == 'zzzelp_interne') {
+		return ZzzelpScript.url + partial_url;
+	}
+	else {
+		return 'http://' + ze_serveur + '.fourmizzz.fr/' + partial_url;
+	}
+};
+
+ZzzelpAjax.prototype.response = function(data) {
+	try {
+		data = JSON.parse(data);
+		if(typeof ze_serveur != 'undefined') {
+			ze_createCookie('zzzelp_etat_auth_' + ze_serveur, data.etat, 365);
+			if(typeof data.token == 'string') {
+				ze_createCookie('zzzelp_token_' + ze_serveur, data.token, 365);
+			}
+			if(data.etat == 2) {
+				localStorage.setItem('zzzelp_authreussie', time_fzzz());
+			}
+		}
+	}
+	catch(e) {
+		console.log(data);
+		console.log(e);
+	}
+	return data;
+};
+
+ZzzelpAjax.prototype.addResponseDOM = function() {
+	var page = ze_getBody(this.xdr.responseText),
+		zone_page = document.createElement('div');
+	zone_page.setAttribute('id','contenu_zzzelp');
+	zone_page.setAttribute('style','display:none');
+	zone_page.innerHTML = page;
+	document.querySelector('body').appendChild(zone_page);
+	if(this.callBacks.success) {
+		this.callBacks.success(zone_page, this);
+	}
+	if(typeof this.values.destroyDOM == 'undefined' || this.values.destroyDOM) {
+		setTimeout(function() {
+			try {
+				ze_Supprimer_element(zone_page);
+			}
+			catch(e) {
+
+			}
+		}, 1000);
+	}
+};
+
+ZzzelpAjax.prototype.logRequest = function() {
+	if(this.logs_enable) {
+		this.requestLog.end = time(true);
+		this.requestLog.duration = this.requestLog.end - this.requestLog.beginning;
+		this.requestLog.size = this.xdr.getResponseHeader("Content-Length");
+		this.requestLog.url = this.url;
+		var logs = ZzzelpAjax.getLogs();
+		logs.push(this.requestLog);
+		this.saveLogs(logs);
+	}
+
+
+};
+
+
+ZzzelpAjax.prototype.saveLogs = function(logs) {
+	localStorage.setItem(ZzzelpAjax.localStorageKey, JSON.stringify(logs));
+};
+
+
 if(typeof ze_serveur != 'undefined') {
-	ZzzelpScriptAjax.localStorageKey = 'zzzelp_logs_ajax_' + ze_serveur;
+	ZzzelpAjax.localStorageKey = 'zzzelp_logs_ajax_' + ze_serveur;
 }
 
-ZzzelpScriptAjax.getLogs = function() {
-	var logs = localStorage.getItem(ZzzelpScriptAjax.localStorageKey);
+ZzzelpAjax.getLogs = function() {
+	var logs = localStorage.getItem(ZzzelpAjax.localStorageKey);
 	if(logs === null) {
 		return [];
 	}
@@ -3787,8 +2234,8 @@ ZzzelpScriptAjax.getLogs = function() {
 	}			
 };
 
-ZzzelpScriptAjax.showLogs = function() {
-	var logs = ZzzelpScriptAjax.getLogs(),
+ZzzelpAjax.showLogs = function() {
+	var logs = ZzzelpAjax.getLogs(),
 		txt = '';
 	for(var i=0; i<logs.length; i++) {
 		txt += logs[i].duration + '	' + logs[i].size + '	' + logs[i].url + '\n';
@@ -3850,7 +2297,7 @@ function ZzzelpScriptRC(pseudo) {
 			role : 'commun',
 			regexp : 'Troupes en attaque( |):( |)([^.]+)',
 			action : function(valeurs, ligne) {
-				valeurs.attaquant.armee = ZzzelpScriptArmee.analyse(ligne);
+				valeurs.attaquant.armee = ZzzelpArmy.analyse(ligne);
 				return valeurs;
 			}
 		}, 
@@ -3858,7 +2305,7 @@ function ZzzelpScriptRC(pseudo) {
 			role : 'commun',
 			regexp : 'Troupes en défense( |):( |)([^.]+)',
 			action : function(valeurs, ligne) {
-				valeurs.defenseur.armee = ZzzelpScriptArmee.analyse(ligne);
+				valeurs.defenseur.armee = ZzzelpArmy.analyse(ligne);
 				return valeurs;
 			}
 		}, 
@@ -3896,17 +2343,17 @@ function ZzzelpScriptRC(pseudo) {
 			action : function(valeurs, ligne, regexp, offensif) {
 				var resultats = new RegExp(regexp).exec(ligne),
 					data = { nombre : parseInt(resultats[1].replace(/ /g, '')) }; 
-				if(ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[2]) >= 0) {
-					data.avant = ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[2]);
+				if(ZzzelpArmy.noms_pluriel.indexOf(resultats[2]) >= 0) {
+					data.avant = ZzzelpArmy.noms_pluriel.indexOf(resultats[2]);
 				}
 				else {
-					data.avant = ZzzelpScriptArmee.noms_singulier.indexOf(resultats[2]);
+					data.avant = ZzzelpArmy.noms_singulier.indexOf(resultats[2]);
 				} 
-				if(ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[4]) >= 0) {
-					data.apres = ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[4]);
+				if(ZzzelpArmy.noms_pluriel.indexOf(resultats[4]) >= 0) {
+					data.apres = ZzzelpArmy.noms_pluriel.indexOf(resultats[4]);
 				}
 				else {
-					data.apres = ZzzelpScriptArmee.noms_singulier.indexOf(resultats[4]);
+					data.apres = ZzzelpArmy.noms_singulier.indexOf(resultats[4]);
 				}
 				valeurs[offensif ? 'attaquant' : 'defenseur'].unites_XP.push(data);	
 				return valeurs;					
@@ -4211,12 +2658,12 @@ function ZzzelpScriptRC(pseudo) {
 	};
 
 	this.prepareZoneHOF = function(analyse, RC) {
-		analyse.attaquant.armee = new ZzzelpScriptArmee(analyse.attaquant.armee.unites, analyse.attaquant.armee.niveaux);
-		analyse.attaquant.armee_apres = new ZzzelpScriptArmee(analyse.attaquant.armee_apres.unites, analyse.attaquant.armee_apres.niveaux);
-		analyse.attaquant.armee_XP = new ZzzelpScriptArmee(analyse.attaquant.armee_XP.unites, analyse.attaquant.armee_XP.niveaux);
-		analyse.defenseur.armee = new ZzzelpScriptArmee(analyse.defenseur.armee.unites, analyse.defenseur.armee.niveaux);
-		analyse.defenseur.armee_apres = new ZzzelpScriptArmee(analyse.defenseur.armee_apres.unites, analyse.defenseur.armee_apres.niveaux);
-		analyse.defenseur.armee_XP = new ZzzelpScriptArmee(analyse.defenseur.armee_XP.unites, analyse.defenseur.armee_XP.niveaux);
+		analyse.attaquant.armee = new ZzzelpArmy(analyse.attaquant.armee.unites, analyse.attaquant.armee.niveaux);
+		analyse.attaquant.armee_apres = new ZzzelpArmy(analyse.attaquant.armee_apres.unites, analyse.attaquant.armee_apres.niveaux);
+		analyse.attaquant.armee_XP = new ZzzelpArmy(analyse.attaquant.armee_XP.unites, analyse.attaquant.armee_XP.niveaux);
+		analyse.defenseur.armee = new ZzzelpArmy(analyse.defenseur.armee.unites, analyse.defenseur.armee.niveaux);
+		analyse.defenseur.armee_apres = new ZzzelpArmy(analyse.defenseur.armee_apres.unites, analyse.defenseur.armee_apres.niveaux);
+		analyse.defenseur.armee_XP = new ZzzelpArmy(analyse.defenseur.armee_XP.unites, analyse.defenseur.armee_XP.niveaux);
 
 		return new ZzzelpScriptZoneHOF(RC.split('<br>'), analyse, false, true, document).getZone();
 	};
@@ -4232,7 +2679,7 @@ function ZzzelpScriptAnalyseurChasse(chasses) {
 		{
 			regexp : 'Troupes en attaque( |):( |)([^.]+)',
 			action : function(valeurs, ligne, regexp) {
-				valeurs.attaquant.armee = ZzzelpScriptArmee.analyse(new RegExp(regexp).exec(ligne)[3]);
+				valeurs.attaquant.armee = ZzzelpArmy.analyse(new RegExp(regexp).exec(ligne)[3]);
 				return valeurs;
 			}
 		},
@@ -4240,7 +2687,7 @@ function ZzzelpScriptAnalyseurChasse(chasses) {
 			regexp : 'Troupes en défense( |):( |)([^.]+)',
 			action : function(valeurs, ligne, regexp) {
 				var unites = new RegExp(regexp).exec(ligne)[3].split(','),
-					armee_def = new ZzzelpScriptArmee(undefined, undefined, 'chasse');
+					armee_def = new ZzzelpArmy(undefined, undefined, 'chasse');
 				for(var j=0; j<unites.length; j++) {
 					var data_unite = new RegExp('([0-9 ]+)(.*)').exec(unites[j]),
 						valeur = parseInt(data_unite[1].replace(/ /g, ""));
@@ -4288,28 +2735,28 @@ function ZzzelpScriptAnalyseurChasse(chasses) {
 			action : function(valeurs, ligne, regexp, offensif) {
 				var resultats = new RegExp(regexp).exec(ligne),
 					data = { nombre : parseInt(resultats[1].replace(/ /g, '')) }; 
-				if(ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[2]) >= 0) {
-					data.avant = ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[2]);
+				if(ZzzelpArmy.noms_pluriel.indexOf(resultats[2]) >= 0) {
+					data.avant = ZzzelpArmy.noms_pluriel.indexOf(resultats[2]);
 				}
 				else {
-					data.avant = ZzzelpScriptArmee.noms_singulier.indexOf(resultats[2]);
+					data.avant = ZzzelpArmy.noms_singulier.indexOf(resultats[2]);
 				} 
-				if(ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[4]) >= 0) {
-					data.apres = ZzzelpScriptArmee.noms_pluriel.indexOf(resultats[4]);
+				if(ZzzelpArmy.noms_pluriel.indexOf(resultats[4]) >= 0) {
+					data.apres = ZzzelpArmy.noms_pluriel.indexOf(resultats[4]);
 				}
 				else {
-					data.apres = ZzzelpScriptArmee.noms_singulier.indexOf(resultats[4]);
+					data.apres = ZzzelpArmy.noms_singulier.indexOf(resultats[4]);
 				}
 				valeurs.attaquant.unites_XP.push(data);	
 				return valeurs;
 			}
 		},
 		{
-			regexp : 'Vos chasseuses ont conquis <strong>([0-9 ]+) cm(²|2)<\\/strong>, les carcasses des prédateurs vous rapportent <strong>([0-9 ]+)<\\/strong>',
+			regexp : 'Vos chasseuses ont conquis (<strong>|)([0-9 ]+) cm(²|2)(<\\/strong>|), les carcasses des prédateurs vous rapportent (|<strong>)([0-9 ]+)(<\\/strong>|)',
 			action : function(valeurs, ligne, regexp) {
 				var variables = new RegExp(regexp).exec(ligne);
-				valeurs.TDC_chasse = parseInt(variables[1].replace(/ /g, ''));
-				valeurs.nourriture = parseInt(variables[3].replace(/ /g, ''));
+				valeurs.TDC_chasse = parseInt(variables[2].replace(/ /g, ''));
+				valeurs.nourriture = parseInt(variables[6].replace(/ /g, ''));
 				return valeurs;
 			}
 		}
@@ -4415,7 +2862,7 @@ function ZzzelpScriptAnalyseurChasse(chasses) {
 				armee : that.analyses[0].valeurs.attaquant.armee.new_armee(),
 				armee_apres : that.analyses[0].valeurs.attaquant.armee.new_armee(),
 				armee_XP : that.analyses[0].valeurs.attaquant.armee.new_armee(),
-				unites_XP : ZzzelpScriptArmee.getEmptyArmee(14),
+				unites_XP : ZzzelpArmy.getEmptyArmee(14),
 				total_morts : 0,
 				
 			},
@@ -4561,7 +3008,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 		that.separationLigne();
 		var ecart;
 		for(var i=0;i<14;i++) {
-			var nom = ZzzelpScriptArmee.noms_pluriel[i],
+			var nom = ZzzelpArmy.noms_pluriel[i],
 				valeur_avant = that.valeurs.attaquant.armee.getUnite(i),
 				valeur_apres = that.valeurs.attaquant.armee_XP.getUnite(i);
 			if(~[0,1,3,4,5,7,10,12].indexOf(i) && valeur_avant > 0) {
@@ -4654,7 +3101,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 		that.createLigne(['<strong>Armée</strong>']);
 		that.separationLigne();
 		for(var i=0;i<14;i++) {
-			var nom = ZzzelpScriptArmee.noms_pluriel[i],
+			var nom = ZzzelpArmy.noms_pluriel[i],
 				valeur_att = ze_Nombre(that.valeurs.attaquant.armee.getUnite(i)),
 				valeur_def = ze_Nombre(that.valeurs.defenseur.armee.getUnite(i));
 			that.createLigne([valeur_att, nom, valeur_def]);
@@ -4730,7 +3177,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 	};
 
 	this.createLigne = function(d) {
-		var functions = new Array(that.createLigneOne, that.createLigneTwo, that.createLigneThree, that.createLigneFour),
+		var functions = new Array(that.createLineOne, that.createLineTwo, that.createLineThree, that.createLineFour),
 			data = functions[d.length-1](d);
 		data.HTML = '&nbsp&nbsp' + data.HTML + '&nbsp&nbsp';
 		data.BBCode_FI = '  ' + data.BBCode_FI + '  ';
@@ -4738,7 +3185,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 		that.pushLine(data);
 	};
 
-	this.createLigneOne = function(d) {
+	this.createLineOne = function(d) {
 		var n1 = ze_Nettoyage_HTML(d[0]),
 			s1 = Math.floor((90-n1.length))/2,
 			s2 = Math.ceil((90-n1.length)/2);
@@ -4750,7 +3197,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 
 	};
 
-	this.createLigneTwo = function(d) {
+	this.createLineTwo = function(d) {
 		var n1 = ze_Nettoyage_HTML(d[0]),
 			n2 = ze_Nettoyage_HTML(d[1]),
 			s1 = Math.ceil((45-n1.length)/2),
@@ -4766,7 +3213,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 		};
 	};		
 
-	this.createLigneThree = function(d) {
+	this.createLineThree = function(d) {
 		var n1 = ze_Nettoyage_HTML(d[0]),
 			n2 = ze_Nettoyage_HTML(d[1]),
 			n3 = ze_Nettoyage_HTML(d[2]),
@@ -4783,7 +3230,7 @@ function ZzzelpScriptAnalyseTextuelle(mode, valeurs, serveur) {
 		};
 	};
 
-	this.createLigneFour = function(d) {
+	this.createLineFour = function(d) {
 		var n1 = ze_Nettoyage_HTML(d[0]),
 			n2 = ze_Nettoyage_HTML(d[1]),
 			n3 = ze_Nettoyage_HTML(d[2]),
@@ -5051,7 +3498,7 @@ function ZzzelpScriptZoneHOF(RC, valeurs, nouveau, guerre) {
 			input = document.createElement('span');
 		ligne.className = 'ligne_cadre_structure';
 		ligne.dataset.section = 'armee_' + section + '_' + categorie;
-		label.innerHTML = ZzzelpScriptArmee.TAGs[k] + ' :';
+		label.innerHTML = ZzzelpArmy.TAGs[k] + ' :';
 		input.className = 'input_fige';
 		input.innerHTML = ze_Nombre(donnee.valeur.unites[k]);
 		ligne.appendChild(label);
@@ -5079,7 +3526,7 @@ function ZzzelpScriptZoneHOF(RC, valeurs, nouveau, guerre) {
 		ligne.appendChild(input);
 		if(that.guerre && donnee.importable) {
 			var img = document.createElement('img');
-			img.src = url_zzzelp + '/Images/plus.png';
+			img.src = ZzzelpScript.url + 'Images/plus.png';
 			img.dataset.nom = donnee.id;
 			img.dataset.joueur = section;
 			img.setAttribute('style', 'margin-right: 5px;height: 1.8em;cursor:pointer;');
@@ -5166,11 +3613,11 @@ function ZzzelpScriptZoneHOF(RC, valeurs, nouveau, guerre) {
 			var	elements = this.parentNode.querySelectorAll('div[data-section="armee_' + this.dataset.joueur + '_apres"]'),
 				armee = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 			for(var k=0; k<elements.length; k++) {
-				var i = ZzzelpScriptArmee.TAGs.indexOf(elements[k].querySelectorAll('span')[0].innerHTML.replace(':', '').trim()); 
+				var i = ZzzelpArmy.TAGs.indexOf(elements[k].querySelectorAll('span')[0].innerHTML.replace(':', '').trim()); 
 				armee[i] = parseInt(elements[k].querySelectorAll('span')[1].innerHTML.replace(/ /g, ''));
 			}
 			var url_ajax = 'mode=stockage_armee&cible=' + pseudo + '&armee=[' + armee + ']&date_armee=' + date + '&';
-			new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ method : 'GET', url : url_ajax }, that.pseudo),
+			new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam({ method : 'GET', url : url_ajax }, that.pseudo),
 				{ success : function(valeurs) {
 					var inputs = document.querySelectorAll('.ligne_armee .input_tableau[data-donnee="armee"]');
 					for(var k=0; k<14; k++) {
@@ -5194,354 +3641,426 @@ function ZzzelpScriptZoneHOF(RC, valeurs, nouveau, guerre) {
 		form.append('RC', JSON.stringify(that.RC));
 		form.append('valeurs', JSON.stringify(that.valeurs));
 		var data = { method : 'POST', url : 'mode=stockage_RC&', data : form };
-		new ZzzelpScriptAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, that.pseudo), {});
+		new ZzzelpAjax( ZzzelpScriptModalGuerre.chooseAjaxParam(data, that.pseudo), {});
 	};
 
 	this.main();
 
 }
-function ZzzelpScriptArmee(unites, niveaux, mode) {
+function ZzzelpArmy(unites, niveaux, mode) {
 	
 	var armee = this;
 	this.mode = (typeof mode == 'undefined') ? 'armee' : 'chasse';
 	this.length = (this.mode == 'armee') ? 14 : 17;
 	
-	this.new_armee = function() {
-		return new ZzzelpScriptArmee(ZzzelpScriptArmee.getEmptyArmee(armee.length), armee.niveaux);
-	};
+	this.unites = (unites ? unites : ZzzelpArmy.getEmptyArmee(this.length));
+	this.niveaux = (niveaux ? niveaux : this.getDefaultLevels());
+}
 
-	this.copy = function() {
-		return new ZzzelpScriptArmee(JSON.parse(JSON.stringify(armee.unites)), JSON.parse(JSON.stringify(armee.niveaux)));
-	};
+ZzzelpArmy.prototype.new_armee = function() {
+	return new ZzzelpArmy(ZzzelpArmy.getEmptyArmee(this.length), this.niveaux);
+};
 
-	this.extraction_armee = function (n) {
-		var armee_2 = armee.new_armee(),
-			i = 0, k = 0;
-		while (i<n) {
-			if(i + armee.unites[armee.length-1-k] <= n) {
-				i += armee.unites[armee.length-1-k];
-				armee_2.unites[armee.length-1-k] = armee.unites[armee.length-1-k];
-			}
-			else {
-				armee_2.unites[armee.length-1-k] = n - i;
-				i = n;
-			}
-			k++;
-		}
-		return armee_2;
-	};
+ZzzelpArmy.prototype.copy = function() {
+	return new ZzzelpArmy(JSON.parse(JSON.stringify(this.unites)), JSON.parse(JSON.stringify(this.niveaux)));
+};
 
-	this.armeePostCombat = function(morts) {
-		return armee.extraction_armee(armee.getCapaFlood() - morts);	
-	};
-
-	this.noXP = function() {
-		var a = armee.unites,
-			unites = [a[0]+a[1]+a[2],0,0,a[3]+a[4]+a[9],0,a[5]+a[6],0,a[7]+a[8],0,0,a[10]+a[11],0,a[12]+a[13],0];
-		return new ZzzelpScriptArmee(unites, armee.niveaux);
-	};
-
-	this.XP = function(JSN) {
-		return JSN ? this.XPavecJSN() : this.XPsansJSN();
-	};
-
-	this.XPavecJSN = function() {
-		var a = armee.unites,
-			unites = [0,0,a[0]+a[1]+a[2],0,0,0,a[5]+a[6],0,a[7]+a[8],a[3]+a[4]+a[9],0,a[10]+a[11],0,a[12]+a[13]];
-		return new ZzzelpScriptArmee(unites, armee.niveaux);
-	};
-
-	this.XPsansJSN = function() {
-		var a = armee.unites,
-			unites = [a[0],0,a[1]+a[2],0,0,0,a[5]+a[6],0,a[7]+a[8],a[3]+a[4]+a[9],0,a[10]+a[11],0,a[12]+a[13]];
-		return new ZzzelpScriptArmee(unites, armee.niveaux);
-	};
-
-	this.isXP = function() {
-		for(var i=0; i<armee.length; i++) {
-			if(ZzzelpScriptArmee.unites_XP && armee.getUnite(i) > 0) {
-				return false;
-			}
-		}
-		return true;
-	};
-
-	this.isNull = function() {
-		return (armee.getCapaFlood() === 0);
-	};
-
-	this.isDead = function(kill) {
-		return (armee.getCapaFlood() <= kill);
-	};
-
-	this.getUnite = function(unite) {
-		return armee.unites[unite];
-	};
-
-	this.setUnite = function(unite, valeur) {
-		armee.unites[unite] = valeur;
-	};
-
-	this.addUnite = function(unite, valeur) {
-		armee.unites[unite] += valeur;
-	};
-
-	this.getAttaqueHB = function() {
-		var attaque = 0,
-			coeffs = ZzzelpScriptArmee.attaque;
-		for(var i=0;i<armee.length;i++) {
-			attaque += armee.unites[i]*coeffs[i];
-		}
-		return attaque;
-	};
-
-	this.getVieHB = function() {
-		var vie = 0,
-			coeffs = ZzzelpScriptArmee.vie;
-		for(var i=0;i<armee.length;i++) {
-			vie += armee.unites[i]*coeffs[i];
-		}
-		return vie;
-	};
-
-	this.getDefenseHB = function() {
-		var defense = 0,
-			coeffs = ZzzelpScriptArmee.defense;
-		for(var i=0;i<armee.length;i++) {
-			defense += armee.unites[i]*coeffs[i];
-		}
-		return defense;
-	};
-
-	this.getCapaFlood = function() {
-		var capa_flood = 0;
-		for(var i=0;i<armee.length;i++) {
-			capa_flood += armee.unites[i];
-		}
-		return capa_flood;
-	};
-
-	this.getConsommation = function() {
-		var consommation = 0,
-			coeffs = ZzzelpScriptArmee.consommation,
-			pourcentages = [0.05,0.1,0.15];
-		for(var i=0;i<armee.length;i++) {
-			consommation += armee.unites[i]*coeffs[i]*pourcentages[this.niveaux.lieu];
-		}
-		return parseInt(consommation);
-	};
-
-	this.getHOF = function() {
-		var secondes = 0,
-			coeffs = ZzzelpScriptArmee.HOF;
-		for(var i=0;i<armee.length;i++) {
-			secondes += armee.unites[i]*coeffs[i];
-		}
-		return secondes;
-	};
-
-	this.getHOFAnnees = function() {
-		return parseInt(this.getHOF()/31557600);
-	};
-
-	this.getVieAB = function() {
-		if(armee.niveaux.lieu === 0) {
-			return parseInt(this.getVieHB() * (1+0.1*armee.niveaux.bouclier));
-		}
-		else if(armee.niveaux.lieu == 1) {
-			return parseInt(this.getVieHB() * (1+0.05*(armee.niveaux.niveau_lieu+2) + 0.1*armee.niveaux.bouclier));
+ZzzelpArmy.prototype.extraction_armee = function (n) {
+	var armee_2 = this.new_armee(),
+		i = 0, k = 0;
+	while (i<n) {
+		if(i + this.unites[this.length-1-k] <= n) {
+			i += this.unites[this.length-1-k];
+			armee_2.unites[this.length-1-k] = this.unites[this.length-1-k];
 		}
 		else {
-			return parseInt(this.getVieHB() * (1+0.15*(armee.niveaux.niveau_lieu+2) + 0.1*armee.niveaux.bouclier));
-		}	
-	};
-
-	this.getAttaqueAB = function() {
-		return parseInt(this.getAttaqueHB() * (1+armee.niveaux.armes*0.1));
-	};
-
-	this.getDefenseAB = function() {
-		return parseInt(this.getDefenseHB() * (1+armee.niveaux.armes*0.1));
-	};
-
-	this.getStatistiquesAB = function() {
-		return {
-			attaque : this.getAttaqueAB(),
-			defense : this.getDefenseAB(),
-			vie : this.getVieAB(),
-			capa_flood : this.getCapaFlood(),
-			HOF : this.getHOF()
-		};
-	};
-
-	this.logStatistiques = function() {
-		armee.statistiques = armee.getStatistiquesAB();
-	};
-
-	this.getArmes = function() {
-		return armee.niveaux.armes;
-	};
-
-	this.getBouclier = function() {
-		return armee.niveaux.bouclier;
-	};
-
-	this.getNiveauLieu = function() {
-		return armee.niveaux.niveau_lieu;
-	};
-
-	this.getLieu = function() {
-		return armee.niveaux.lieu;
-	};
-
-	this.getVitesseChasse = function() {
-		return armee.niveaux.vitesse_chasse;
-	};
-
-
-	/*
-		Gestion des niveaux
-	*/
-	this.getDefaultLevels = function() {
-		return {
-			armes : 0,
-			bouclier : 0,
-			lieu : 0,
-			niveau_lieu : 0,
-			vitesse_chasse : 0
-		};
-	};
-
-	this.setArmes = function(niv) {
-		armee.niveaux.armes = niv;	
-	};
-
-	this.setBouclier = function(niv) {
-		armee.niveaux.bouclier = niv;
-	};
-
-	this.setNiveauLieu = function(niv) {
-		armee.niveaux.niveau_lieu = niv;
-	};
-
-	this.setLieu = function(niv) {
-		armee.niveaux.lieu = niv;
-	};
-
-	this.setVitesseChasse = function(niv) {
-		armee.niveaux.vitesse_chasse = niv;
-	};
-
-	this.computeArmes = function(degats) {
-		armee.niveaux.armes = (degats.HB > 9) ? Math.round(10*(degats.bonus/degats.HB)) : 0;
-	};
-
-	this.computeNiveauxVie = function(morts, degats) {
-		var vie_tuee = armee.getViePerdue(morts, armee);
-		if(vie_tuee > 0) {
-			if(this.getLieu() === 0) {
-				armee.setBouclier(Math.round((((degats.HB + degats.bonus) / vie_tuee) - 1) * 10));
-			}
-			else {
-				armee.computeNiveauxVieHorsTDC(morts, degats, vie_tuee);
-			}
+			armee_2.unites[this.length-1-k] = n - i;
+			i = n;
 		}
-	};
+		k++;
+	}
+	return armee_2;
+};
 
-	this.computeNiveauxVieHorsTDC = function(morts, degats, vie_tuee) {
-		var lieu = armee.niveaux.lieu;
-		for(var ecart = 0; ecart<5; ecart++) {
-			for(i=-1; i<2; i+=2) {
-				if(ecart > 0 || i == 1) {
-					var bouclier = armee.getArmes() + ecart*i,
-						niveau_lieu = (((degats.HB + degats.bonus) / vie_tuee) - 1 - bouclier * 0.1) / ((lieu == 1) ? 0.05 : 0.15) - 2;
-					if (Math.abs(niveau_lieu - Math.round(niveau_lieu)) < 0.1 && niveau_lieu <= 45) {
-						armee.setBouclier(bouclier); 
-						armee.setNiveauLieu(Math.round(niveau_lieu));
-						break;
-					}
+ZzzelpArmy.prototype.armeePostCombat = function(morts) {
+	return this.extraction_armee(this.getCapaFlood() - morts);	
+};
+
+ZzzelpArmy.prototype.noXP = function() {
+	var a = this.unites,
+		unites = [a[0]+a[1]+a[2],0,0,a[3]+a[4]+a[9],0,a[5]+a[6],0,a[7]+a[8],0,0,a[10]+a[11],0,a[12]+a[13],0];
+	return new ZzzelpArmy(unites, this.niveaux);
+};
+
+ZzzelpArmy.prototype.XP = function(JSN) {
+	return JSN ? this.XPavecJSN() : this.XPsansJSN();
+};
+
+ZzzelpArmy.prototype.XPavecJSN = function() {
+	var a = this.unites,
+		unites = [0,0,a[0]+a[1]+a[2],0,0,0,a[5]+a[6],0,a[7]+a[8],a[3]+a[4]+a[9],0,a[10]+a[11],0,a[12]+a[13]];
+	return new ZzzelpArmy(unites, this.niveaux);
+};
+
+ZzzelpArmy.prototype.XPsansJSN = function() {
+	var a = this.unites,
+		unites = [a[0],0,a[1]+a[2],0,0,0,a[5]+a[6],0,a[7]+a[8],a[3]+a[4]+a[9],0,a[10]+a[11],0,a[12]+a[13]];
+	return new ZzzelpArmy(unites, this.niveaux);
+};
+
+ZzzelpArmy.prototype.isXP = function() {
+	for(var i=0; i<this.length; i++) {
+		if(ZzzelpArmy.unites_XP && this.getUnite(i) > 0) {
+			return false;
+		}
+	}
+	return true;
+};
+
+ZzzelpArmy.prototype.isNull = function() {
+	return (this.getCapaFlood() === 0);
+};
+
+ZzzelpArmy.prototype.isDead = function(kill) {
+	return (this.getCapaFlood() <= kill);
+};
+
+ZzzelpArmy.prototype.getUnite = function(unite) {
+	return this.unites[unite];
+};
+
+ZzzelpArmy.prototype.setUnite = function(unite, valeur) {
+	this.unites[unite] = valeur;
+};
+
+ZzzelpArmy.prototype.addUnite = function(unite, valeur) {
+	this.unites[unite] += valeur;
+};
+
+ZzzelpArmy.prototype.getAttaqueHB = function() {
+	var attaque = 0,
+		coeffs = ZzzelpArmy.attaque;
+	for(var i=0;i<this.length;i++) {
+		attaque += this.unites[i]*coeffs[i];
+	}
+	return attaque;
+};
+
+ZzzelpArmy.prototype.getVieHB = function() {
+	var vie = 0,
+		coeffs = ZzzelpArmy.vie;
+	for(var i=0;i<this.length;i++) {
+		vie += this.unites[i]*coeffs[i];
+	}
+	return vie;
+};
+
+ZzzelpArmy.prototype.getDefenseHB = function() {
+	var defense = 0,
+		coeffs = ZzzelpArmy.defense;
+	for(var i=0;i<this.length;i++) {
+		defense += this.unites[i]*coeffs[i];
+	}
+	return defense;
+};
+
+ZzzelpArmy.prototype.getCapaFlood = function() {
+	var capa_flood = 0;
+	for(var i=0;i<this.length;i++) {
+		capa_flood += this.unites[i];
+	}
+	return capa_flood;
+};
+
+ZzzelpArmy.prototype.getConsommation = function() {
+	var consommation = 0,
+		coeffs = ZzzelpArmy.consommation,
+		pourcentages = [0.05,0.1,0.15];
+	for(var i=0;i<this.length;i++) {
+		consommation += this.unites[i]*coeffs[i]*pourcentages[this.niveaux.lieu];
+	}
+	return parseInt(consommation);
+};
+
+ZzzelpArmy.prototype.getHOF = function() {
+	var secondes = 0,
+		coeffs = ZzzelpArmy.HOF;
+	for(var i=0;i<this.length;i++) {
+		secondes += this.unites[i]*coeffs[i];
+	}
+	return secondes;
+};
+
+ZzzelpArmy.prototype.getHOFAnnees = function() {
+	return parseInt(this.getHOF()/31557600);
+};
+
+ZzzelpArmy.prototype.getVieAB = function() {
+	if(this.niveaux.lieu === 0) {
+		return parseInt(this.getVieHB() * (1+0.1*this.niveaux.bouclier));
+	}
+	else if(this.niveaux.lieu == 1) {
+		return parseInt(this.getVieHB() * (1+0.05*(this.niveaux.niveau_lieu+2) + 0.1*this.niveaux.bouclier));
+	}
+	else {
+		return parseInt(this.getVieHB() * (1+0.15*(this.niveaux.niveau_lieu+2) + 0.1*this.niveaux.bouclier));
+	}	
+};
+
+ZzzelpArmy.prototype.getAttaqueAB = function() {
+	return parseInt(this.getAttaqueHB() * (1+this.niveaux.armes*0.1));
+};
+
+ZzzelpArmy.prototype.getDefenseAB = function() {
+	return parseInt(this.getDefenseHB() * (1+this.niveaux.armes*0.1));
+};
+
+ZzzelpArmy.prototype.getStatistiquesAB = function() {
+	return {
+		attaque : this.getAttaqueAB(),
+		defense : this.getDefenseAB(),
+		vie : this.getVieAB(),
+		capa_flood : this.getCapaFlood(),
+		HOF : this.getHOF()
+	};
+};
+
+ZzzelpArmy.prototype.logStatistiques = function() {
+	this.statistiques = this.getStatistiquesAB();
+};
+
+ZzzelpArmy.prototype.getArmes = function() {
+	return this.niveaux.armes;
+};
+
+ZzzelpArmy.prototype.getBouclier = function() {
+	return this.niveaux.bouclier;
+};
+
+ZzzelpArmy.prototype.getNiveauLieu = function() {
+	return this.niveaux.niveau_lieu;
+};
+
+ZzzelpArmy.prototype.getLieu = function() {
+	return this.niveaux.lieu;
+};
+
+ZzzelpArmy.prototype.getVitesseChasse = function() {
+	return this.niveaux.vitesse_chasse;
+};
+
+ZzzelpArmy.prototype.getDefaultLevels = function() {
+	return {
+		armes : 0,
+		bouclier : 0,
+		lieu : 0,
+		niveau_lieu : 0,
+		vitesse_chasse : 0
+	};
+};
+
+ZzzelpArmy.prototype.setArmes = function(niv) {
+	this.niveaux.armes = niv;	
+};
+
+ZzzelpArmy.prototype.setBouclier = function(niv) {
+	this.niveaux.bouclier = niv;
+};
+
+ZzzelpArmy.prototype.setNiveauLieu = function(niv) {
+	this.niveaux.niveau_lieu = niv;
+};
+
+ZzzelpArmy.prototype.setLieu = function(niv) {
+	this.niveaux.lieu = niv;
+};
+
+ZzzelpArmy.prototype.setVitesseChasse = function(niv) {
+	this.niveaux.vitesse_chasse = niv;
+};
+
+ZzzelpArmy.prototype.computeArmes = function(degats) {
+	this.niveaux.armes = (degats.HB > 9) ? Math.round(10*(degats.bonus/degats.HB)) : 0;
+};
+
+ZzzelpArmy.prototype.computeNiveauxVie = function(morts, degats) {
+	var vie_tuee = this.getViePerdue(morts);
+	if(vie_tuee > 0) {
+		if(this.getLieu() === 0) {
+			this.setBouclier(Math.round((((degats.HB + degats.bonus) / vie_tuee) - 1) * 10));
+		}
+		else {
+			this.computeNiveauxVieHorsTDC(morts, degats, vie_tuee);
+		}
+	}
+};
+
+ZzzelpArmy.prototype.computeNiveauxVieHorsTDC = function(morts, degats, vie_tuee) {
+	var lieu = this.niveaux.lieu;
+	for(var ecart = 0; ecart<5; ecart++) {
+		for(i=-1; i<2; i+=2) {
+			if(ecart > 0 || i == 1) {
+				var bouclier = this.getArmes() + ecart*i,
+					niveau_lieu = (((degats.HB + degats.bonus) / vie_tuee) - 1 - bouclier * 0.1) / ((lieu == 1) ? 0.05 : 0.15) - 2;
+				if (Math.abs(niveau_lieu - Math.round(niveau_lieu)) < 0.1 && niveau_lieu <= 45) {
+					this.setBouclier(bouclier); 
+					this.setNiveauLieu(Math.round(niveau_lieu));
+					break;
 				}
 			}
 		}
-	};
+	}
+};
 
-	this.computeReplique = function(vie_def) {
-		var attaque = armee.getAttaqueAB();
-		if(attaque > vie_def*3) {
-			return 0.1;
+ZzzelpArmy.prototype.computeReplique = function(vie_def) {
+	var attaque = this.getAttaqueAB();
+	if(attaque > vie_def*3) {
+		return 0.1;
+	}
+	else if(attaque > vie_def*2) {
+		return 0.3;
+	}
+	else if(attaque > vie_def*1,5) {
+		return 0.5;
+	}
+	else {
+		return 1;
+	}
+};
+
+ZzzelpArmy.prototype.getViePerdue = function(morts) {
+	var vie = 0,
+		n = morts;
+	for(var i=0;i<this.length;i++) {
+		if(n > this.unites[i]) {
+			vie += this.unites[i]*ZzzelpArmy.vie[i];
+			n -= this.unites[i];
 		}
-		else if(attaque > vie_def*2) {
-			return 0.3;
+		else if(n > 0) {
+			vie += (n+0.5)*(ZzzelpArmy.vie[i]);
+			n = 0;
 		}
-		else if(attaque > vie_def*1,5) {
-			return 0.5;
-		}
-		else {
-			return 1;
-		}
-	};
+	}
+	return vie;
+};
 
+ZzzelpArmy.prototype.applyXP = function(XPs) {
+	var unites = this.unites.slice(),
+		armee_XP = this.copy();
+	for(var i=0; i<XPs.length; i++) {
+		armee_XP.unites[XPs[i].avant] -= XPs[i].nombre;
+		armee_XP.unites[XPs[i].apres] += XPs[i].nombre;
+	}
+	return armee_XP;
+};
 
-	this.getViePerdue = function(morts) {
-		var vie = 0,
-			n = morts;
-		for(var i=0;i<armee.length;i++) {
-			if(n > armee.unites[i]) {
-				vie += armee.unites[i]*ZzzelpScriptArmee.vie[i];
-				n -= armee.unites[i];
-			}
-			else if(n > 0) {
-				vie += (n+0.5)*(ZzzelpScriptArmee.vie[i]);
-				n = 0;
-			}
-		}
-		return vie;
-	};
+ZzzelpArmy.noms_singulier = new Array(
+	"Jeune Soldate Naine",
+	"Soldate Naine",
+	"Naine d’Elite",
+	"Jeune Soldate",
+	"Soldate",
+	"Concierge",
+	"Concierge d’élite", 
+	"Artilleuse",
+	"Artilleuse d’élite",
+	"Soldate d’élite",
+	"Tank",
+	"Tank d’élite",
+	"Tueuse","Tueuse d’élite"
+);
 
+ZzzelpArmy.noms_pluriel = new Array(
+	"Jeunes Soldates Naines", 
+	"Soldates Naines", 
+	"Naines d’Elites", 
+	"Jeunes Soldates", 
+	"Soldates", 
+	"Concierges", 
+	"Concierges d’élites", 
+	"Artilleuses", 
+	"Artilleuses d’élites", 
+	"Soldates d’élites", 
+	"Tanks", 
+	"Tanks d’élites", 
+	"Tueuses",  
+	"Tueuses d’élites"
+);
 
-	/*
-		Gestion de l'XP
-	*/
-	this.applyXP = function(XPs) {
-		var unites = armee.unites.slice(),
-			armee_XP = armee.copy();
-		for(var i=0; i<XPs.length; i++) {
-			armee_XP.unites[XPs[i].avant] -= XPs[i].nombre;
-			armee_XP.unites[XPs[i].apres] += XPs[i].nombre;
-		}
-		return armee;
-	};
+ZzzelpArmy.ex_noms_singulier = new Array(
+	"Jeune Soldate Naine", 
+	"Soldate Naine", 
+	"Naine d'Elite", 
+	"Jeune Soldate", 
+	"Soldate", 
+	"Concierge", 
+	"Concierge d'élite", 
+	"Artilleuse", 
+	"Artilleuse d'élite", 
+	"Soldate d'élite", 
+	"Tank", 
+	"Tank d'élite", 
+	"Tueuse",  
+	"Tueuse d'élite"
+);
 
-	this.unites = (unites ? unites : ZzzelpScriptArmee.getEmptyArmee(armee.length));
-	this.niveaux = (niveaux ? niveaux : armee.getDefaultLevels());
-}
+ZzzelpArmy.ex_noms_pluriel = new Array(
+	"Jeunes Soldates Naines", 
+	"Soldates Naines", 
+	"Naines d'Elites", 
+	"Jeunes Soldates", 
+	"Soldates", 
+	"Concierges", 
+	"Concierges d'élites", 
+	"Artilleuses", 
+	"Artilleuses d'élites", 
+	"Soldates d'élites", 
+	"Tanks", 
+	"Tanks d'élites", 
+	"Tueuses",  
+	"Tueuses d'élites"
+);
 
-ZzzelpScriptArmee.noms_singulier = new Array(
-	"Jeune Soldate Naine", "Soldate Naine", "Naine d’Elite", "Jeune Soldate", "Soldate", "Concierge", "Concierge d’élite", 
-	"Artilleuse", "Artilleuse d’élite", "Soldate d’élite", "Tank", "Tank d’élite", "Tueuse",  "Tueuse d’élite");
-ZzzelpScriptArmee.noms_pluriel = new Array(
-	"Jeunes Soldates Naines", "Soldates Naines", "Naines d’Elites", "Jeunes Soldates", "Soldates", "Concierges", "Concierges d’élites", 
-	"Artilleuses", "Artilleuses d’élites", "Soldates d’élites", "Tanks", "Tanks d’élites", "Tueuses",  "Tueuses d’élites");
-ZzzelpScriptArmee.ex_noms_singulier = new Array(
-	"Jeune Soldate Naine", "Soldate Naine", "Naine d'Elite", "Jeune Soldate", "Soldate", "Concierge", "Concierge d'élite", 
-	"Artilleuse", "Artilleuse d'élite", "Soldate d'élite", "Tank", "Tank d'élite", "Tueuse",  "Tueuse d'élite");
-ZzzelpScriptArmee.ex_noms_pluriel = new Array(
-	"Jeunes Soldates Naines", "Soldates Naines", "Naines d'Elites", "Jeunes Soldates", "Soldates", "Concierges", "Concierges d'élites", 
-	"Artilleuses", "Artilleuses d'élites", "Soldates d'élites", "Tanks", "Tanks d'élites", "Tueuses",  "Tueuses d'élites");
-ZzzelpScriptArmee.TAGs = new Array('JSN', 'SN', 'NE', 'JS', 'S', 'C', 'CE', 'A', 'AE', 'SE', 'Tk', 'TkE', 'T', 'TE');
-ZzzelpScriptArmee.ordre = new Array('unite1', 'unite2', 'unite3', 'unite4', 'unite5', 'unite6', 'unite14', 
-									'unite7', 'unite8', 'unite9', 'unite10', 'unite13', 'unite11', 'unite12');
-ZzzelpScriptArmee.attaque = new Array(3,5,7,10,15,1,1,30,35,24,55,80,50,55); 
-ZzzelpScriptArmee.vie = new Array(8,10,13,16,20,30,40,10,12,27,35,50,50,55); 
-ZzzelpScriptArmee.defense = new Array(2,4,6,9,14,25,35,15,18,23,1,1,50,55);
-ZzzelpScriptArmee.HOF = new Array(300,450,570,740,1000,1410,1410,1440,1520,1450,1860,1860,2740,2740);
-ZzzelpScriptArmee.ID = new Array(1,2,3,4,5,6,14,7,8,9,10,13,11,12);
-ZzzelpScriptArmee.consommation = new Array(16,20,26,30,36,70,100,30,34,44,100,150,80,90);
-ZzzelpScriptArmee.unites_XP = new Array(true, true, false, true, true, true, false, true, false, false, true, false, true, false);
+ZzzelpArmy.TAGs = new Array('JSN', 'SN', 'NE', 'JS', 'S', 'C', 'CE', 'A', 'AE', 'SE', 'Tk', 'TkE', 'T', 'TE');
 
-ZzzelpScriptArmee.getArmee = function(zone, mode) {
+ZzzelpArmy.ordre = new Array(
+	'unite1', 
+	'unite2', 
+	'unite3', 
+	'unite4', 
+	'unite5', 
+	'unite6', 
+	'unite14', 
+	'unite7', 
+	'unite8', 
+	'unite9',
+	'unite10', 
+	'unite13', 
+	'unite11', 
+	'unite12'
+);
+
+ZzzelpArmy.attaque = new Array(3,5,7,10,15,1,1,30,35,24,55,80,50,55); 
+
+ZzzelpArmy.vie = new Array(8,10,13,16,20,30,40,10,12,27,35,50,50,55); 
+
+ZzzelpArmy.defense = new Array(2,4,6,9,14,25,35,15,18,23,1,1,50,55);
+
+ZzzelpArmy.HOF = new Array(300,450,570,740,1000,1410,1410,1440,1520,1450,1860,1860,2740,2740);
+
+ZzzelpArmy.ID = new Array(1,2,3,4,5,6,14,7,8,9,10,13,11,12);
+
+ZzzelpArmy.consommation = new Array(16,20,26,30,36,70,100,30,34,44,100,150,80,90);
+
+ZzzelpArmy.unites_XP = new Array(true, true, false, true, true, true, false, true, false, false, true, false, true, false);
+
+ZzzelpArmy.getArmee = function(zone, mode) {
 	var armee = [0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-		armees_lieu = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
+		armees_lieu = [
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		],
 		tableaux = zone.querySelectorAll('.simulateur'),
 		tableau, i;
 	for(i=0;i<tableaux.length;i++) {
@@ -5558,7 +4077,7 @@ ZzzelpScriptArmee.getArmee = function(zone, mode) {
 			var colonnes = lignes[n].querySelectorAll('td'),
 				unite = colonnes[0].querySelector('.pas_sur_telephone');
 			if(unite !== null) {
-				var index_unite = ZzzelpScriptArmee.noms_singulier.indexOf(unite.innerHTML);
+				var index_unite = ZzzelpArmy.noms_singulier.indexOf(unite.innerHTML);
 				for(i=1;i<colonnes.length;i++) {
 					var contenu = colonnes[i].innerHTML;
 					if(~contenu.indexOf('unite') && contenu.indexOf('fleche') == -1) {
@@ -5577,37 +4096,37 @@ ZzzelpScriptArmee.getArmee = function(zone, mode) {
 			}
 		}
 	}
-	return new ZzzelpScriptArmee((mode === 0) ? armee : armees_lieu);
+	return new ZzzelpArmy((mode === 0) ? armee : armees_lieu);
 };
 
-ZzzelpScriptArmee.getArmeeAjax = function(callBack) {
-	new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'Armee.php', addDOM : true },
+ZzzelpArmy.getArmeeAjax = function(callBack) {
+	new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'Armee.php', addDOM : true },
 		{ success : function(zone_page) {
-			callBack(ZzzelpScriptArmee.getArmee(zone_page, 0));
+			callBack(ZzzelpArmy.getArmee(zone_page, 0));
 		}
 	});
 };
 
-ZzzelpScriptArmee.getArmeeReine = function(callBack) {
-	new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'Reine.php', addDOM : true },
+ZzzelpArmy.getArmeeReine = function(callBack) {
+	new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'Reine.php', addDOM : true },
 		{ success : function(zone_page) {
 			var valeurs = zone_page.querySelectorAll('span[id*="armee_initial"]'),
 				armee = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 			for(var i=0; i<valeurs.length; i++) {
-				var index = ZzzelpScriptArmee.noms_singulier.indexOf(valeurs[i].parentNode.querySelector('h2').innerHTML);
+				var index = ZzzelpArmy.noms_singulier.indexOf(valeurs[i].parentNode.querySelector('h2').innerHTML);
 				if(index >= 0) {
 					armee[index] = parseInt(valeurs[i].innerHTML);
 				}
 			}
-			callBack(new ZzzelpScriptArmee(armee));
+			callBack(new ZzzelpArmy(armee));
 		}
 	});
 };
 
-ZzzelpScriptArmee.new_armee_unite = function(n,i, niveaux) {
+ZzzelpArmy.new_armee_unite = function(n,i, niveaux) {
 	var unites = [0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	unites[i] = n;
-	return new ZzzelpScriptArmee(unites, niveaux);
+	return new ZzzelpArmy(unites, niveaux);
 };
 
 /*
@@ -5615,8 +4134,8 @@ ZzzelpScriptArmee.new_armee_unite = function(n,i, niveaux) {
  * Pour l'instant gère les copies de la page armée et de RC
  * str -> array
 */
-ZzzelpScriptArmee.analyse = function(texte, type) {
-	var unites = ZzzelpScriptArmee.getEmptyArmee(14);
+ZzzelpArmy.analyse = function(texte) {
+	var unites = ZzzelpArmy.getEmptyArmee(14);
 	texte = texte.replace(/(Vers le Terrain de Chasse)|(Vers la Fourmilière)|(Vers la Loge Impériale)/gi, '');
 	texte = texte.replace(/(Vers le TDC)|(Vers le Fourmilière)|(Vers la Loge)/gi, '');
 	texte = texte.replace(/(Vos raiders.*secondes?)|(Vos chasseuses.*secondes?)|(Vous allez attaquer.*secondes?)|(inflige.*\.)|(Arriv.*[0-9]{2}h[0-9]{2})|(\\(s\\))/gi, '');
@@ -5626,7 +4145,7 @@ ZzzelpScriptArmee.analyse = function(texte, type) {
 	for(var i=0; i<texte.length; i++) {
 		var ligne = texte[i].trim();
 		if(isNaN(ligne.replace(/ /g, ''))) {
-			var id_unite = ZzzelpScriptArmee.getIDunite(ligne);
+			var id_unite = ZzzelpArmy.getIDunite(ligne);
 			if(~id_unite) {
 				unite_tampon = id_unite;
 			}
@@ -5640,7 +4159,7 @@ ZzzelpScriptArmee.analyse = function(texte, type) {
 			}
 			else if(ligne.match(new RegExp('([0-9 ]+) ([^.]+)'))) {
 				var valeurs = new RegExp('([0-9 ]+) ([^.]+)').exec(ligne),
-					unite = ZzzelpScriptArmee.getIDunite(valeurs[2]); 
+					unite = ZzzelpArmy.getIDunite(valeurs[2]); 
 				unites[unite] += parseInt(valeurs[1].replace(/ /g, ''));
 			}
 		}
@@ -5648,27 +4167,27 @@ ZzzelpScriptArmee.analyse = function(texte, type) {
 			unites[unite_tampon] += parseInt(ligne.replace(/ /g, ''));
 		}
 	}
-	var armee = new ZzzelpScriptArmee(unites);
+	var armee = new ZzzelpArmy(unites);
 	return armee;
 };
 
-ZzzelpScriptArmee.getIDunite = function(unite) {
+ZzzelpArmy.getIDunite = function(unite) {
 	var index = new Array(
-		ZzzelpScriptArmee.noms_singulier,
-		ZzzelpScriptArmee.noms_pluriel,
-		ZzzelpScriptArmee.ex_noms_singulier,
-		ZzzelpScriptArmee.ex_noms_pluriel,
-		ZzzelpScriptArmee.TAGs
+		noms_singulier,
+		noms_pluriel,
+		ex_noms_singulier,
+		ex_noms_pluriel,
+		TAGs
 	);
 	for(var n=0; n<index.length; n++) {
 		if(~index[n].indexOf(unite)) {
-			return index[n].indexOf(unite);
+			return ZzzelpArmy[index[n]].indexOf(unite);
 		}
 	}
 	return -1;
 };
 
-ZzzelpScriptArmee.getEmptyArmee = function(length) {
+ZzzelpArmy.getEmptyArmee = function(length) {
 	var armee = [];
 	for(var i=0; i<length; i++) {
 		armee.push(0);
@@ -5730,7 +4249,7 @@ function ZzzelpScriptCadre(zzzelp) {
 			lien_titre = document.createElement('a');
 		titre.className = 'titre_colonne_cliquable';
 		titre.onclick = function onclick(event) {
-			window.open(url_zzzelp);
+			window.open(ZzzelpScript.url);
 			return false;
 		};
 		lien_titre.innerHTML = 'Zzzelp ' + cadre.version;
@@ -5763,7 +4282,7 @@ function ZzzelpScriptCadre(zzzelp) {
 		lien_aide.className = 'zzzelp_lien_aide';
 		lien_aide.innerHTML = 'Activer Zzzelp ' + ze_serveur;
 		lien_aide.onclick = function onclick(event) {
-			document.location.href = url_zzzelp + '/activation_pseudo?serveur=' + ze_serveur + '&pseudo=' + gpseudo + '&token=' + getToken();
+			document.location.href = ZzzelpScript.url + '/activation_pseudo?serveur=' + ze_serveur + '&pseudo=' + gpseudo + '&token=' + getToken();
 		};
 		cadre.zone_contenu.appendChild(lien_aide);
 	};
@@ -5879,7 +4398,7 @@ function ZzzelpScriptCadre(zzzelp) {
 		dernier.setAttribute('style', 'display:none');
 		valeur.appendChild(dernier);
 		valeur.appendChild(duree);
-		img.src = url_zzzelp + '/Images/refresh.png';
+		img.src = ZzzelpScript.url + '/Images/refresh.png';
 		img.width = '20';
 		img.setAttribute('style', 'cursor:pointer');
 		img.dataset.type = cadre.exports[i].id;
@@ -5917,7 +4436,7 @@ function ZzzelpScriptCadre(zzzelp) {
 		}
 		localStorage.setItem('zzzelp_parametres_' + ze_serveur, JSON.stringify(parametres));
 		var url_ajax = 'update_script?option=' + nom + '&categorie=' + categorie + '&valeur=' + valeur + '&';		
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, force : mode },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, force : mode },
 			{ authentication_issue : function() {
 				cadre.updateParameters(categorie, nom, valeur, type, 2);
 			}
@@ -6091,7 +4610,7 @@ function ZzzelpScriptCadre(zzzelp) {
 		input.value = TAG;
 		input.placeholder = (ligne.dataset.type == 'alliances') ? 'TAG' : 'Pseudo';
 		img.setAttribute('width', '15px');
-		img.src = url_zzzelp + '/Images/valider.png';
+		img.src = ZzzelpScript.url + '/Images/valider.png';
 		img.setAttribute('style', 'cursor:pointer');
 		img.onclick = function onclick(event) {
 			var ligne = this.parentNode.parentNode;
@@ -6112,7 +4631,7 @@ function ZzzelpScriptCadre(zzzelp) {
 		cell2.setAttribute('style', 'width:30px');
 		cell3.setAttribute('style', 'width:30px');
 		cell1.innerHTML = (type == 'alliances') ? ze_Lien_alliance(valeur) : ze_Lien_profil(valeur);
-		img1.src = url_zzzelp + '/Images/edit.png';
+		img1.src = ZzzelpScript.url + '/Images/edit.png';
 		img2.src = 'http://www.icone-png.com/png/25/24717.png';
 		img1.setAttribute('width', '15px');
 		img2.setAttribute('width', '15px');
@@ -6184,7 +4703,7 @@ function ZzzelpScriptCadre(zzzelp) {
 		if(ressources.length > 0) {
 			var ressource = ressources.pop(),
 				suffix = (ressource.id == 'echange_possible') ? '' : ('?type_echange=' + ressource.id);
-			new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'echange.php' + suffix, addDOM : true },
+			new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'echange.php' + suffix, addDOM : true },
 				{ success : function(zone_page) {
 					var ligne = document.querySelector('#zone_onglets_zzzelp table').insertRow(-1);
 					if(ressource.id == 'echange_possible') {
@@ -6241,7 +4760,7 @@ function ZzzelpScriptMessagerie() {
 	var messagerie = this;
 
 	this.getMessageZzzelp = function(mode) {
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'messagerie_script?' },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'messagerie_script?' },
 			{ success : function(messages) {
 				messagerie.init(messages);
 			},
@@ -6577,7 +5096,7 @@ function ZzzelpScriptMessagerie() {
 	};
 
 	this.deleteMPZzzelp = function(id) {
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'messagerie_script?action=suppression_MP' + '&id=' + id + '&' },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'messagerie_script?action=suppression_MP' + '&id=' + id + '&' },
 			{ success : function(url) {
 				location.reload(); 
 			}
@@ -6585,12 +5104,12 @@ function ZzzelpScriptMessagerie() {
 	};
 
 	this.markReadMPZzzelp = function(id) {
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'messagerie_script?action=MP_lu' + '&id=' + id + '&' }, {});
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'messagerie_script?action=MP_lu' + '&id=' + id + '&' }, {});
 	};
 
 	//GUERRE
 	this.getLinkForum = function(mode, pseudo, contenu) {
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'guerre_script?mode=lien_forum&cible=' + pseudo + '&' },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'guerre_script?mode=lien_forum&cible=' + pseudo + '&' },
 			{ success : function(url) {
 				messagerie.addLinkForum(contenu, url);
 			}, authentication_issue : function() {
@@ -6776,7 +5295,7 @@ function ZzzelpScriptMessagerie() {
 	//MESSAGES PAR GROUPE
 	this.getChaineNewMP = function() {
 		if(localStorage.getItem('zzzelp_rangs_' + ze_serveur)) {
-			new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'classementAlliance.php?alliance=' + galliance, addDOM : true, destroyDOM : false },
+			new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'classementAlliance.php?alliance=' + galliance, addDOM : true, destroyDOM : false },
 				{ success : function(zone_page) {
 					var rangs = JSON.parse(localStorage.getItem('zzzelp_rangs_' + ze_serveur)),
 						chaine = new ZzzelpScriptChaine(zone_page);
@@ -6809,7 +5328,7 @@ function ZzzelpScriptMessagerie() {
 				{ nom : 'Chasseurs', id : 'chasseurs', condition : 'role', valeur : 'chasseur' }
 			),
 			data = {};
-		corbeille.src = url_zzzelp + '/Images/trash.png';
+		corbeille.src = ZzzelpScript.url + '/Images/trash.png';
 		corbeille.setAttribute('style', 'height:15px;margin-right:15px;margin-left:10px;cursor:pointer');
 		corbeille.onclick = function onclick(event) {
 			messagerie.cleanPlayers();
@@ -6888,7 +5407,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 	this.tooltips = '';
 
 	this.init = function() {
-		var unites_lieux = ZzzelpScriptArmee.getArmee(document, 1).unites,
+		var unites_lieux = ZzzelpArmy.getArmee(document, 1).unites,
 			niveaux_lieu = [0, zzzelp.compte.getDome(), zzzelp.compte.getLoge()];
 
 		for(var i=0; i<3; i++) {
@@ -6898,7 +5417,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 				niveau_lieu : niveaux_lieu[i],
 				lieu : i
 			};
-			page.armees.push(new ZzzelpScriptArmee(unites_lieux[i], niveaux));
+			page.armees.push(new ZzzelpArmy(unites_lieux[i], niveaux));
 		}
 		page.findTableau();
 		if(typeof page.tableau != 'undefined') {
@@ -6938,7 +5457,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 				var colonnes = lignes[n].cells,
 					unite = colonnes[0].querySelector('.pas_sur_telephone');
 				if(unite !== null) {
-					index_unite = ZzzelpScriptArmee.noms_singulier.indexOf(unite.innerHTML);
+					index_unite = ZzzelpArmy.noms_singulier.indexOf(unite.innerHTML);
 					for(var i=1;i<colonnes.length;i++) {
 						var contenu = colonnes[i].innerHTML;
 						if(~contenu.indexOf('unite') && contenu.indexOf('fleche') == -1) {
@@ -6972,14 +5491,14 @@ function ZzzelpScriptPageArmee(zzzelp) {
 			};
 			colonnes[i].querySelector('span').onclick = function onclick(event) {
 				document.querySelector('#nbTroupes').value = this.innerHTML;
-				document.querySelector('#ChoixUnite').value = ZzzelpScriptArmee.ordre[index_unite];
+				document.querySelector('#ChoixUnite').value = ZzzelpArmy.ordre[index_unite];
 			};
 			if(lieu > 1) {
 				span = document.createElement('span');
 				img = document.createElement('img');
 				span.setAttribute('style', 'float:right;cursor:pointer');
 				span.onclick = function onclick(event) {
-					remplirFormulaire(nombre, ZzzelpScriptArmee.ordre[index_unite], lieu, lieu-1);
+					remplirFormulaire(nombre, ZzzelpArmy.ordre[index_unite], lieu, lieu-1);
 					document.querySelector('#centre input[type=submit]').type = 'hidden';
 					document.querySelector('.simulateur form[action="Armee.php"]').submit();
 				};
@@ -6993,7 +5512,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 				img = document.createElement('img');
 				span.setAttribute('style', 'float:left;cursor:pointer');
 				span.onclick = function onclick(event) {
-					remplirFormulaire(nombre, ZzzelpScriptArmee.ordre[index_unite], lieu, lieu+1);
+					remplirFormulaire(nombre, ZzzelpArmy.ordre[index_unite], lieu, lieu+1);
 					document.querySelector('#centre input[type=submit]').type = 'hidden';
 					document.querySelector('.simulateur form[action="Armee.php"]').submit();
 				};
@@ -7009,7 +5528,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 	};
 
 	this.genererTooltipUnite = function(nombre, index_unite, lieu, className) {
-		var armee = ZzzelpScriptArmee.new_armee_unite(nombre, index_unite, page.armees[lieu-1].niveaux);
+		var armee = ZzzelpArmy.new_armee_unite(nombre, index_unite, page.armees[lieu-1].niveaux);
 		page.genererTooltip(className, [
 			{ titre : 'Vie', valeur : armee.getVieAB() },
 			{ titre : 'Attaque', valeur : armee.getAttaqueAB() },
@@ -7239,7 +5758,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 	this.lignesHOF = function() {
 		var ligne = page.tableau.insertRow(-1),
 			cell, contenu, className, HOF;
-		ligne.setAttribute('id','zzzelp_HOF');
+		ligne.id = 'zzzelp_HOF';
 		ligne.setAttribute('style','cursor:pointer');
 		cell = ligne.insertCell(0);
 		cell.innerHTML = 'Années de ponte';	
@@ -7259,7 +5778,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 			ligne = page.tableau.insertRow(-1);
 			cell = ligne.insertCell(0);
 			ligne.setAttribute('style','display:none');
-			ligne.setAttribute('id','zzzelp_details_HOF');
+			ligne.id = 'zzzelp_details_HOF';
 			cell.innerHTML = 'Années full XP (' + JSN + ' JSN)';	
 			for(n=0; n<3; n++){
 				var armee_XP = page.armees[n].XP(k == 1);
@@ -7273,8 +5792,8 @@ function ZzzelpScriptPageArmee(zzzelp) {
 
 	this.ligneCapaFlood = function() {
 		var ligne = page.tableau.insertRow(-1);
-		ligne.setAttribute('id','zzzelp_CDF');
-		ligne.setAttribute('class','ligne_paire');
+		ligne.id ='zzzelp_CDF';
+		ligne.className = 'ligne_paire';
 		cell = ligne.insertCell(0);
 		cell.innerHTML = 'Capacité de flood';	
 		for(var n=0;n<3;n++) {
@@ -7303,7 +5822,7 @@ function ZzzelpScriptPageArmee(zzzelp) {
 							[{ unite : 0, valeur : 10000 }]
 								];
 			}
-			Placement_antisonde_Ajax([
+			ZzzelpFloodsLauncher.placeAntiSondes([
 				[antisonde[0].unite, antisonde[0].valeur], 
 				[antisonde[1].unite, antisonde[1].valeur]], 
 				document.querySelector('#t').value, 1, true
@@ -7345,7 +5864,7 @@ function ZzzelpScriptAideGhost(zzzelp) {
 			nom : 'Capacité de flood', 
 			id : 'capa_flood_zzzelp',
 			type : 'text',
-			value : ze_Nombre(ZzzelpScriptArmee.getArmee(document, 0).getCapaFlood())
+			value : ze_Nombre(ZzzelpArmy.getArmee(document, 0).getCapaFlood())
 		},{
 			nom : 'Autoriser ghost hors guerre', 
 			id : 'ghost_externe_zzzelp',
@@ -7428,7 +5947,7 @@ function ZzzelpScriptAideGhost(zzzelp) {
 	this.getData = function(n) {
 		var contentType = 'application/x-www-form-urlencoded',
 			data = 'etat=tous&terrain_max=' + (gTDC * 3) + '&fourmiliere_attaquable=true&terrain_min=' + (gTDC / 2) + '&page=' + n;
-		new ZzzelpScriptAjax({ method : 'POST', domain : 'fourmizzz', url : 'ennemie.php', addDOM : true, contentType : contentType, data : data },
+		new ZzzelpAjax({ method : 'POST', domain : 'fourmizzz', url : 'ennemie.php', addDOM : true, contentType : contentType, data : data },
 			{ success : function(zone_page) {
 				if(zone_page.querySelectorAll('#tabEnnemie').length > 0) {
 					var lignes = zone_page.querySelector('#tabEnnemie').rows;
@@ -7530,7 +6049,7 @@ function ZzzelpScriptAideGhost(zzzelp) {
 
 		cell = ligne.insertCell(-1);
 		var img = document.createElement('img');
-		img.src= url_zzzelp + 'Images/icone_attaque.gif';
+		img.src= ZzzelpScript.url + 'Images/icone_attaque.gif';
 		img.setAttribute('style', 'display:block;margin:auto;cursor:pointer');
 		img.onclick = function onclick(event) {
 			that.send(pseudos[i]);
@@ -7605,7 +6124,7 @@ function ze_MAJ_armee(armee, mode) {
 	if(!mode) {
 		mode = 1;
 	}
-	new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'niveaux_script?lieu=armee&niveaux=[' + armee + ']&' },
+	new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'niveaux_script?lieu=armee&niveaux=[' + armee + ']&' },
 		{ authentication_issue : function(valeurs) {
 			ze_MAJ_armee(armee, mode);		
 		}
@@ -7616,7 +6135,7 @@ function ze_Envoi_RC_Zzzelp(RC, analyse, mode, dernier) {
 	var form = new FormData();
 	form.append('RC', JSON.stringify(RC));
 	form.append('valeurs', JSON.stringify(analyse));
-	new ZzzelpScriptAjax({ method : 'POST', domain : 'zzzelp', url : 'RC_script?', data : form },
+	new ZzzelpAjax({ method : 'POST', domain : 'zzzelp', url : 'RC_script?', data : form },
 		{ succes : function(valeurs) {
 			if(FI_guerre && valeurs == 1) {
 				FI_guerre.add_RC_cache(RC, analyse);
@@ -7631,191 +6150,7 @@ function ze_Envoi_RC_Zzzelp(RC, analyse, mode, dernier) {
 }
 
 
-function ZzzelpScriptRapport() {
 
-	var that = this;
-
-	that.rapport = {};
-
-	this.etapes = new Array(
-		{ nom : 'Récupération des ouvrières', id : 'ouvrieres', index : undefined, actif : ZzzelpScript.parameters('') },
-		{ nom : 'Récupération de l\'armée', id : 'armee', index : ZzzelpScriptArmee.noms_pluriel },
-		{ nom : 'Récupération des constructions', id : 'constructions', index : Constructions },
-		{ nom : 'Récupération des recherches', id : 'recherches', index : Recherches }
-	);
-
-	this.init = function() {
-		that.createInterface();
-		that.getArmee();
-	};
-
-	this.createInterface = function() {
-		var elements = document.querySelector('#centre').childNodes;
-		for(i=0; i<elements.length; i++) {
-			if(elements[i].id != 'menu') {
-				ze_Supprimer_element(elements[i]);
-			}
-		}
-
-		var	zone = document.createElement('div'),
-			tableau = document.createElement('table');
-		zone.id = 'theme_fourmizzz';
-		zone.className = 'zone_imports_zzzelp';
-
-		var explications = document.createElement('div'),
-			txt = 'Bienvenue sur le créateur de rapport de compte. Cette page a pour but de vous aider à envoyer rapidement les informations suivantes sur Zzzelp : ';
-		txt += '<br><ul><li>vos ouvrières</li><li>votre armée</li><li>vos constructions</li><li>vos recherches</li></ul><br>Seuls les joueurs ayant les droits de ';
-		txt += '"<i>chef</i>" de votre alliance sur Zzzelp auront accès à ces informations. Grâce à ces données, ces derniers auront une vision plus ';
-		txt += 'précise de leur alliance.<br><b>Attention !</b> Cette page ne remplace en aucun cas le stockage de vos informations sur votre compte';
-		txt += 'Zzzelp pour le calcul des convois par exemple.';
-		explications.innerHTML =  txt;
-		explications.setAttribute('style', 'max-width: 600px;margin: auto;padding: 10px;');
-		explications.className = 'ligneAmelioration';
-		zone.appendChild(explications);
-		for(i=0; i<that.etapes.length; i++) {
-			var ligne = tableau.insertRow(-1),
-				entete = ligne.insertCell(0),
-				fait = ligne.insertCell(1),
-				actif = ligne.insertCell(2),
-				img = document.createElement('img'),
-				checkbox = document.createElement('input');
-			img.src = url_zzzelp + '/Images/suppression.png';
-			img.width = '20';
-			fait.appendChild(img);
-			checkbox.type = 'checkbox';
-			checkbox.checked = true;
-			actif.appendChild(checkbox);
-			checkbox.dataset.categorie = that.etapes[i].id;
-			entete.innerHTML = that.etapes[i].nom;
-		}
-		document.querySelector('#centre').appendChild(zone);
-		zone.appendChild(tableau);
-	};
-
-	this.getArmee = function() {
-		that.rapport.ouvrieres = [parseInt(gouvrieres)];
-		that.validState(0);	
-		if(ComptePlus) {
-			ZzzelpScriptArmee.getArmeeReine(that.getNiveaux);
-		}
-		else {
-			ZzzelpScriptArmee.getArmeeAjax(that.getNiveaux);
-		}		
-	};
-
-	this.getNiveaux = function(armee) {
-		that.rapport.armee = armee.unites;
-		that.validState(1);		
-		zzzelp.compte.getNiveauxAjax('construction', function(niveaux) {
-			that.rapport.constructions = niveaux;
-			that.validState(2);	
-			zzzelp.compte.getNiveauxAjax('laboratoire', that.finalizeRetrieve);
-		});
-	};
-
-	this.finalizeRetrieve = function(niveaux) {
-		that.rapport.recherches = niveaux;
-		that.validState(3);
-		that.modificationInterface();
-	};
-
-	this.modificationInterface = function() {
-		for(var n=0; n<that.etapes.length; n++) {
-			var tableau = document.createElement('table');
-			tableau.dataset.valeur = that.etapes[n].id;
-			tableau.className = 'zzzelp_rapport';
-			for(var i=0; i<that.rapport[that.etapes[n].id].length; i++) {
-				that.createLine(tableau, n, i);
-			}
-			document.querySelector('#theme_fourmizzz').appendChild(tableau);
-		}
-		var bouton = document.createElement('input');
-		bouton.type = 'button';
-		bouton.value = 'Envoyer vers Zzzelp';
-		bouton.setAttribute('style', 'display:block;margin:auto');
-		bouton.onclick = function onclick(event) {
-			that.save();
-		};
-		document.querySelector('#theme_fourmizzz').appendChild(bouton);
-	};
-
-	this.createLine = function(tableau, n, i) {
-		var ligne = tableau.insertRow(-1),
-			entete = ligne.insertCell(0),
-			valeur = ligne.insertCell(1),
-			input;
-		if((that.etapes[n].id == 'constructions' || that.etapes[n].id == 'recherches') && i >= that.etapes[n].index.length) {
-			input = document.createElement('select');
-		}
-		else {
-			input = document.createElement('input');
-		}
-		input.className = 'zzzelp_valeur_rapport';
-		input.onkeyup = ze_Ajout_espaces;
-		if(that.etapes[n].id == 'ouvrieres') {
-			entete.innerHTML = 'Ouvrières';
-		}
-		else if((that.etapes[n].id == 'constructions' || that.etapes[n].id == 'recherches') && i >= that.etapes[n].index.length) {
-			if(i == that.etapes[n].index.length) {
-				entete.innerHTML = 'En cours';
-			}
-			else {
-				entete.innerHTML = 'En cours (C+)';
-			}
-		}
-		else {
-			entete.innerHTML = that.etapes[n].index[i];
-		}
-		entete.innerHTML += ' :';
-		if((that.etapes[n].id == 'constructions' || that.etapes[n].id == 'recherches') && i >= that.etapes[n].index.length) {
-			var option = document.createElement('option');
-			option.innerHTML = 'Aucun';
-			option.value = 0;
-			input.appendChild(option);
-			for(var j=0; j<that.etapes[n].index.length; j++) {
-				option = document.createElement('option');
-				option.innerHTML = that.etapes[n].index[j];
-				option.value = j+1;
-				input.appendChild(option);
-			}
-			input.value = that.rapport[that.etapes[n].id][i];
-		}
-		else {
-			input.setAttribute('style', 'width:' + (in_array(that.etapes[n].id, ['armee', 'ouvrieres']) ? '120' : '50') + 'px;float:right;text-align:right;padding-right:3px;');
-			input.type = 'text';
-			input.value = ze_Nombre(that.rapport[that.etapes[n].id][i]);
-		}
-		valeur.appendChild(input);		
-	};
-
-	this.validState = function(i) {
-		document.querySelectorAll('.zone_imports_zzzelp img')[i].src = url_zzzelp + '/Images/valider.png';
-	};
-
-	this.save = function() {
-		var tableaux = document.querySelectorAll('#theme_fourmizzz table'),
-			form = new FormData();
-		for(var i=1; i<tableaux.length; i++) {
-			if(document.querySelector('input[data-categorie="' + tableaux[i].dataset.valeur + '"]').checked) {
-				for(var j=0; j<tableaux[i].rows.length; j++) {
-					form.append(tableaux[i].dataset.valeur + '[]', parseInt(tableaux[i].rows[j].querySelector('.zzzelp_valeur_rapport').value.replace(/ /g,'')));
-				}
-			}
-		}
-		new ZzzelpScriptAjax({ method : 'POST', domain : 'zzzelp', url : 'rapport_script?alliance=' + galliance + '&', data : form  },
-			{ success : function(valeurs) {
-				ze_Supprimer_element(document.querySelector('#theme_fourmizzz'));
-				var div = document.createElement('div');
-				div.innerHTML = 'Données stockées avec succès';
-				div.setAttribute('style', 'text-align: center;font-weight: bold;margin: 50px;font-size: 1.2em;');
-				document.querySelector('#centre').appendChild(div);		
-			}
-		});
-	};
-
-	this.init();
-
-}
 
 
 
@@ -7850,7 +6185,7 @@ function ZzzelpScriptChaine(zone_page) {
 		}
 		else {
 			localStorage.setItem('zzzelp_MAJ_rangs_' + ze_serveur, time_fzzz());
-			new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'rangs_script?alliance=' + galliance + '&', force : mode },
+			new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'rangs_script?alliance=' + galliance + '&', force : mode },
 				{ success : function(valeurs) {
 					localStorage.setItem('zzzelp_rangs_' + ze_serveur, JSON.stringify(valeurs));
 					var alliance =  (lieu === 0) ? galliance : ze_Analyser_URL('alliance');
@@ -8318,269 +6653,245 @@ function ZzzelpScriptChaine(zone_page) {
 
 	this.init();
 }
-function ZzzelpScriptSmileys(lieu, section) {
+var ZzzelpScriptSmileys = function(lieu, section) {
 
-	var smileys = this;
+    this.section = section;
+    this.lieu = lieu;
+    this.liste = ZzzelpScript.parameters('smileys');
+    this.init();
 
-	this.section = section;
-	this.lieu = lieu;
-	this.liste = ZzzelpScript.parameters('smileys');
+};
 
-	this.init = function() {
-		if(!smileys.section) {
-			smileys.section = document;
-		}
-		var images = smileys.section.querySelectorAll('img[title=Smiley]');
-		for(var n=0; n<images.length; n++) {
-			smileys.removeOldInterface(images[n]);
-			smileys.addSmileys();
-		}
-		if(this.lieu == 'MC') {
-			this.manageMC();
-		}
-	};
+ZzzelpScriptSmileys.prototype.init = function() {
+    if(!this.section) {
+        this.section = document;
+    }
+    var images = this.section.querySelectorAll('img[title=Smiley]');
+    for(var n=0; n<images.length; n++) {
+        this.removeOldInterface(images[n]);
+        this.addSmileys();
+    }
+    if(this.lieu == 'MC') {
+        this.manageMC();
+    }
+};
 
-	this.manageMC = function() {
-		var bouton = document.querySelector('.boiteMessagerie input[type="submit"]'),
-			txt =  "document.querySelector('#message_collectif').value = ze_Preparation_message(document.querySelector('#message_collectif').value);";
-		bouton.setAttribute('onclick', txt + bouton.getAttribute('onclick'));
-	};
+ZzzelpScriptSmileys.prototype.manageMC = function() {
+    var bouton = document.querySelector('.boiteMessagerie input[type="submit"]'),
+        txt =  "document.querySelector('#message_collectif').value = ze_Preparation_message(document.querySelector('#message_collectif').value);";
+    bouton.setAttribute('onclick', txt + bouton.getAttribute('onclick'));
+};
 
-	this.addSmileys = function(img_source) {
-		var element = smileys.section.querySelector('#ze_gestion_smileys_' + smileys.nom_section),
-			smileys_section = smileys.section.querySelectorAll('#tousLesSmiley' + smileys.nom_section + ' div'),
-			i, j;
-		for(j=0; j<smileys_section.length; j++) {
-			i = parseInt(smileys_section[j].id.replace('listeSmiley','').substring(0,1));
-			if((i > 1 && !ComptePlus) || !in_array('C' + i,smileys.liste[1])) {
-				ze_Supprimer_element(smileys_section[j]);
-			}
-			else {
-				smileys_section[j].dataset.npack = 'C' + i;
-			}
-		}
-		i=0;
-		for(var pack in smileys.liste[0]) {
-			if(smileys.liste[0][pack].liste !== null) {
-				smileys.section.querySelector('#tousLesSmiley' + smileys.nom_section).appendChild(smileys.createGroupSmileys(pack, smileys.liste[0][pack], i));
-				i++;
-			}
-		}
-	  	var longueur = smileys.section.querySelectorAll('#tousLesSmiley' + smileys.nom_section + ' div[data-npack="' + ze_readCookie('zzzelp_ligne_smiley_' + ze_serveur) + '"]').length,
-	  		active;
-		if(ze_readCookie('zzzelp_ligne_smiley_' + ze_serveur) !== null && longueur > 0) {
-			active = ze_readCookie('zzzelp_ligne_smiley_' + ze_serveur);
-		}
-		else {
-			active = smileys.section.querySelector('#tousLesSmiley' + smileys.nom_section + ' div').dataset.npack;
-		}
-		ze_createCookie('zzzelp_ligne_smiley_' + ze_serveur, active, 365);
-	  
-		smileys_section = smileys.section.querySelectorAll('#tousLesSmiley' + smileys.nom_section + ' div');
-		for(i=0; i<smileys_section.length; i++) {
-			if(smileys_section[i].dataset.npack == active) {
-				smileys_section[i].style.display = '';
-				smileys_section[i].dataset.affiche = '1';
-			}
-			else {
-				smileys_section[i].style.display = 'none';
-				smileys_section[i].dataset.affiche = '0';
-			}
-		}		
-		var content = smileys.section.querySelector('#tousLesSmiley' + smileys.nom_section);
-		for(var k=0; k<smileys.liste
-			[1].length; k++) {
-			if(content.querySelector('div[data-npack="' + smileys.liste[1][k] + '"]') !== null) {
-				content.appendChild(content.querySelector('div[data-npack="' + smileys.liste[1][k] + '"]'));
-			}
-		}
-	};
+ZzzelpScriptSmileys.prototype.addSmileys = function(img_source) {
+    var element = this.section.querySelector('#ze_gestion_smileys_' + this.nom_section),
+        smileys_section = this.section.querySelectorAll('#tousLesSmiley' + this.nom_section + ' div'),
+        i, j;
+    for(j=0; j<smileys_section.length; j++) {
+        i = parseInt(smileys_section[j].id.replace('listeSmiley','').substring(0,1));
+        if((i > 1 && !ComptePlus) || !in_array('C' + i,this.liste[1])) {
+            ze_Supprimer_element(smileys_section[j]);
+        }
+        else {
+            smileys_section[j].dataset.npack = 'C' + i;
+        }
+    }
+    i=0;
+    for(var pack in this.liste[0]) {
+        if(this.liste[0][pack].liste !== null) {
+            this.section.querySelector('#tousLesSmiley' + this.nom_section).appendChild(this.createGroupSmileys(pack, this.liste[0][pack], i));
+            i++;
+        }
+    }
+    var longueur = this.section.querySelectorAll('#tousLesSmiley' + this.nom_section + ' div[data-npack="' + ze_readCookie('zzzelp_ligne_smiley_' + ze_serveur) + '"]').length,
+        active;
+    if(ze_readCookie('zzzelp_ligne_smiley_' + ze_serveur) !== null && longueur > 0) {
+        active = ze_readCookie('zzzelp_ligne_smiley_' + ze_serveur);
+    }
+    else {
+        active = this.section.querySelector('#tousLesSmiley' + this.nom_section + ' div').dataset.npack;
+    }
+    ze_createCookie('zzzelp_ligne_smiley_' + ze_serveur, active, 365);
+  
+    smileys_section = this.section.querySelectorAll('#tousLesSmiley' + this.nom_section + ' div');
+    for(i=0; i<smileys_section.length; i++) {
+        if(smileys_section[i].dataset.npack == active) {
+            smileys_section[i].style.display = '';
+            smileys_section[i].dataset.affiche = '1';
+        }
+        else {
+            smileys_section[i].style.display = 'none';
+            smileys_section[i].dataset.affiche = '0';
+        }
+    }       
+    var content = this.section.querySelector('#tousLesSmiley' + this.nom_section);
+    for(var k=0; k<this.liste
+        [1].length; k++) {
+        if(content.querySelector('div[data-npack="' + this.liste[1][k] + '"]') !== null) {
+            content.appendChild(content.querySelector('div[data-npack="' + this.liste[1][k] + '"]'));
+        }
+    }
+};
 
-	this.removeOldInterface = function(img_source) {
-		smileys.nom_section = new RegExp('changerCookieSmiley\\(\'(.*)\'\\)').exec(img_source.getAttribute('onclick'))[1];
-		ze_Supprimer_element(smileys.section.querySelector('#smileyPrecedent' + smileys.nom_section));
-		ze_Supprimer_element(smileys.section.querySelector('#smileySuivant' + smileys.nom_section));
-		
-		smileys.show = (smileys.section.querySelector('#tousLesSmiley' + smileys.nom_section).style.display != 'none');
-		var gestion_smileys = smileys.createZone();
+ZzzelpScriptSmileys.prototype.removeOldInterface = function(img_source) {
+    this.nom_section = new RegExp('changerCookieSmiley\\(\'(.*)\'\\)').exec(img_source.getAttribute('onclick'))[1];
+    ze_Supprimer_element(this.section.querySelector('#smileyPrecedent' + this.nom_section));
+    ze_Supprimer_element(this.section.querySelector('#smileySuivant' + this.nom_section));
+    
+    this.show = (this.section.querySelector('#tousLesSmiley' + this.nom_section).style.display != 'none');
+    var gestion_smileys = this.createElement();
 
-		img_source.parentNode.parentNode.insertBefore(gestion_smileys, img_source.parentNode.nextSibling);
-		ze_Supprimer_element(img_source);
-	};
+    img_source.parentNode.parentNode.insertBefore(gestion_smileys, img_source.parentNode.nextSibling);
+    ze_Supprimer_element(img_source);
+};
 
-	this.createZone = function() {
-		var gestion_smileys = document.createElement('span'),
-			zone_avant = document.createElement('span'),
-			avant = document.createElement('img'),
-			zone_apres = document.createElement('span'),
-			apres = document.createElement('img'),
-			zone_open_smiley = document.createElement('span'),
-			open_smiley = document.createElement('img');
-			
-		gestion_smileys.setAttribute('id','ze_gestion_smileys_' + smileys.nom_section);
-		zone_apres.onclick = function onclick(event) {
-			smileys.changeSmileyPack(true, smileys.nom_section);
-		};
-		zone_avant.onclick = function onclick(event) {
-			smileys.changeSmileyPack(false, smileys.nom_section);
-		};
-		open_smiley.setAttribute('onclick', 'changerCookieSmiley("' + smileys.nom_section + '")');
-		
-		open_smiley.src = 'http://zzzelp.fr/Images/Smileys/Zzzelp/smile.gif';
-		avant.src = "/images/fleche-champs-gauche.gif";
-		apres.src = "/images/fleche-champs-droite.gif";
-		avant.id = "smileyPrecedent" + smileys.nom_section;
-		apres.id = "smileySuivant" + smileys.nom_section;
-		
-		zone_avant.style.cursor = 'pointer';
-		zone_avant.style.position = 'relative';
-		zone_avant.style.top = '2px';
-		zone_avant.style.visibility = (smileys.show ? 'visible' : 'hidden');
-	 
-		zone_apres.style.cursor = 'pointer';
-		zone_apres.style.position = 'relative';
-		zone_apres.style.top = '2px';
-		zone_apres.style.visibility = (smileys.show ? 'visible' : 'hidden');
-		
-		zone_open_smiley.style.cursor = 'pointer';
-		zone_open_smiley.style.position = 'relative';
-		zone_open_smiley.style.top = '4px';
-		zone_open_smiley.style['margin-left'] = '2px';
-		zone_open_smiley.style['margin-right'] = '2px';
-		
-		zone_avant.appendChild(avant);
-		zone_apres.appendChild(apres);
-		zone_open_smiley.appendChild(open_smiley);
-		gestion_smileys.appendChild(zone_avant);
-		gestion_smileys.appendChild(zone_open_smiley);
-		gestion_smileys.appendChild(zone_apres);
-		return gestion_smileys;
-	};
+ZzzelpScriptSmileys.prototype.createElement = function() {
+    var gestion_smileys = document.createElement('span'),
+        zone_avant = document.createElement('span'),
+        avant = document.createElement('img'),
+        zone_apres = document.createElement('span'),
+        apres = document.createElement('img'),
+        zone_open_smiley = document.createElement('span'),
+        open_smiley = document.createElement('img');
+        
+    gestion_smileys.setAttribute('id','ze_gestion_smileys_' + this.nom_section);
+    zone_apres.onclick = function onclick(event) {
+        this.changeSmileyPack(true, this.nom_section);
+    };
+    zone_avant.onclick = function onclick(event) {
+        this.changeSmileyPack(false, this.nom_section);
+    };
+    open_smiley.setAttribute('onclick', 'changerCookieSmiley("' + this.nom_section + '")');
+    
+    open_smiley.src = 'http://zzzelp.fr/Images/Smileys/Zzzelp/smile.gif';
+    avant.src = "/images/fleche-champs-gauche.gif";
+    apres.src = "/images/fleche-champs-droite.gif";
+    avant.id = "smileyPrecedent" + this.nom_section;
+    apres.id = "smileySuivant" + this.nom_section;
+    
+    zone_avant.style.cursor = 'pointer';
+    zone_avant.style.position = 'relative';
+    zone_avant.style.top = '2px';
+    zone_avant.style.visibility = (this.show ? 'visible' : 'hidden');
+ 
+    zone_apres.style.cursor = 'pointer';
+    zone_apres.style.position = 'relative';
+    zone_apres.style.top = '2px';
+    zone_apres.style.visibility = (this.show ? 'visible' : 'hidden');
+    
+    zone_open_smiley.style.cursor = 'pointer';
+    zone_open_smiley.style.position = 'relative';
+    zone_open_smiley.style.top = '4px';
+    zone_open_smiley.style['margin-left'] = '2px';
+    zone_open_smiley.style['margin-right'] = '2px';
+    
+    zone_avant.appendChild(avant);
+    zone_apres.appendChild(apres);
+    zone_open_smiley.appendChild(open_smiley);
+    gestion_smileys.appendChild(zone_avant);
+    gestion_smileys.appendChild(zone_open_smiley);
+    gestion_smileys.appendChild(zone_apres);
+    return gestion_smileys;
+};
 
-	this.createGroupSmileys = function(pack, donnees, i) {
-		var ligne = document.createElement('div');
-		ligne.setAttribute('id', 'zone_smileys_zzzelp_' + donnees.ID);
-		ligne.setAttribute('style', 'display:none;margin-top:20px');
-		ligne.dataset.npack = 'Z'+ donnees.ID;
-		ligne.dataset.numero = i;
-		for(var k=0; k<donnees.liste.length; k++) {
-			var smiley = smileys.createSmiley(pack, donnees.liste[k], donnees.format);
-			smileys.addEventSmiley(smiley, i);
-			ligne.appendChild(smiley);
-		}
-		return ligne;
-	};
+ZzzelpScriptSmileys.prototype.createGroupSmileys = function(pack, donnees, i) {
+    var ligne = document.createElement('div');
+    ligne.setAttribute('id', 'zone_smileys_zzzelp_' + donnees.ID);
+    ligne.setAttribute('style', 'display:none;margin-top:20px');
+    ligne.dataset.npack = 'Z'+ donnees.ID;
+    ligne.dataset.numero = i;
+    for(var k=0; k<donnees.liste.length; k++) {
+        var smiley = this.createSmiley(pack, donnees.liste[k], donnees.format);
+        this.addEventSmiley(smiley, i);
+        ligne.appendChild(smiley);
+    }
+    return ligne;
+};
 
-	this.createSmiley = function(pack, name, format) {
-	  var smiley = document.createElement('img');
-	  smiley.setAttribute('src', 'http://zzzelp.fr/Images/Smileys/' + pack + '/' + name + '.' + format);
-	  smiley.setAttribute('style', 'padding:0 2px');
-	  smiley.dataset.nom = name;
-	  smiley.dataset.pack = pack;
-	  return smiley;
-	};
+ZzzelpScriptSmileys.prototype.createSmiley = function(pack, name, format) {
+  var smiley = document.createElement('img');
+  smiley.setAttribute('src', 'http://zzzelp.fr/Images/Smileys/' + pack + '/' + name + '.' + format);
+  smiley.setAttribute('style', 'padding:0 2px');
+  smiley.dataset.nom = name;
+  smiley.dataset.pack = pack;
+  return smiley;
+};
 
-	this.addEventSmiley = function(smiley, i) {
-		if(smileys.lieu == 'new_MP') {
-			arg = 'message_envoi';
-		}
-		else if(smileys.lieu == 'MC') {
-			arg = 'message_collectif';
-		}
-		else if(~smileys.lieu.indexOf('champ_reponse_')) {
-			arg = lieu;
-		}
-		else {
-			arg = 'message';
-		}
-		smileys.onClick(smiley, arg, 'z' + i + '_'  + smiley.dataset.nom);
-	};
+ZzzelpScriptSmileys.prototype.addEventSmiley = function(smiley, i) {
+    if(this.lieu == 'new_MP') {
+        arg = 'message_envoi';
+    }
+    else if(this.lieu == 'MC') {
+        arg = 'message_collectif';
+    }
+    else if(~this.lieu.indexOf('champ_reponse_')) {
+        arg = this.lieu;
+    }
+    else {
+        arg = 'message';
+    }
+    this.onClick(smiley, arg, 'z' + i + '_'  + smiley.dataset.nom);
+};
 
-	this.onClick = function(smiley, lieu, name) {
-		smiley.onclick = function onclick(event) {
-			addRaccourciSmiley(lieu, name);
-			return false;
-		};
-	};
+ZzzelpScriptSmileys.prototype.onClick = function(smiley, lieu, name) {
+    smiley.onclick = function onclick(event) {
+        addRaccourciSmiley(lieu, name);
+        return false;
+    };
+};
 
-	this.sortSmileys = function(ordre) {
-		var packs = smileys.section.querySelectorAll('.tousLesSmiley div');
-		for (var i=1;i<packs.length;i++) {
-			ligne = smileys.section.querySelectorAll('.tousLesSmiley div')[i];
-			j = i;
-			while (j > 0 && ordre.indexOf(ligne.dataset.npack) > ordre.indexOf(smileys.section.querySelectorAll('.tousLesSmiley div')[j-1].dataset.npack)) {
-				smileys.switchPosition(smileys.section.querySelectorAll('.tousLesSmiley div')[j]);
-				j--;
-			}
-		}
-	};
+ZzzelpScriptSmileys.prototype.sortSmileys = function(ordre) {
+    var packs = this.section.querySelectorAll('.tousLesSmiley div');
+    for (var i=1;i<packs.length;i++) {
+        ligne = this.section.querySelectorAll('.tousLesSmiley div')[i];
+        j = i;
+        while (j > 0 && ordre.indexOf(ligne.dataset.npack) > ordre.indexOf(this.section.querySelectorAll('.tousLesSmiley div')[j-1].dataset.npack)) {
+            this.switchPosition(this.section.querySelectorAll('.tousLesSmiley div')[j]);
+            j--;
+        }
+    }
+};
 
-	this.switchPosition = function(row) {
-		var sibling = row.previousElementSibling,
-			anchor = row.nextElementSibling,
-			parent = row.parentNode;
-		parent.insertBefore(row, sibling);
-	};
+ZzzelpScriptSmileys.prototype.switchPosition = function(row) {
+    var sibling = row.previousElementSibling,
+        anchor = row.nextElementSibling,
+        parent = row.parentNode;
+    parent.insertBefore(row, sibling);
+};
 
-	this.getPacks = function() {
-		var liste = smileys.section.querySelector('div[id*="tousLesSmiley"]').querySelectorAll('div'),
-			packs = [];
-		for(var k=0; k<liste.length; k++) {
-			packs.push(liste[k].id);
-		}
-		return packs;
-	};
+ZzzelpScriptSmileys.prototype.getPacks = function() {
+    var liste = this.section.querySelector('div[id*="tousLesSmiley"]').querySelectorAll('div'),
+        packs = [];
+    for(var k=0; k<liste.length; k++) {
+        packs.push(liste[k].id);
+    }
+    return packs;
+};
 
-	this.changeSmileyPack = function(avancer, id) {
-		var zones = document.querySelectorAll('#tousLesSmiley' + id + ' div'),
-			e;
-		for(var i=0; i<zones.length; i++) {
-			if(zones[i].dataset.affiche == '1') {
-				if(avancer) {
-					e = zones[i].nextElementSibling;
-					if(e  === null) {
-						e = zones[0];
-					}
-				}
-				else {
-					e = zones[i].previousElementSibling;
-					if(e === null) {
-						e = zones[zones.length-1];
-					}
-				}
-				zones[i].style.display = 'none';
-				zones[i].dataset.affiche = '0';
-			}
-		}
-		e.style.display = '';
-		e.dataset.affiche = '1';  
-		ze_createCookie('zzzelp_ligne_smiley_' + ze_serveur, e.dataset.npack, 365);
-	};
-
-	this.init();
-
-}
-
-/* Prépare les divers ajouts au FI tels que les smileys Zzzelp (Page Alliance) */
-function ze_Amelioration_FI() {
-	if(document.querySelector('.tousLesSmiley') && !document.querySelector('#zzzelp_smileys_places')) {
-		var input = document.createElement('input'),
-			lieu;
-		input.id = 'zzzelp_smileys_places';
-		input.type = 'hidden';
-		if(document.querySelector('#nouveauSujet')) {
-			document.querySelector('#nouveauSujet').appendChild(input);
-			lieu = new Array('nouveauSujet', 'NouveauSujet');
-		}
-		else {
-			document.querySelector('#nouveauMessage').appendChild(input);
-			lieu = new Array('nouveauMessage', 'NouveauMessage');
-		}
-		document.querySelector('#forum input[type*="submit"]').setAttribute('onclick', 'document.querySelector(\'#message\').value = ze_Preparation_message(document.querySelector(\'#message\').value);xajax_envoi' + lieu[1] + '(xajax.getFormValues(\'' + lieu[0] + '\')); return false;');
-		ZzzelpScriptSmileys('FI');
-	}
-	setTimeout(function(){ze_Amelioration_FI();},50);
-}
+ZzzelpScriptSmileys.prototype.changeSmileyPack = function(avancer, id) {
+    var zones = document.querySelectorAll('#tousLesSmiley' + id + ' div'),
+        e;
+    for(var i=0; i<zones.length; i++) {
+        if(zones[i].dataset.affiche == '1') {
+            if(avancer) {
+                e = zones[i].nextElementSibling;
+                if(e  === null) {
+                    e = zones[0];
+                }
+            }
+            else {
+                e = zones[i].previousElementSibling;
+                if(e === null) {
+                    e = zones[zones.length-1];
+                }
+            }
+            zones[i].style.display = 'none';
+            zones[i].dataset.affiche = '0';
+        }
+    }
+    e.style.display = '';
+    e.dataset.affiche = '1';  
+    ze_createCookie('zzzelp_ligne_smiley_' + ze_serveur, e.dataset.npack, 365);
+};
 
 
 function ZzzelpScriptMultiflood() {
@@ -8658,7 +6969,7 @@ function ZzzelpScriptMultiflood() {
 
 	this.sendMF = function(data) {
 		var hash = SHA256(gpseudo + ze_serveur + time());
-		MF.capa_flood = ZzzelpScriptArmee.getArmee(document, 0).getCapaFlood();
+		MF.capa_flood = ZzzelpArmy.getArmee(document, 0).getCapaFlood();
 		MF.getDataExplicit();
 		data.a_afficher = { 
 			alliances : MF.alliances,
@@ -8667,7 +6978,7 @@ function ZzzelpScriptMultiflood() {
 		var form = document.createElement('form'),
 			input = document.createElement('input');
 		form.setAttribute('method', 'POST');
-		form.setAttribute('action', url_zzzelp + '/MF/tableau?serveur=' + ze_serveur + '&cf=' + MF.capa_flood + '&hash=' + hash + '&mode=auto');
+		form.setAttribute('action', ZzzelpScript.url + 'MF/tableau?serveur=' + ze_serveur + '&cf=' + MF.capa_flood + '&hash=' + hash + '&mode=auto');
 		input.setAttribute('name', 'donnees_alliance');
 		input.type = 'hidden';
 		input.value = encodeURIComponent(JSON.stringify(data));
@@ -8679,25 +6990,23 @@ function ZzzelpScriptMultiflood() {
 	this.init();
 }
 
-/* Lance la récupération des coordonnées pour Zzzelpfloods et lance la fonction de préparation pour le Profil (Page Profil) */
-function ze_Initialisation_Zzzelpfloods_profil(armee) {
+ZzzelpScriptMultiflood.prepareProfile = function(armee) {
 	var capa_flood = armee.getCapaFlood(),
 		pseudo = ze_Analyser_URL('Pseudo');
-	ze_Lancement_Zzzelpfloods_profil(capa_flood, 1, pseudo);
-}
+	ZzzelpScriptMultiflood.launchProfile(capa_flood, 1, pseudo);
+};
 
-/* Préparation de Zzzelpfloods pour le Profil (Page Profil) */
-function ze_Lancement_Zzzelpfloods_profil(capa_flood, n, pseudo, TDC_cible, mode_opti, lancement_auto) {
+ZzzelpScriptMultiflood.launchProfile = function(capa_flood, n, pseudo, TDC_cible, mode_opti, lancement_auto) {
 	new ZzzelpScriptCoordonnees([pseudo], [], function(coordonnees) {
 		var TDC_cible = parseInt(document.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, ''));
 		if(n === 0 || (pseudo != gpseudo && gTDC <= 2*TDC_cible && TDC_cible <= gTDC*3)) {
-			var joueurs = [{}],
+			var joueurs = {},
 				cadre = document.createElement('div');
-			joueurs[0][gpseudo] = coordonnees[gpseudo];
-			joueurs[0][pseudo] = coordonnees[pseudo];
-			joueurs[0][gpseudo].TDC = gTDC;
-			joueurs[0][pseudo].TDC = (typeof TDC_cible == 'undefined') ? parseInt(document.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, '')) : TDC_cible;
-			cadre.setAttribute('class', 'boite_membre');
+			joueurs[gpseudo] = coordonnees[gpseudo];
+			joueurs[pseudo] = coordonnees[pseudo];
+			joueurs[gpseudo].TDC = gTDC;
+			joueurs[pseudo].TDC = (typeof TDC_cible == 'undefined') ? parseInt(document.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, '')) : TDC_cible;
+			cadre.className = 'boite_membre';
 			if(n === 0) {
 				document.querySelector('#centre').appendChild(cadre);
 			}
@@ -8705,10 +7014,11 @@ function ze_Lancement_Zzzelpfloods_profil(capa_flood, n, pseudo, TDC_cible, mode
 				document.querySelector('#centre center').insertBefore(cadre, document.querySelectorAll('.boite_membre')[2]);
 			}
 			var donnees = {
-				pseudo : gpseudo,
-				serveur : ze_serveur,
-				vitesse_attaque : zzzelp.compte.getVitesseAttaque(),
-				nombre_unites : capa_flood,
+				username : gpseudo,
+				server : ze_serveur,
+				attack_speed : zzzelp.compte.getVitesseAttaque(),
+				capacity : capa_flood,
+				mode : 'classique',
 				coordonnees : joueurs,
 				options : true,
 				sondes : ZzzelpScript.parameters('sondes'),
@@ -8722,49 +7032,78 @@ function ze_Lancement_Zzzelpfloods_profil(capa_flood, n, pseudo, TDC_cible, mode
 				stockage_parametres_zzzelp : true,
 				prive : ZzzelpScript.parameters('droits'),
 				lancement_auto : lancement_auto
-					};
+			};
 			if(typeof mode_opti != 'undefined') {
 				donnees.mode = mode_opti;
 			}
-			console.log(donnees);
-			Generation_floods(cadre, donnees);
+			window.testFlood = new ZzzelpFloods(cadre, donnees);
 		}
 	});
-}
+};
 function ZzzelpScriptForum() {
 
-	var that = this;
+    var that = this;
 
-	this.init = function() {
-		this.addWatcher(0);
-	};
+    this.init = function() {
+        this.addWatcher(0);
+        var ID_sujet = ze_Analyser_URL('ID_sujet');
+        if (ID_sujet) {
+            xajax_callGetTopic(parseInt(ID_sujet));
+        }
+    };
 
-	this.addWatcher = function(ex_ID) {
-		if(document.querySelectorAll('.messageForum div[id*="editTopic"]').length > 0) {
-			var ID = parseInt(document.querySelector('.messageForum div[id*="editTopic"]').id.replace('editTopic', ''));
-			if(ex_ID != ID) {
-				ex_ID = ID;
-				that.addShareButton(ID);
-			}
+    this.addWatcher = function(ex_ID) {
+        if(document.querySelectorAll('.messageForum div[id*="editTopic"]').length > 0) {
+            var ID = parseInt(document.querySelector('.messageForum div[id*="editTopic"]').id.replace('editTopic', ''));
+            if(ex_ID != ID) {
+                ex_ID = ID;
+                that.addShareButton(ID);
+            }
+            if(document.querySelector('#nouveauMessage')) {
+                that.addSmileys(false);
+            }
+        }
+        if(document.querySelector('#nouveauSujet')) {
+            that.addSmileys(true);
+        }
+        setTimeout(function(){
+            that.addWatcher(ex_ID);
+        }, 100);
+    };
 
-		}
-		setTimeout(function(){
-			that.addWatcher(ex_ID);
-		}, 100);
-	};
+    this.addShareButton = function(ID) {
+        document.querySelector('#forum').style.position = 'relative';
+        var button = document.createElement('img');
+        button.src = ZzzelpScript.url + 'Images/share.png';
+        button.setAttribute('style', 'position: absolute;top: -10px;right: 10px;width: 20px;cursor: pointer;');
+        button.onclick = function onclick(event) {
+            window.prompt('Nécessite ZzzelpScript !', 'http://' + ze_serveur + '.fourmizzz.fr/alliance.php?forum_menu&ID_sujet=' + ID);
+        };
+        document.querySelector('#forum').appendChild(button);
+    };
 
-	this.addShareButton = function(ID) {
-		document.querySelector('#forum').style.position = 'relative';
-		var button = document.createElement('img');
-		button.src = url_zzzelp + 'Images/share.png';
-		button.setAttribute('style', 'position: absolute;top: -10px;right: 10px;width: 20px;cursor: pointer;');
-		button.onclick = function onclick(event) {
-			window.prompt('Nécessite ZzzelpScript !', 'http://' + ze_serveur + '.fourmizzz.fr/alliance.php?forum_menu&ID_sujet=' + ID);
-		};
-		document.querySelector('#forum').appendChild(button);
-	}
+    this.addSmileys = function(newTopic) {
+        if(!document.querySelector('#zzzelp_smileys_places') && ZzzelpScript.parameters('parametres', ['perso', 'perso_smileys'])) {
+            var input = document.createElement('input'),
+                lieu;
+            input.id = 'zzzelp_smileys_places';
+            input.type = 'hidden';
+            if(newTopic) {
+                document.querySelector('#nouveauSujet').appendChild(input);
+                lieu = new Array('nouveauSujet', 'NouveauSujet');
+            }
+            else {
+                document.querySelector('#nouveauMessage').appendChild(input);
+                lieu = new Array('nouveauMessage', 'NouveauMessage');
+            }
+            var onClick = 'document.querySelector(\'#message\').value = ze_Preparation_message(document.querySelector(\'#message\').value);';
+            onClick += 'xajax_envoi' + lieu[1] + '(xajax.getFormValues(\'' + lieu[0] + '\')); return false;';
+            document.querySelector('#forum input[type*="submit"]').setAttribute('onclick', onClick);
+            new ZzzelpScriptSmileys('FI');  
+        }   
+    };
 
-	this.init();
+    this.init();
 }
 
 /* Initialise la description des alliances version Zzzelp (Page Description Alliance) */
@@ -8992,11 +7331,11 @@ function ZzzelpScriptChasses() {
 				chasses.liste_chasses.shift();
 				for(var k=0; k<14; k++) {
 					if(chasse[k] !== 0) {
-						valeurs += ((valeurs !== '')? '&' : '') + 'unite' + ZzzelpScriptArmee.ID[k] + '=' + chasse[k];
+						valeurs += ((valeurs !== '')? '&' : '') + 'unite' + ZzzelpArmy.ID[k] + '=' + chasse[k];
 					}
 				}
 				var data = valeurs + '&AcquerirTerrain=' + chasses.valeur + '&ChoixArmee=1&t=' + document.querySelector('table #t').value;
-				new ZzzelpScriptAjax({ method : 'POST', domain : 'fourmizzz', url : url_ajax, addDom : false, data : data, contentType : contentType },
+				new ZzzelpAjax({ method : 'POST', domain : 'fourmizzz', url : url_ajax, addDom : false, data : data, contentType : contentType },
 					{ success : function() {
 						document.querySelector('#lancement_zzzelp').rows[n].cells[1].style.color = 'green';
 						document.querySelector('#lancement_zzzelp').rows[n].cells[1].innerHTML = 'Envoyée';
@@ -9013,7 +7352,7 @@ function ZzzelpScriptChasses() {
 
 	this.storeOnZzzelp = function(mode, n) {
 		var url_ajax = 'chasses_script?arrivee=' + ze_Analyser_URL('retour') + '&valeur=' + chasses.valeur*(n-1) + '&';
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, force : mode },
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, force : mode },
 			{ success : function(valeurs) {
 				document.querySelector('#lancement_zzzelp').rows[0].cells[0].style.color = ((valeurs == 1) ? 'green' : 'red');
 				document.querySelector('#lancement_zzzelp').rows[0].cells[0].innerHTML = 'Stockage sur Zzzelp : ' + ((valeurs == 1) ? 'REUSSI' : 'ECHOUEE');
@@ -9103,7 +7442,7 @@ function ze_Affichage_colonies(visible) {
 function ze_Recuperation_TDC_colonies(colonies, i) {
 	if(i < colonies.length) {
 		var pseudo = colonies[i].querySelector('a').innerHTML;
-		new ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + pseudo, addDOM : true },
+		new ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'Membre.php?Pseudo=' + pseudo, addDOM : true },
 			{ success : function(zone_page) {
 				var TDC = parseInt(zone_page.querySelector('.tableau_score').rows[1].cells[1].innerHTML.replace(/ /g, '')),
 					alliance = (zone_page.querySelector('.boite_membre table').rows[0].querySelector(' a') === null) ? '-' : zone_page.querySelector('.boite_membre table').rows[0].querySelector(' a').innerHTML;
@@ -9140,7 +7479,7 @@ function ZzzelpScriptTraceur(data, callback) {
 		}
 		else {
 			var prefix = (valeurs.mode == 'alliance') ? 'classementAlliance.php?alliance=' : 'Membre.php?Pseudo=';
-			ZzzelpScriptAjax({ method : 'GET', domain : 'fourmizzz', url : prefix + valeurs.valeur, addDOM : true },
+			ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : prefix + valeurs.valeur, addDOM : true },
 				{ success : function(zone_page, ajax) {
 					var TDC, alliance, joueur, rang;
 					if(zone_page.querySelectorAll('.boite_membre').length === 0) {
@@ -9187,7 +7526,7 @@ function ZzzelpScriptTraceur(data, callback) {
 	this.sendZzzelp = function(mode) {
 		var form = new FormData();
 		form.append('releves', JSON.stringify(traceur.values));
-		ZzzelpScriptAjax({ method : 'POST', domain : 'zzzelp', url : 'stockageTDC?', force : mode, data : form },
+		ZzzelpAjax({ method : 'POST', domain : 'zzzelp', url : 'stockageTDC?', force : mode, data : form },
 			{ success : function(valeurs) {
 				localStorage.setItem('zzzelp_dernier_traceur_' + ze_serveur, time());
 				ZzzelpScriptTraceur.updateDelay(true);
@@ -9271,7 +7610,7 @@ function ze_MAJ_convois() {
 	var valeur = ze_Analyser_URL('valeur_convois') ;
 	var alliance = ze_Analyser_URL('alliance');
 	var ressource = ze_Analyser_URL('ressource');
-	document.location.href=url_zzzelp + '/convois/preparation?ressource=' + ressource + '&serveur=' + ze_serveur + '&alliance=' + alliance + '&pseudo=' + pseudo + '&valeur_convois=' + valeur + '&ouvrieres=' + gouvrieres + '&TDC=' + gTDC;
+	document.location.href= ZzzelpScript.url + '/convois/preparation?ressource=' + ressource + '&serveur=' + ze_serveur + '&alliance=' + alliance + '&pseudo=' + pseudo + '&valeur_convois=' + valeur + '&ouvrieres=' + gouvrieres + '&TDC=' + gTDC;
 }
 
 /* Envoi d'un convoi */
@@ -9301,7 +7640,7 @@ function ze_Validation_convois() {
 		mode = localStorage['ModeConvois' + ze_serveur].split(',');
 		donnees = localStorage['ValeurConvois' + ze_serveur].split(',');
 		localStorage['ValeurConvois' + ze_serveur] = '';
-		document.location.href=url_zzzelp + '/convois/modification?alliance=' + donnees[3] + '&serveur=' + ze_serveur + '&pseudo=' + donnees[0] + '&materiaux=' + donnees[1] + '&nourriture=' + donnees[2];
+		document.location.href= ZzzelpScript.url + '/convois/modification?alliance=' + donnees[3] + '&serveur=' + ze_serveur + '&pseudo=' + donnees[0] + '&materiaux=' + donnees[1] + '&nourriture=' + donnees[2];
 	}
 }
 
@@ -9377,7 +7716,7 @@ function ZzzelpScriptAide(section) {
 	this.section = (typeof section == 'undefined') ? '' : section;
 
 	this.init = function(mode) {
-		new ZzzelpScriptAjax(that.getAjaxData(mode),
+		new ZzzelpAjax(that.getAjaxData(mode),
 			{ success : function(values) {
 				that.create(values);
 			}, authentication_issue : function() {
@@ -9426,11 +7765,11 @@ function ZzzelpScriptAide(section) {
 		fond.className = 'modal_zzzelp';
 
 		barre_boutons.className = 'zzzelp_modal_boutons';
-		bouton_quitter.src = url_zzzelp + '/Images/close.png';
+		bouton_quitter.src = ZzzelpScript.url + '/Images/close.png';
 		bouton_quitter.onclick = function onclick(event) {
 			ze_Supprimer_element(fond);
 		};
-		bouton_sommaire.src = url_zzzelp + '/Images/home.png';
+		bouton_sommaire.src = ZzzelpScript.url + '/Images/home.png';
 		bouton_sommaire.onclick = function onclick(event) {
 			that.changeSection(0);
 		};
@@ -9529,50 +7868,1968 @@ function ZzzelpScriptAide(section) {
 
 	this.init(1);
 }
+var ZzzelpFloods = function(zone, data) {
+    this.zone = zone;
+    this.state = {};
+
+    this.init(data);
+};
+
+ZzzelpFloods.prototype.init = function(data) {
+    if(document.querySelectorAll('.zone_zzzelpfloods').length === 0) {
+        this.parseData(data);
+        this.prepareSondesData();
+        this.prepareAntiSondesData();
+        this.preparePlayers();
+        this.createInterface();
+        this.compute();
+        this.updateImpactHours();
+    }
+};
+
+ZzzelpFloods.prototype.parseData = function(data) {
+    for(var el in data) {
+        this[el] = data[el];
+    }
+};
+
+ZzzelpFloods.prototype.prepareSondesData = function() {
+    if(!this.sondes) {
+        this.sondes = [
+            { 
+                unite : 0, 
+                valeur : Math.pow(10, String(parseInt(this.capacity/100000)).length)
+            },{ 
+                unite : 0, 
+                valeur : 1 
+            }
+        ];
+    }
+    this.sondes[0].valeur = parseInt(this.sondes[0].valeur);
+    this.sondes[1].valeur = parseInt(this.sondes[1].valeur);
+};
+
+ZzzelpFloods.prototype.prepareAntiSondesData = function() {
+    if(!this.antisondes) {
+        this.antisondes = [
+            { unite : 0, valeur : 1 },
+            { unite : 0, valeur : Math.pow(10, String(parseInt(this.capacity/100000)).length) }
+        ];
+    }
+
+    this.antisondes[0].valeur = parseInt(this.antisondes[0].valeur);
+    this.antisondes[1].valeur = parseInt(this.antisondes[1].valeur);   
+};
+
+ZzzelpFloods.prototype.preparePlayers = function() {
+    this.pseudos = [];
+    for(var joueur in this.coordonnees) {
+        this.coordonnees[joueur].TDC_actuel = this.coordonnees[joueur].TDC;
+        if(typeof this.coordonnees[joueur].active != 'string' || this.coordonnees[joueur].active != 'NON') {
+            var x_1 = parseInt(this.coordonnees[this.username].x),
+                y_1 = parseInt(this.coordonnees[this.username].y),
+                x_2 = parseInt(this.coordonnees[joueur].x),
+                y_2 = parseInt(this.coordonnees[joueur].y);
+            this.coordonnees[joueur].distance = ze_Calcul_distance(x_1, y_1, x_2, y_2);
+            this.pseudos.push(joueur);
+        }
+    }
+    var coordonnees = this.coordonnees;
+    this.pseudos.sort(function (a,b) {
+        if(coordonnees[a].distance === coordonnees[b].distance) {
+            return 0;
+        }
+        return (coordonnees[a].distance < coordonnees[b].distance) ? -1 : 1;
+    });
+};
+
+ZzzelpFloods.prototype.createInterface = function() {
+    this.element = document.createElement('div');
+    this.element.className = 'zone_zzzelpfloods';
+    this.element.id = this.getThemeName();
+    this.zone.appendChild(this.element);
+
+    if(this.options) {
+        this.createTableOptions();
+    }
+    var floods_annules = document.createElement('div');
+    floods_annules.id = 'floods_annules';
+    this.element.appendChild(floods_annules);
+    for(var i=0; i<this.pseudos.length; i++) {
+        if(this.pseudos[i] != this.username) {
+            this.coordonnees[this.pseudos[i]].table = new ZzzelpFloodsPlayer(this.pseudos[i], this);
+        }
+    }
+    if(this.resume) {
+        this.createTableSummary();
+    }
+    this.createLaunchButton();
+};
+
+ZzzelpFloods.prototype.getThemeName = function() {
+    if(this.theme) {
+        return 'theme_' + this.theme;
+    }
+    else {
+        return 'theme_fourmizzz';
+    }
+};
+
+ZzzelpFloods.prototype.createTableOptions = function() {
+    var table = document.createElement('table'),
+        options = this.getOptionsList();
+
+    table.id = 'tableau_option';
+    this.element.appendChild(table);
+
+    for(var i=0; i<options.length; i++) {
+        this.createOptionsLine(table, options[i]);
+    }
+};
+
+ZzzelpFloods.prototype.createLaunchButton = function() {
+    var lancement = document.createElement('div');
+    lancement.innerHTML = 'Lancer';
+    lancement.className = 'bouton_lancement';
+    lancement.onclick = this.send.bind(this);
+    this.element.appendChild(lancement);
+};
+
+ZzzelpFloods.prototype.getOptionsList = function() {
+    var options = [
+            { titre : 'Stockage sur Zzzelp',    ID : 'lancement_zzzelp', auto : this.lancement_zzzelp },
+            { titre : 'Replacer l\'antisonde',  ID : 'placer_antisonde', auto : this.placer_antisonde }
+        ];
+
+    if(typeof this.aide_relance != 'undefined') {
+        options.push({ 
+            titre : 'Prévenir du retour', 
+            ID : 'aide_relance', auto : 
+            this.aide_relance, 
+            valeur : this.valeur_aide_relance
+        });
+    }
+    if(typeof this.anti_synchro != 'undefined') {
+        options.push({
+            titre : 'Lancer en fin de minute', 
+            ID : 'anti_synchro', 
+            auto : this.anti_synchro, 
+            valeur : this.seconde_renvoi });         
+    }
+    return options;
+};
+
+ZzzelpFloods.prototype.createOptionsTitle = function(table) {
+    var ligne = table.insertRow(0),
+        cell = ligne.insertCell(0),
+        lien = document.createElement('a');
+    cell.onclick = this.showOptions;
+    cell.setAttribute('colspan', '2');
+    lien.innerHTML = 'Options d\'optimisation';
+    cell.appendChild(lien);
+};
+
+ZzzelpFloods.prototype.createOptionsLine = function(table, option) {
+    var ligne = table.insertRow(-1);
+    ligne.setAttribute('style', 'display:none');
+    ligne.insertCell(0).innerHTML = option.titre;
+
+    var cell = ligne.insertCell(1),
+        choix = document.createElement('input');
+    choix.type = 'checkbox';
+    choix.id = option.ID;
+    choix.checked = option.auto;
+
+    choix.onchange = this.compute;
+    cell.appendChild(choix);
+    if(option.ID == 'anti_synchro') {
+        this.createCellAntiSynchro(table, option);
+    }
+    else if(option.ID == 'aide_relance') {
+        this.createCellAideRelance(table, option);
+    }    
+};
+
+ZzzelpFloods.prototype.createCellAntiSynchro = function(table, option) {
+    var ligne = table.insertRow(-1),
+        cell = ligne.insertCell(0);
+        choix = document.createElement('select');
+    ligne.setAttribute('style', 'display:none');
+    cell.setAttribute('colspan', '2');
+    choix.disabled = !option.auto;
+    choix.id = 'seconde_anti_synchro';
+    for(var j=55;j<61;j++) {
+        var element = document.createElement('option');
+        element.value = j%60;
+        element.innerHTML = j + 'ème seconde';
+        choix.appendChild(element);
+    }
+    cell.appendChild(choix);
+    choix.value = option.valeur;
+    choix.onchange = this.compute;
+};
+
+ZzzelpFloods.prototype.createCellAideRelance = function(table, option) {
+    var ligne = table.insertRow(-1),
+        cell = ligne.insertCell(0),
+        choix = document.createElement('select'),
+        possibilites = new Array('Toutes les attaques', 'L\'attaque principale');
+    ligne.setAttribute('style', 'display:none');
+    cell.setAttribute('colspan', '2');
+    choix.disabled = !options[i].auto;
+    choix.id = 'choix_aide_relance';
+    for(var j=0; j<possibilites.length; j++) {
+        var element = document.createElement('option');
+        element.value = j+1;
+        element.innerHTML = possibilites[j];
+        choix.appendChild(element);
+    }
+    cell.appendChild(choix);
+    choix.value = option.valeur;
+    choix.onchange = this.compute;    
+};
+
+ZzzelpFloods.prototype.showOptions = function() {
+    var mode = (document.querySelectorAll('#tableau_option tr')[1].style.display == 'none') ? '' : 'none',
+        lignes = document.querySelectorAll('#tableau_option tr');
+    for(var i=1; i<lignes.length; i++) {
+        lignes[i].style.display = mode;
+    }
+};
+
+ZzzelpFloods.prototype.createTableSummary = function() {
+    var table = document.createElement('table'),
+        ligne = table.insertRow(0);
+    ligne.insertCell(0).innerHTML = 'TDC floodé :';
+    ligne.insertCell(1).innerHTML = '0';
+    ligne = table.insertRow(1);
+    ligne.insertCell(0).innerHTML = 'Nombre de floods : ';
+    ligne.insertCell(1).innerHTML = '0';
+    ligne = table.insertRow(2);
+    ligne.insertCell(0).innerHTML = 'Nombre de sondes : ';
+    ligne.insertCell(1).innerHTML = '0';
+    table.id = 'resume_floods';
+    this.element.appendChild(table);
+};
+
+ZzzelpFloods.prototype.updateTableSummary = function() {
+    if(document.querySelector('#resume_floods')) {
+        var lignes = document.querySelectorAll('#resume_floods tr');
+        if(document.querySelectorAll('.TDC_attaquant').length > 0) {
+            lignes[0].cells[1].innerHTML = ze_Nombre(parseInt(document.querySelectorAll('.TDC_attaquant')[document.querySelectorAll('.TDC_attaquant').length - 1].innerHTML.replace(/ /g,"")) - parseInt(document.querySelectorAll('td[id*="TDC_depart"]')[0].innerHTML.replace(/ /g,"")));
+        }
+        else {
+            lignes[0].cells[1].innerHTML = 0;
+        }
+        lignes[1].cells[1].innerHTML = document.querySelectorAll('.TDC_attaquant').length;
+        lignes[2].cells[1].innerHTML = document.querySelectorAll('.ligne_sonde').length;
+    }
+};
+
+ZzzelpFloods.prototype.updateImpactHours = function() {
+    setInterval(function() {
+        var tableaux = document.querySelectorAll('#optimisation_zzzelpfloods');
+        for(var l=0; l<tableaux.length; l++) {
+            var timestamp = parseInt(tableaux[l].querySelector('#duree_attaque').innerHTML);
+            if(~document.location.href.indexOf('fourmizzz.fr')) {
+                timestamp += time_fzzz();
+            }
+            else {
+                timestamp += time();
+            }
+            var   date = ze_Generation_date_precise(timestamp);
+            tableaux[l].querySelector('.heure_arrivee').innerHTML = date;
+        }
+    }, 1000);
+};
+
+ZzzelpFloods.prototype.compute = function(primaire) {
+    if(typeof primaire == 'undefined') {
+        primaire = true;
+    }
+    if(~document.location.href.indexOf('fourmizzz.fr')) {
+        this.updateParameters();
+    }
+    for(var joueur in this.coordonnees) {
+        this.coordonnees[joueur].TDC_actuel = this.coordonnees[joueur].TDC;
+    }
+    this.state = { 
+        capacity        : this.getInitialCapaFlood(), 
+        TDC             : parseInt(this.coordonnees[this.username].TDC), 
+        TDC_depart      : parseInt(this.coordonnees[this.username].TDC), 
+        floods_annules  : [] 
+    };
+    var ancien_temps = time();
+    for(var i=0; i<this.pseudos.length; i++) {
+        if(this.pseudos[i] != this.username) {
+            this.state = this.coordonnees[this.pseudos[i]].table.update(this.state);
+        }
+    }
+    if(document.querySelectorAll('tr[data-type="armee_complete"]').length > 0) {
+        var cell = document.querySelector('tr[data-type="armee_complete"]').cells[0],
+            restant = parseInt(cell.innerHTML.replace(/ /g, '')) + parseInt(this.state.capacity);
+        cell.innerHTML = ze_Nombre(restant);
+    }
+    if(primaire) {
+        this.compute(false);
+    }
+    else if(this.lancement_auto) {
+        Lancer_floods();
+    }
+    this.updateTableSummary();
+    this.showCancelledFloods(this.state.floods_annules);
+};
+
+ZzzelpFloods.prototype.showCancelledFloods = function(floods) {
+    var zone = document.querySelector('#floods_annules'),
+        anciennes = zone.querySelectorAll('.ligne_flood_annule');
+    for(var i=0; i<anciennes.length; i++) {
+        ze_Supprimer_element(anciennes[i]);
+    }
+    for(i=0; i<floods.length; i++) {
+        var flood = document.createElement('div');
+        flood.className = 'ligne_flood_annule';
+        flood.innerHTML = 'Annulation n°' + (zone.querySelectorAll('.ligne_flood_annule').length + 1) + ' : ' + ze_Nombre(this.variations[floods[i]][0].valeur) + ' cm2 de ' + this.variations[floods[i]][0].attaquant + ' sur ' + this.variations[floods[i]][0].cible;
+        zone.appendChild(flood);
+    }
+};
+
+ZzzelpFloods.prototype.getInitialCapaFlood = function() {
+    var capa_flood = parseInt(this.capacity),
+        sondes = document.querySelectorAll('#nombre_sonde');
+    for(var i=0;i<sondes.length;i++) {
+        capa_flood -= parseInt(sondes[i].innerHTML.replace(/ /g, ''));
+    }
+    if(this.isPlacementAntisondes()) {
+        capa_flood -= parseInt(this.antisondes[0].valeur);
+        capa_flood -= parseInt(this.antisondes[1].valeur);
+    }
+    return capa_flood;
+};
+
+ZzzelpFloods.prototype.updateParameters = function() {
+    this.updateCacheParameters();
+    if(typeof this.aide_relance != 'undefined') {
+        document.querySelector('#choix_aide_relance').disabled = !this.isAideRelance();
+    }
+    if(typeof this.anti_synchro != 'undefined') {
+        document.querySelector('#seconde_anti_synchro').disabled = !this.isAntiSynchronisation(); 
+    }
+};
+
+ZzzelpFloods.prototype.updateCacheParameters = function() {
+    var data = JSON.parse(localStorage.getItem('zzzelp_parametres_' + this.server));
+
+    data.parametres.zzzelpfloods.parametres.zzzelpfloods_stockage.active = this.isLancementViaZzzelp();
+    data.parametres.zzzelpfloods.parametres.zzzelpfloods_antisonde.active = this.isPlacementAntisondes();
+    if(typeof this.aide_relance != 'undefined') {
+        data.parametres.zzzelpfloods.parametres.zzzelpfloods_relance.active = this.getValeurAideRelance();
+        data.zzzelpfloods_prive.mode_relance = this.getValeurAideRelance();
+    }
+    if(typeof this.anti_synchro != 'undefined') {
+        data.parametres.zzzelpfloods.parametres.zzzelpfloods_antisynchro.active = this.getValeurAntiSynchronisation();
+        data.zzzelpfloods_prive.seconde = this.getValeurAntiSynchronisation();
+    }
+    localStorage.setItem('zzzelp_parametres_' + this.server, JSON.stringify(data));
+};
+
+ZzzelpFloods.prototype.isLancementViaZzzelp = function() {
+    return document.querySelector('#lancement_zzzelp') && document.querySelector('#lancement_zzzelp').checked;
+};
+    
+ZzzelpFloods.prototype.isPlacementAntisondes = function() {
+    return document.querySelector('#placer_antisonde') && document.querySelector('#placer_antisonde').checked;
+};
+
+ZzzelpFloods.prototype.isAideRelance = function() {
+    return document.querySelector('#aide_relance') && document.querySelector('#aide_relance').checked;
+};
+
+ZzzelpFloods.prototype.getValeurAideRelance = function() {
+    return document.querySelector('#choix_aide_relance') ? parseInt(document.querySelector('#choix_aide_relance').value) : 1;
+};
+
+ZzzelpFloods.prototype.isAntiSynchronisation = function() {
+    return document.querySelector('#anti_synchro') && document.querySelector('#anti_synchro').checked;
+};
+
+ZzzelpFloods.prototype.getValeurAntiSynchronisation = function() {
+    return document.querySelector('#seconde_anti_synchro') ? parseInt(document.querySelector('#seconde_anti_synchro').value) : 58;
+};
+
+ZzzelpFloods.prototype.send = function() {
+    var URL = '[',
+        vide = true;
+        
+    for(var i=0; i<this.pseudos.length; i++) {
+        if(this.pseudos[i] != this.username) {
+            var sub_url = this.coordonnees[this.pseudos[i]].table.toURL();
+            if(sub_url !== null) {
+                URL +=  ((URL == '[') ? '' : ':') + sub_url;
+                vide = false;
+            }
+        }
+    }
+    URL += this.encodeOptions();
+    URL = 'http://' + this.server + '.fourmizzz.fr/Armee.php?fl=' + URL;
+    if(vide) {
+        alert('Aucune attaque à envoyer');
+    }
+    else {
+        if(this.stockage_parametres_zzzelp) {
+            this.saveOnZzzelp(URL, 1);
+        }
+        else {
+            document.location.href = URL;
+        }
+    }
+};
+
+ZzzelpFloods.prototype.encodeOptions = function() {
+    var URL = ']&s=' + this.server;
+    if(this.isPlacementAntisondes()) {
+        URL += '&as=[' + ze_Base_10_36(this.antisondes[0].unite) + ',' + ze_Base_10_36(this.antisondes[0].valeur) ;
+        URL += ',' + ze_Base_10_36(this.antisondes[1].unite) + ',' + ze_Base_10_36(this.antisondes[1].valeur) + ']';
+    }
+    if(this.isAntiSynchronisation()) {
+        var seconde_att = this.getValeurAntiSynchronisation()*1000,
+            seconde_duree = parseInt(((1-Math.exp(-this.coordonnees[this.pseudos[1]].distance/350))*7.375*Math.pow(0.9,this.attack_speed))*86400000)%60000;
+        URL += '&sec=' + ((seconde_att + 60000 - seconde_duree)%60000);
+    }
+    if(this.token && this.token.length > 0) {
+        URL += '&token=' + this.token;
+    }
+    if(this.isAideRelance()) {
+        URL += '&relance=' + Valeur_aide_relance();
+    }
+    if(this.isLancementViaZzzelp()) {
+        URL += '&lz';
+    }
+    else {
+        URL += '&lf';
+    }
+    return URL;
+};
+
+ZzzelpFloods.prototype.saveOnZzzelp = function(URL, mode) {
+    var parametres = new Array(
+        this.isLancementViaZzzelp() ? 1 : 0,
+        this.isPlacementAntisondes() ? 1 : 0
+    );
+    if(typeof this.aide_relance != 'undefined') {
+        parametres.push(this.isAideRelance() ? 1 : 0);
+        parametres.push(this.getValeurAideRelance());
+    }
+    else {
+        parametres.push(0);
+        parametres.push(0);         
+    }
+    if(typeof this.anti_synchro != 'undefined') {
+        parametres.push(this.isAntiSynchronisation() ? 1 : 0);
+        parametres.push(this.getValeurAntiSynchronisation()); 
+    }
+    else {
+        parametres.push(0);
+        parametres.push(0);             
+    }
+    var niveaux = '';
+    for(var i=0; i<parametres.length; i++) {
+        niveaux += ((niveaux === '') ? '' : ',') + parametres[i];
+    }
+    new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'niveaux_script?lieu=zzzelpfloods&niveaux=[' + niveaux + ']&', force : mode },
+        { success : function(valeurs) {
+            document.location.href = URL;
+        }, authentication_issue : function() {
+            this.saveOnZzzelp(URL, 2);
+        }
+    });
+};
+var ZzzelpFloodsAttack = function(value, full_army, manual) {
+	this.setValue(value);
+	this.setFullArmy(full_army);
+	this.setManual(manual);
+	
+};
+
+ZzzelpFloodsAttack.prototype.getValue = function() {
+	return this.value;
+};
+
+ZzzelpFloodsAttack.prototype.setValue = function(newValue) {
+	this.value = newValue;
+};
+
+ZzzelpFloodsAttack.prototype.isFullArmy = function() {
+	return this.full_army;
+};
+
+ZzzelpFloodsAttack.prototype.setFullArmy = function(newFullArmy) {
+	this.full_army = newFullArmy;
+};
+
+ZzzelpFloodsAttack.prototype.isManual = function() {
+	return this.manual;
+};
+
+ZzzelpFloodsAttack.prototype.setManual = function(newManual) {
+	this.manual = newManual;
+};
+var ZzzelpFloodsLauncher = function(data) {
+
+	if(data) {
+		this.parseData(data);
+	}
+	else {
+		this.parseURL();
+	}
+	
+	this.armee = ZzzelpArmy.getArmee(document, 0).unites;
+	this.getAvailableArmy();
+	this.getSondesUnits();
+	this.getAttacksUnits();
+	
+	console.log(this);
+
+	this.getToken();
+
+};
+
+ZzzelpFloodsLauncher.prototype.parseData = function(data) {
+	for(var el in data) {
+		this[el] = data[el];
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.parseURL = function() {
+	localStorage.setItem('zzzelp_aide_relance_' + ze_serveur, '[]');
+
+	var lancements = ze_Analyser_URL('fl');
+	lancements = lancements.substr(1, lancements.length - 2).split(':');
+
+	this.schemas = [];
+	this.interface = true;
+	
+	for(var i=0; i<lancements.length; i++) {
+		this.parseURLLine(lancements[i]);
+	}
+	if(ze_Analyser_URL('sec')) {
+		this.seconde = parseInt(ze_Analyser_URL('sec'));
+	}
+	else {
+		this.seconde = -1;
+	}
+	if(ze_Analyser_URL('relance')) {
+		this.relance = parseInt(ze_Analyser_URL('relance'));
+	}
+	else {
+		this.relance = -1;
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.parseURLLine = function(line) {
+	var floods = line.split(';'),
+		ID = ze_Base_36_10(floods[floods.length - 3]),
+		temps = ze_Base_36_10(floods[floods.length - 2]),
+		pseudo = floods[floods.length - 1];
+
+	for(var n=0; n<floods.length - 3; n++) {
+		var flood = floods[n].substr(1, floods[n].length - 1).split(',');
+		if(floods[n].substr(0,1) === '0') {
+			this.schemas.push({
+				mode : 'flood',
+				valeur : (flood[0] == '-1') ? -1 : ze_Base_36_10(flood[0]), lieu : flood[1],
+				ID : ID,
+				pseudo : pseudo,
+				duree : temps
+			});
+		}
+		else {
+			this.schemas.push({
+				mode : 'sonde',
+				nombre : ze_Base_36_10(flood[0]), lieu : flood[2],
+				unite : ze_Base_36_10(flood[1]),
+				ID : ID,
+				pseudo : pseudo,
+				duree : temps
+			});
+		}
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.getAvailableArmy = function() {
+	this.armee_floods = this.armee;
+	this.antisondes = [];
+	this.etape_antisondes = 0;
+
+	if(ze_Analyser_URL('as')) {
+		var antisondes = ze_Analyser_URL('as').substr(1, ze_Analyser_URL('as').length - 2).split(',');
+		for(var i=0; i<2; i++) {
+			var unite = ze_Base_36_10(antisondes[2*i]),
+				nombre = ze_Base_36_10(antisondes[2*i+1]);
+			this.antisondes.push([unite, ze_Majoration(nombre, this.armee_floods[unite])]);
+			this.armee_floods[unite] -= (this.armee_floods[unite] > nombre) ? nombre : this.armee_floods[unite];
+		}
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.getSondesUnits = function() {
+	for(var i=0; i<this.schemas.length; i++) {
+		if(this.schemas[i].mode == 'sonde') {
+			var unites_sonde = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+				manquantes = this.schemas[i].nombre;
+			for(var n=this.schemas[i].unite; n<this.schemas[i].unite + 14; n++) {
+				if(this.armee_floods[n%14] > manquantes) {
+					unites_sonde[n%14] = manquantes;
+				}
+				else {
+					unites_sonde[n%14] = this.armee_floods[n%14];
+				}
+				manquantes -= unites_sonde[n%14];
+				this.armee_floods[n%14] -= unites_sonde[n%14];
+			}
+			this.schemas[i].unites = unites_sonde;
+		}
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.getAttacksUnits = function() {
+	var aide_relance = [],
+		pseudos_pris = [];
+	for(var i=0; i<this.schemas.length; i++) {
+		if(this.schemas[i].mode == 'flood') {
+			if(this.relance == 2 && (aide_relance.length === 0 || this.schemas[i].valeur > this.schemas[aide_relance[0]].valeur)) {
+				aide_relance[0] = i;
+			}
+			else if(this.relance == 1 && !in_array(this.schemas[i].pseudo, pseudos_pris)) {
+				aide_relance.push(i);
+				pseudos_pris.push(this.schemas[i].pseudo);
+			}
+			 if(this.schemas[i].valeur >= 0) {
+				var unites_flood = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0),
+					manquantes = this.schemas[i].valeur;
+				for(var n=0; n<14; n++) {
+					if(this.armee_floods[n] > manquantes) {
+						unites_flood[n] = manquantes;
+					}
+					else {
+						unites_flood[n] = this.armee_floods[n];
+					}
+					manquantes -= unites_flood[n];
+					this.armee_floods[n] -= unites_flood[n];
+				}
+				this.schemas[i].unites = unites_flood;   
+			}
+		}
+	}
+	for(i=0; i<this.schemas.length; i++) {
+		if(this.schemas[i].mode == 'flood' && this.schemas[i].valeur == -1) {
+			this.schemas[i].unites = this.armee_floods;   
+			this.armee_floods = new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);          
+		}
+	}
+	for(i=0; i<this.schemas.length; i++) {
+		this.schemas[i].aide_relance = in_array(i, aide_relance);
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.getToken = function() {
+	var self = this;
+	ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'ennemie.php?Attaquer=' + this.schemas[0].ID + '&lieu=0' }, { 
+		success : self.createTable.bind(self)
+	});	
+};
+
+ZzzelpFloodsLauncher.prototype.createTable = function(contenu) {
+	var ligne, cell;
+	this.tokens = tokens = new Array(new RegExp('<input type="hidden" name="t" id="t" value="(.*)"/>').exec(contenu)[1], document.querySelector('#t').value);
+	
+    var zone = document.createElement('div');
+	this.table = document.createElement('table');
+	this.clean();
+	
+	zone.className = 'zone_zzzelpfloods';
+	zone.id = 'theme_fourmizzz';
+	this.table.id = 'lancement_zzzelp';
+	this.table.className = 'tableau_recap';
+	this.table.dataset.lancement_fini = 0;
+
+	this.createFirstLine();
+
+	for(var i=0; i<this.schemas.length; i++) {
+		this.createLine(this.schemas[i]);   
+	}
+	if(this.antisondes.length > 0) {
+		this.createAntisondesLine();
+	}
+	if(this.seconde > -1) {
+		this.createSecondLaunchLine();
+	}
+	zone.appendChild(this.table);
+	document.querySelector('center').insertBefore(zone, document.querySelector('center br'));
+	this.send(1);
+};
+
+ZzzelpFloodsLauncher.prototype.clean = function() {
+    var sdam_zone = document.querySelector('#sd_showhidecopy');
+    if(sdam_zone) {
+        ze_Supprimer_element(sdam_zone);
+        ze_Supprimer_element(document.querySelector('#sd_tablecopy'));
+        ze_Supprimer_element(document.querySelector('#Sdversion'));
+    }
+    
+    ze_Supprimer_element(document.querySelector('.pas_sur_telephone'));
+    ze_Supprimer_element(document.querySelector('.simulateur'));
+    ze_Supprimer_element(document.querySelector('.simulateur'));    
+};
+
+ZzzelpFloodsLauncher.prototype.createFirstLine = function() {
+	var ligne = this.table.insertRow(0);
+	ligne.insertCell(0).innerHTML = 'Cible';
+	ligne.insertCell(1).innerHTML = 'Type';
+	ligne.insertCell(2).innerHTML = 'Unités';
+	ligne.insertCell(3).innerHTML = 'Envoyé';
+	ligne.insertCell(4).innerHTML = 'Stocké';
+};
+
+ZzzelpFloodsLauncher.prototype.createLine = function(schema) {
+	var stockage_zzzelp = (document.location.href.substr(-3, 3) == '&lz'),
+		ligne = this.table.insertRow(-1),
+		cell = ligne.insertCell(0),
+		cell2 = ligne.insertCell(1),
+		cell3 = ligne.insertCell(2),
+		cell4 = ligne.insertCell(3),
+		cell5 = ligne.insertCell(4);
+
+	cell.setAttribute('style', 'font-weight:bold;');
+	cell.innerHTML = ze_Lien_profil(schema.pseudo) + ' :';
+	cell2.innerHTML = (schema.mode == 'flood') ? 'Flood' : 'Sonde';
+	
+	var zone_unites = document.createElement('div');
+	cell3.className = 'menu_unites';
+	zone_unites.className = 'liste_unites';
+	zone_unites.appendChild(this.createUniteCell(array_sum(schema.unites)));
+	for(var k=0; k<14; k++) {
+		zone_unites.appendChild(this.createUniteLine(schema.unites[k], k));
+	}
+	cell3.appendChild(this.createUnitHeader(array_sum(schema.unites)));
+    cell3.appendChild(zone_unites);
+	
+	cell4.setAttribute('style', 'color:red;');
+	cell5.setAttribute('style', ((stockage_zzzelp && schema.mode == 'flood') ? 'color:red;' : ''));
+	cell4.innerHTML = 'NON';
+	cell5.innerHTML = (stockage_zzzelp && schema.mode == 'flood') ? 'NON' : '-'; 
+};
+
+ZzzelpFloodsLauncher.prototype.createUnitHeader = function(capacity) {
+	var	entete = document.createElement('div'),
+		img = document.createElement('img');
+
+	entete.innerHTML = ze_Nombre(capacity);
+	entete.className = 'entete_liste_unites';
+	img.src = ZzzelpScript.url + 'Images/fourmis.png';
+	entete.appendChild(img);
+
+	return entete;
+};
+
+ZzzelpFloodsLauncher.prototype.createUniteCell = function(capacity) {
+	var unite = document.createElement('div'),
+		nombre = document.createElement('span'),
+		tag = document.createElement('span');    
+
+	unite.className = 'ligne_unite';
+	nombre.innerHTML = ze_Nombre(capacity);
+	tag.innerHTML = 'unités';
+
+	unite.appendChild(nombre);
+	unite.appendChild(tag);
+
+    return unite;
+};
+
+ZzzelpFloodsLauncher.prototype.createUniteLine = function(value, index) {
+	unite = document.createElement('div');
+	nombre = document.createElement('span');
+	tag = document.createElement('span');
+
+	unite.className = 'ligne_unite';
+	nombre.innerHTML = ze_Nombre(value);
+	tag.innerHTML = ZzzelpArmy.TAGs[index];
+	unite.appendChild(nombre);
+	unite.appendChild(tag);	
+	return unite;
+};
+
+ZzzelpFloodsLauncher.prototype.createAntisondesLine = function() {
+	var ligne = this.table.insertRow(-1);
+	cell = ligne.insertCell(0);
+	cell.setAttribute('colspan', '5');
+	cell.innerHTML = 'Antisondes non placées';
+	cell.setAttribute('style', 'color:red;font-weight:bold;text-align:center');
+	cell.id = 'placement_antisondes';
+};
+
+ZzzelpFloodsLauncher.prototype.createSecondLaunchLine = function() {
+	this.waitingLine = this.table.insertRow(-1);
+	cell = ligne.insertCell(0);
+	cell.setAttribute('colspan', '5');
+	cell.innerHTML = '<span id="attente_lancement_zzzelp"></span> secondes avant le lancement';
+	cell.setAttribute('style', 'font-weight:bold;text-align:center');
+};
+
+ZzzelpFloodsLauncher.prototype.send = function(n) {
+	if(this.schemas.length > 0) {
+		if(this.seconde == -1 || parseInt(this.seconde/1000) == (new Date(time_fzzz()*1000)).getSeconds() || n > 1) {
+			if(this.seconde > -1 && n == 1) {
+				ze_Supprimer_element(this.waitingLine);
+			}
+			var flood = this.schemas[0];
+			this.schemas.shift();
+			if(flood.aide_relance) {
+				var stockages = JSON.parse(localStorage['zzzelp_aide_relance_' + ze_serveur]);
+				stockages.push({ pseudo : flood.pseudo, retour : time_fzzz() + flood.duree, id : +new Date() });
+				localStorage['zzzelp_aide_relance_' + ze_serveur] = JSON.stringify(stockages);
+			}
+			var url_ajax = 'ennemie.php?Attaquer=' + flood.ID + '&lieu=' + flood.lieu,
+				texte = '';
+			for(var k=0; k<14; k++) {
+				if(flood.unites[k] !== 0) {
+					texte += ((texte !== '')? '&' : '') + 'unite' + ZzzelpArmy.ID[k] + '=' + flood.unites[k];
+				}
+			}
+			texte += '&lieu=' + flood.lieu + '&ChoixArmee=1&t=' + this.tokens[0];
+
+            var self = this;
+			new ZzzelpAjax({ method : 'POST', domain : 'fourmizzz', url : url_ajax, data : texte, contentType : "application/x-www-form-urlencoded"}, { 
+                success : self.callbackSend.bind(self, flood, n)
+			});
+		}
+		else {
+			setTimeout(function() {
+				this.send(n);
+			}, 1);
+			document.querySelector('#attente_lancement_zzzelp').innerHTML = parseInt((this.seconde/1000 - (new Date(time_fzzz()*1000)).getSeconds() + 60)%60);
+		}
+	}
+	else if(this.antisondes.length > 0) {
+		ZzzelpFloodsLauncher.placeAntiSondes(this.antisondes, this.tokens[1], 1);
+	}
+	else {
+		document.querySelector('#lancement_zzzelp').dataset.lancement_fini = 1;
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.callbackSend = function(flood, n, txt) {
+    var en_cours = new RegExp('<h3([^!]+)').exec(txt)[1].split('- Vous allez attaquer'),
+        dernier = { retour : 0, ID : 0, heure : '', pseudo : '', alliance : '' };
+    for(var k=0; k<en_cours.length;k++) {
+        if(en_cours[k].match(new RegExp('Pseudo=(.*)">(.*)alliance=(.*)">(.*)id="attaque_([0-9]+)">(.*) </span><script language="JavaScript">reste\\(([0-9]+)'))) {
+            var donnees = new RegExp('Pseudo=(.*)">(.*)alliance=(.*)">(.*)id="attaque_([0-9]+)">(.*) </span><script language="JavaScript">reste\\(([0-9]+)').exec(en_cours[k]);
+            if(parseInt(donnees[5]) > dernier.ID) {
+                dernier = { retour : parseInt(donnees[7]), ID : parseInt(donnees[5]), heure : donnees[6], pseudo : donnees[1], alliance : donnees[3] };
+            }
+        }
+    }
+    var content = '- Vous allez attaquer <span class="gras"><a href="Membre.php?Pseudo=' + dernier.pseudo + '">';
+    content += dernier.pseudo + '</a>(<a href="classementAlliance.php?alliance=' + dernier.alliance + '">';
+    content += dernier.alliance + '</a>)</span> dans <span class="gras" id="attaque_' + dernier.ID + '">';
+    content += dernier.heure + '</span> - <a href="/Armee.php?annuler=' + dernier.ID + '">Annuler</a>';
+    document.querySelector('center').innerHTML += content;
+    var script = document.createElement('script');
+    script.setAttribute('language', 'JavaScript');
+    script.innerHTML = 'reste(' + dernier.retour + ', "attaque_' + dernier.ID + '");';
+    document.querySelector('center').appendChild(script);
+    document.querySelector('center').appendChild(document.createElement('br'));
+    document.querySelector('#lancement_zzzelp').rows[n].cells[3].style.color = 'green';
+    document.querySelector('#lancement_zzzelp').rows[n].cells[3].innerHTML = 'OUI';
+    this.saveOnZzzelp(flood, n, 1);    
+};
+
+ZzzelpFloodsLauncher.prototype.saveOnZzzelp = function(flood, n, mode) {
+	if(document.location.href.substr(-3, 3) == '&lz' && this.table.rows[n].cells[1].innerHTML == 'Flood') {
+        var url_ajax = 'floods_script?unites=[' + flood.unites + ']&cible=' + flood.ID + '&',
+            self = this;
+		new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : url_ajax, force : mode }, { 
+            success : this.successCallbackSaveOnZzzelp.bind(self, n),
+			authentication_issue : this.errorCallbackSaveOnZzzelp.bind(self, n, flood)
+		});
+	}
+	else {
+		this.send(n+1);
+	}
+};
+
+ZzzelpFloodsLauncher.prototype.successCallbackSaveOnZzzelp = function(n, txt) {
+    document.querySelector('#lancement_zzzelp').rows[n].cells[4].style.color = 'green';
+    document.querySelector('#lancement_zzzelp').rows[n].cells[4].innerHTML = 'OUI';                 
+    this.send(n+1);
+};
+
+ZzzelpFloodsLauncher.prototype.errorCallbackSaveOnZzzelp = function(n, flood) {
+    this.saveOnZzzelp(flood, n, 2);
+};
+
+ZzzelpFloodsLauncher.placeAntiSondes = function(antisondes, token, n, rediriger) {
+	var url;
+	if(n == 1) {
+		ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : 'Armee.php?deplacement=3&t=' + token },
+			{ success : function(zone_page, ajax) {
+				ZzzelpFloodsLauncher.placeAntiSondes(antisondes, token, n+1, rediriger);
+			}
+		});
+	}
+	else if(n == 2) {
+		url = 'Armee.php?Transferer=Envoyer&LieuOrigine=3&LieuDestination=1';
+		url += '&ChoixUnite=' + ZzzelpArmy.ordre[antisondes[0][0]];
+		url += '&nbTroupes=' + antisondes[0][1] + '&t=' + token;
+		ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : url },
+			{ success : function(zone_page, ajax) {
+				ZzzelpFloodsLauncher.placeAntiSondes(antisondes, token, n+1, rediriger);
+			}
+		});
+	}
+	else if(n == 3) {
+		url = 'Armee.php?Transferer=Envoyer&LieuOrigine=3&LieuDestination=2';
+		url += '&ChoixUnite=' + ZzzelpArmy.ordre[antisondes[1][0]];
+		url += '&nbTroupes=' + antisondes[1][1] + '&t=' + token;
+		ZzzelpAjax({ method : 'GET', domain : 'fourmizzz', url : url },
+			{ success : function(zone_page, ajax) {
+				ZzzelpFloodsLauncher.placeAntiSondes(antisondes, token, n+1, rediriger);
+			}
+		});
+	}
+	else if(n == 4 && rediriger) {
+		document.location.href = 'http://' + ze_serveur + '.fourmizzz.fr/Armee.php';
+	}
+	else if(n == 4) {
+		document.querySelector('#placement_antisondes').innerHTML = 'Antisondes placées';
+		document.querySelector('#placement_antisondes').style.color = 'green';
+		document.querySelector('#lancement_zzzelp').dataset.lancement_fini = 1;
+	}
+};
+
+
+var ZzzelpFloodsPlayer = function(pseudo, instance) {
+
+    this.pseudo = pseudo;
+    this.instance = instance;
+    this.server = instance.server;
+    this.element = instance.element;
+    this.coordonnees = instance.coordonnees;
+    this.attack_speed = instance.attack_speed;
+    this.mode_temp = instance.mode;
+    this.init();
+
+};
+
+ZzzelpFloodsPlayer.modes = [
+    { nom : 'Choix du mode',                    valeur : 'false' },
+    { nom : 'Optimisation classique',           valeur : 'classique'},
+    { nom : 'TDC voulu attaquant',              valeur : 'TDC_attaquant'},
+    { nom : 'TDC voulu cible',                  valeur : 'TDC_cible'},
+    { nom : 'Optimisation + armée au début',    valeur : 'armee_debut'},
+    { nom : 'Optimisation + armée en fin',      valeur : 'armee_fin'},
+    { nom : 'Série d\'attaques identiques',     valeur : 'serie_attaques' },
+    { nom : 'Attaque classique',                valeur : 'armee_complete'},
+    { nom : 'Sonde + Attaque classique',        valeur : 'armee_complete_sonde'},
+    { nom : 'Sondes Dôme + Loge',               valeur : 'sonde' },
+    { nom : 'Manuel',                           valeur : 'inconnu' }
+];
+
+ZzzelpFloodsPlayer.manualAddings = [
+    { nom : 'Type de ligne à ajouter',  valeur : 'false' },
+    { nom : 'Flood manuel',             valeur : 'manuel'},
+    { nom : 'Sonde manuelle',           valeur : 'sonde'}
+];
+
+ZzzelpFloodsPlayer.places = ['TDC', 'Dôme', 'Loge'];
+
+ZzzelpFloodsPlayer.modificationLinks = [
+    { 
+        lien_image  : 'suppression.png', 
+        action      : 'supprimer', 
+        title       : 'Supprimer la ligne' 
+    },{ 
+        lien_image  : 'edit.png', 
+        action      : 'modifier', 
+        title       : 'Modifier la ligne'
+    }
+];
+
+ZzzelpFloodsPlayer.prototype.getTDCAttaquant = function() {
+    return parseInt(this.TDC_attaquant.innerHTML.replace(/ /g, ''));
+};
+
+ZzzelpFloodsPlayer.prototype.getTDCCible = function() {
+    return parseInt(this.TDC_cible.innerHTML.replace(/ /g, ''));
+};
+
+ZzzelpFloodsPlayer.prototype.setTDCAttaquant = function(newTDC) {
+    this.TDC_attaquant.innerHTML = ze_Nombre(newTDC);
+};
+
+ZzzelpFloodsPlayer.prototype.setTDCCible = function(newTDC) {
+    this.TDC_cible.innerHTML = ze_Nombre(newTDC);
+};
+
+ZzzelpFloodsPlayer.prototype.init = function() {
+    this.data = this.coordonnees[this.pseudo];
+    this.table = document.createElement('table');
+
+    this.table.dataset.nfloods = 0;
+    if(this.coordonnees[this.pseudo].TDC > 2*this.data.TDC || this.data.TDC > this.coordonnees[this.pseudo].TDC*3) {
+        this.mode = 'impossible';
+    }
+    else if(this.mode_temp) {
+        this.mode = this.mode_temp;
+    }
+    else {
+        this.mode = 'classique';
+    }
+    this.table.id = 'optimisation_zzzelpfloods';
+    this.table.className = 'optimisation_' + this.data.ID;
+
+    this.createFirstLine();
+    this.createSecondLine();
+    this.element.appendChild(this.table);
+};
+
+ZzzelpFloodsPlayer.prototype.createFirstLine = function() {
+    var line = this.table.insertRow(0);
+
+    this.createCellHeureArrivee(line);
+    this.createCellAttacker(line);
+    this.createCellTarget(line);
+
+    if(this.table.dataset.mode_opti != 'impossible') {
+        this.createCellManualAdding(line);
+        this.createCellModes(line);
+    }
+    else {
+        cell = line.insertCell(3);
+        cell.setAttribute('colspan', '2');
+        var intouchable = document.createElement('span');
+        intouchable.innerHTML = 'Joueur HDP';
+        intouchable.className = 'joueur_intouchable';
+        cell.appendChild(intouchable);  
+    }
+};
+
+ZzzelpFloodsPlayer.prototype.createSecondLine = function() {
+    var line = this.table.insertRow(1),
+        cell = line.insertCell(0);
+    cell.innerHTML = 'TDC départ : ';
+
+    this.TDC_attaquant = line.insertCell(1);
+    this.TDC_attaquant.id = 'TDC_depart_' + this.data.ID;
+    this.TDC_attaquant.innerHTML = '0';
+
+    this.TDC_cible = line.insertCell(2);
+    this.TDC_cible.innerHTML = ze_Nombre(this.data.TDC);
+
+    cell = line.insertCell(3);
+    cell = line.insertCell(4);    
+};
+
+
+ZzzelpFloodsPlayer.prototype.createCellHeureArrivee = function(line) {
+    var cell = line.insertCell(0),
+        temps_trajet = parseInt(ze_Calcul_temps_trajet(this.data.distance, this.attack_speed));
+
+    this.coordonnees[this.pseudo].temps = temps_trajet;
+
+    var zone_duree = document.createElement('span');
+    zone_duree.innerHTML = temps_trajet;
+    zone_duree.className = 'invisible';
+    zone_duree.id = 'duree_attaque';
+
+    var zone_arrivee = document.createElement('span');
+    zone_arrivee.className = 'heure_arrivee';
+    cell.appendChild(zone_duree);
+    cell.appendChild(zone_arrivee);
+};
+
+ZzzelpFloodsPlayer.prototype.createCellAttacker = function(line) {
+    var cell = line.insertCell(1),
+        lien_joueur = document.createElement('a');
+    lien_joueur.href = 'http://' + this.server + '.fourmizzz.fr/Membre.php?Pseudo=' + this.instance.username;
+    lien_joueur.target = '_blank';
+    lien_joueur.innerHTML = this.instance.username;
+    cell.appendChild(lien_joueur);
+};
+
+ZzzelpFloodsPlayer.prototype.createCellTarget  = function(line) {
+    var cell = line.insertCell(2),
+        lien_joueur = document.createElement('a');
+    lien_joueur.href = 'http://' + this.server + '.fourmizzz.fr/Membre.php?Pseudo=' + this.pseudo;
+    lien_joueur.target = '_blank';
+    lien_joueur.innerHTML = this.pseudo;
+    cell.appendChild(lien_joueur);
+};
+
+ZzzelpFloodsPlayer.prototype.createCellManualAdding = function(line) {
+    var cell = line.insertCell(3),
+        ajout = document.createElement('img'),
+        zone_liens = document.createElement('div');
+
+    cell.className = 'menu_modes';
+    zone_liens.className = 'liste_modes';
+    ajout.src = ZzzelpScript.url + 'Images/plus.png';
+
+    for(var i=0; i<ZzzelpFloodsPlayer.manualAddings.length; i++) {
+        var zone_lien = document.createElement('div'),
+            choisi = document.createElement('span'),
+            contenu = document.createElement('span');
+        contenu.innerHTML = ZzzelpFloodsPlayer.manualAddings[i].nom;
+        zone_lien.className = 'ligne_mode';
+        zone_lien.dataset.mode = ZzzelpFloodsPlayer.manualAddings[i].valeur;
+        if(i > 0) {
+            zone_lien.className = 'ligne_mode';
+            zone_lien.onclick = this.applyChoiceNewLine.bind(this);
+        }
+        else {
+            zone_lien.className = 'entete_mode';
+        }
+        zone_lien.appendChild(contenu);
+        zone_lien.appendChild(choisi);
+        zone_liens.appendChild(zone_lien);
+    }
+    cell.appendChild(ajout);
+    cell.appendChild(zone_liens);
+};
+
+ZzzelpFloodsPlayer.prototype.createCellModes = function(line) {
+    this.modesHTML = [];
+    var cell = line.insertCell(4),
+        edit = document.createElement('img'),
+        zone_liens = document.createElement('div');
+
+    cell.className = 'menu_modes';
+    zone_liens.className = 'liste_modes';
+    edit.src = ZzzelpScript.url + '/Images/edit.png';
+    
+    for(var i=0; i<ZzzelpFloodsPlayer.modes.length; i++) {
+        var zone_lien = document.createElement('div'),
+            choisi = document.createElement('span'),
+            contenu = document.createElement('span');
+        contenu.innerHTML = ZzzelpFloodsPlayer.modes[i].nom;
+        zone_lien.dataset.mode = ZzzelpFloodsPlayer.modes[i].valeur;
+        if(i > 0) {
+            zone_lien.className = 'ligne_mode';
+            zone_lien.onclick = this.applyMode.bind(this);
+        }
+        else {
+            zone_lien.className = 'entete_mode';
+        }
+        zone_lien.appendChild(contenu);
+        zone_lien.appendChild(choisi);
+        zone_liens.appendChild(zone_lien);
+        this.modesHTML.push(zone_lien);
+    }
+    cell.appendChild(edit);
+    cell.appendChild(zone_liens);
+};
+
+ZzzelpFloodsPlayer.prototype.applyMode = function() {
+    this.clean();
+    this.mode = event.target.closest('div').dataset.mode;
+    this.instance.compute();
+};
+
+ZzzelpFloodsPlayer.prototype.update = function(state) {
+    this.state = state;
+    var valeur, i;
+    //valeurs = this.computeExternalData(ancien_temps, time() + donnees.coordonnees[pseudos[t]].temps, pseudos[t]);
+    ancien_temps = this.coordonnees[this.pseudo].temps;
+
+    this.showCurrentMode();
+    if(this.mode != 'inconnu') { 
+        this.clean();
+    }
+    this.setTDCAttaquant(this.state.TDC);
+    
+    if(this.mode == 'classique' || this.mode == 'armee_debut' || this.mode == 'armee_fin') {
+        this.classicOptimization();
+    }
+    else if(this.mode == 'armee_complete') {
+        this.fullArmy();
+    }
+    else if(this.mode == 'armee_complete_sonde') {
+        this.fullArmySonde();
+    }
+    else if(this.mode == 'TDC_attaquant' || this.mode == 'TDC_cible') {
+        this.prepareWantedTDC();
+    }
+    else if(this.mode == 'TDC_attaquant_validation' || this.mode == 'TDC_cible_validation') {
+        this.TDCWanted();
+    }
+    else if(this.mode == 'serie_attaques') {
+        this.prepareSeriesOfAttacks();
+    }
+    else if(this.mode == 'serie_attaques_validation') {
+        this.seriesOfAttacks();
+    }
+    else if(this.mode == 'sonde') {
+        this.doubleSonde();
+    }
+    else if(this.mode == 'manuel') {
+        this.manualMode();
+    }
+    else if(this.mode == 'inconnu') {
+        this.unknownMode();
+    }
+
+    return this.state;
+};
+
+ZzzelpFloodsPlayer.computeExternalData = function(debut, fin, joueur, valeurs) {
+    this.coordonnees[this.instance.username].TDC_actuel = valeurs.TDC_attaquant;
+    if(this.variations) {
+        for(i=0; i<this.variations.length; i++) {
+            if(this.variations[i][0].date >= debut && this.variations[i][0].date <= fin) {
+                this.variations[i].valeur = parseInt(this.variations[i].valeur); 
+                var valeur = this.isFloodPossible(this.variations[i][0]);
+                if(this.coordonnees[this.variations[i][0].attaquant]) {
+                    this.coordonnees[this.variations[i][0].attaquant].TDC_actuel += valeur;
+                }
+                if(this.coordonnees[this.variations[i][0].cible]) {
+                    this.coordonnees[this.variations[i][0].cible].TDC_actuel -= valeur;
+                }
+                if(valeur == -1 && valeurs.floods_annules.indexOf(i) == -1) {
+                    valeurs.floods_annules.push(i);
+                }
+            }
+        }
+    }
+    valeurs.TDC_cible = this.coordonnees[joueur].TDC_actuel;
+    valeurs.TDC_attaquant = this.coordonnees[this.pseudo].TDC_actuel;
+    return valeurs;
+};
+
+    
+ZzzelpFloodsPlayer.isFloodPossible = function(flood) {
+    if(this.coordonnees[flood.cible] && this.coordonnees[flood.attaquant]) {
+        if(this.coordonnees[flood.attaquant].TDC_actuel <= 2*this.coordonnees[flood.cible].TDC_actuel && this.coordonnees[flood.cible].TDC_actuel <= this.coordonnees[flood.attaquant].TDC_actuel*3) {
+            return parseInt(ze_Majoration(flood.valeur, this.coordonnees[flood.cible].TDC_actuel*0.2));
+        }
+        else {
+            return 0;
+        }
+    }
+    else {
+        return flood.valeur;
+    }
+};
+
+ZzzelpFloodsPlayer.isWithinRange = function() {
+    if(this.getTDCAttaquant() < 2*this.getTDCCible()) {
+        return false;
+    }
+    else if(this.getTDCCible() > this.getTDCAttaquant()*3) {
+        return false;
+    }
+    return true;
+};
+
+ZzzelpFloodsPlayer.prototype.classicOptimization = function() {
+    var optimisation = new ZzzelpFloodsOptimization(this.getTDCAttaquant(), this.getTDCCible(), this.state.capacity, this.mode, -1);
+    this.updateInterface(optimisation);
+    this.state.TDC = optimisation.getTDCAttaquant();
+    this.state.capacity = optimisation.getCapacity();
+};
+
+ZzzelpFloodsPlayer.prototype.fullArmy = function() {
+    var optimisation = ZzzelpFloodsOptimization.create({ 
+        1 : {
+            manual : false,
+            full_army : true,
+            value : ze_Majoration(this.state.capacity, this.getTDCCible()*0.2) 
+        }
+    });
+    this.state.capacity -= ze_Majoration(this.state.capacity, this.getTDCCible()*0.2);
+    this.updateInterface(optimisation);
+};
+
+ZzzelpFloodsPlayer.prototype.fullArmySonde = function(state) {
+    this.validateSonde(0, 1, this.instance.sondes[0], false);
+    this.state.capacity -= this.instance.sondes[0].valeur;
+    var optimisation = ZzzelpFloodsOptimization.create({ 
+        1 : {
+            manual : false,
+            full_army : true,
+            value : ze_Majoration(this.state.capacity, this.getTDCCible()*0.2) 
+        }
+    });
+    this.state.capacity -= ze_Majoration(this.state.capacity, this.getTDCCible()*0.2);
+    this.updateInterface(optimisation);
+};
+
+ZzzelpFloodsPlayer.prototype.seriesOfAttacks = function() {
+    var floods = {};
+    for(i=0; i<this.nombre_attaques; i++) {
+        if(this.state.capacity >= this.valeur_attaques) {
+            floods[i] = {
+                manual : false,
+                full_army : false,
+                value : this.valeur_attaques
+            };
+            this.state.capacity -= this.valeur_attaques;
+        }
+        else if(this.state.capacity > 0) {
+            floods[i] = {
+                manual : false,
+                full_army : false,
+                value : this.state.capacity
+            };
+            this.state.capacity = 0;
+        }
+    }
+    var optimisation = ZzzelpFloodsOptimization.create(floods);
+    this.updateInterface(optimisation);
+};
+
+ZzzelpFloodsPlayer.prototype.TDCWanted = function() {
+    var floods = {},
+        marge;
+    if(this.mode == 'TDC_attaquant_validation') {
+        marge = this.TDC_voulu - this.getTDCAttaquant();
+    }
+    else {
+        marge = this.getTDCCible() - this.TDC_voulu;
+    }
+    var optimisation = new ZzzelpFloodsOptimization(
+        this.getTDCAttaquant(),
+        this.getTDCCible(),
+        this.state.capacity,
+        this.mode, marge
+    );
+    this.updateInterface(optimisation);
+
+    this.state.TDC = optimisation.getTDCAttaquant();
+    this.state.capacity = optimisation.getCapacity();
+};
+
+ZzzelpFloodsPlayer.prototype.doubleSonde = function() {
+    this.validateSonde(0, 1, this.instance.sondes[0], false);
+    this.validateSonde(0, 2, this.instance.sondes[1], false);
+};
+
+ZzzelpFloodsPlayer.prototype.manualMode = function() {
+    //Initialisation_mode_manuel_joueur(ID);   
+};
+
+ZzzelpFloodsPlayer.prototype.unknownMode = function() {
+    var lines = this.table.rows,
+        TDC_attaquant = this.getTDCAttaquant(),
+        TDC_cible = this.getTDCCible();
+    for(i=2;i<lines.length;i++) {
+        if(lines[i].className != 'ligne_preparation' && lines[i].className != 'ligne_sonde') {
+            var cells = lines[i].cells,
+                valeur_prise;
+            if(this.isWithinRange()) {
+                var ex_prise = parseInt(cells[0].innerHTML.replace(/ /g, ""));
+                valeur_prise = ze_Majoration(ex_prise, Math.floor(TDC_cible*0.2));
+            }
+            else {
+                valeur_prise = 0;
+            }
+            this.state.capacity -= parseInt(cells[0].innerHTML.replace(/ /g, ""));
+            TDC_attaquant += valeur_prise;
+            TDC_cible -= valeur_prise;
+            cells[1].innerHTML = ze_Nombre(TDC_attaquant);
+            cells[2].innerHTML = ze_Nombre(TDC_cible);
+        }
+    }
+    this.state.TDC = TDC_attaquant;
+};
+
+ZzzelpFloodsPlayer.prototype.prepareWantedTDC = function() {
+    var ligne = this.table.insertRow(2),
+        cell = ligne.insertCell(0),
+        input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'TDC voulu pour ' + ((this.mode == 'TDC_attaquant') ? 'l\'attaquant' : 'la cible');
+    input.id = 'TDC_voulu';
+    input.onkeyup = function onkeyup(event) {
+        ze_Ajout_espaces(this);
+        return false;
+    };
+    cell.appendChild(input);
+    cell.setAttribute('colspan', '5');
+    var validation = document.createElement('img');
+    validation.src = ZzzelpScript.url + 'Images/valider.png';
+    validation.onclick = this.validateWantedTDC.bind(this);
+    validation.className = 'preparation_libre';
+    cell.appendChild(validation);
+};
+
+ZzzelpFloodsPlayer.prototype.prepareSeriesOfAttacks = function() {
+    var ligne = this.table.insertRow(-1),
+        cell = ligne.insertCell(0),
+        nombre = document.createElement('input'),
+        texte_1 = document.createElement('span'),
+        valeur = document.createElement('input'),
+        texte_2 = document.createElement('span'),
+        validation = document.createElement('img');
+    cell.setAttribute('colspan', '5');
+    nombre.type = 'text';
+    nombre.className = 'petit_input';
+    texte_1.innerHTML = 'attaques de';
+    valeur.type = 'text';
+    valeur.onkeyup = function onkeyup(event) {
+        ze_Ajout_espaces(this);
+        return false;
+    };
+    texte_2.innerHTML = ' unités';
+    validation.src = ZzzelpScript.url + 'Images/valider.png';
+    validation.onclick = this.validateSeriesOfAttacks.bind(this);
+    validation.className = 'preparation_libre';
+    cell.appendChild(nombre);
+    cell.appendChild(texte_1);
+    cell.appendChild(valeur);
+    cell.appendChild(texte_2);
+    cell.appendChild(validation);
+};
+
+ZzzelpFloodsPlayer.prototype.validateWantedTDC = function() {
+    this.mode += '_validation';
+    this.TDC_voulu = parseInt(this.table.querySelector(' #TDC_voulu').value.replace(/ /g,""));
+    this.instance.compute();
+};
+
+ZzzelpFloodsPlayer.prototype.validateSeriesOfAttacks = function() {
+    this.mode = 'serie_attaques_validation';
+    this.nombre_attaques = parseInt(this.table.querySelectorAll('input')[0].value);
+    this.valeur_attaques = parseInt(this.table.querySelectorAll('input')[1].value.replace(/ /g, ''));
+    this.instance.compute();
+};
+
+ZzzelpFloodsPlayer.prototype.validateSonde = function(n, lieu, sonde, nettoyage) {
+    var ligne, cell;
+    if(!nettoyage) {
+        ligne = this.table.insertRow(-1);
+        cell = ligne.insertCell(0);
+        cell.setAttribute('colspan', '3');
+        cell = ligne.insertCell(1);
+        this.setPlace(cell);
+        cell = ligne.insertCell(2);
+        this.setModificationLinks(cell);
+    }
+    else {
+        ligne = this.table.rows[n];
+    }
+
+    ligne.className = 'ligne_sonde';
+    cell = ligne.cells[0];
+    var valeur = document.createElement('span');
+
+    if(nettoyage) {
+        ze_Supprimer_element(cell.querySelector('img'));
+        ze_Supprimer_element(cell.querySelector('select'));
+        ze_Supprimer_element(cell.querySelector('input'));
+    }
+    cell.innerHTML = 'Sonde de ';
+    valeur.innerHTML = ze_Nombre(sonde.valeur) + ' ';
+    valeur.id = 'nombre_sonde';
+    cell.appendChild(valeur);
+    var nom_unite = document.createElement('span');
+    nom_unite.innerHTML = ZzzelpArmy.TAGs[sonde.unite];
+    nom_unite.id = 'unite_sonde';
+    cell.appendChild(nom_unite);
+    ligne.querySelector('.lieu').innerHTML = ZzzelpFloodsPlayer.places[lieu];
+};
+    
+ZzzelpFloodsPlayer.prototype.showCurrentMode = function() {
+    for(var i=0; i<this.modesHTML.length; i++) {
+        if(this.modesHTML[i].querySelectorAll('img').length > 0) {
+            ze_Supprimer_element(this.modesHTML[i].querySelector('img'));
+        }
+    }
+    if(this.mode != 'impossible') {
+        var mode = this.mode;
+        if(mode.match(new RegExp('(.*)_validation'))) {
+            mode = new RegExp('(.*)_validation').exec(this.mode)[1];
+        }
+        var span = this.table.rows[0].cells[4].querySelectorAll('[data-mode="' + mode + '"] span')[1],
+            img = document.createElement('img');
+        img.src = ZzzelpScript.url + '/Images/icone_attaque.gif';
+        span.appendChild(img);
+    }
+};
+
+ZzzelpFloodsPlayer.prototype.clean = function() {
+    while(this.table.rows.length > 2) {
+        var ligne = this.table.rows[2];
+        ligne.parentNode.removeChild(ligne);
+    }
+};
+
+ZzzelpFloodsPlayer.prototype.updateInterface = function(optimisation) {
+    for(var k in optimisation.getFloods()) {
+        this.addLine(optimisation.get(k), k);
+    }
+};
+
+ZzzelpFloodsPlayer.prototype.addLine = function(flood, index) {
+    var line, cell;
+    if(flood.isManual()) {
+        line = this.table.insertRow(index);
+    }
+    else {  
+        line = this.table.insertRow(-1);
+    }
+    line.dataset.type = flood.isFullArmy() ? 'armee_complete' : 'attaque';
+    cell = line.insertCell(0);
+    cell.innerHTML = ze_Nombre(flood.getValue());
+    var i = line.dataset.numero;
+    for(var t=1; t<line.rowIndex; t++) {
+        if(this.table.rows[t].className != 'ligne_sonde') {
+            ancien_att = parseInt(this.table.rows[t].cells[1].innerHTML.replace(/ /g,""));
+            ancien_def = parseInt(this.table.rows[t].cells[2].innerHTML.replace(/ /g,""));
+        }
+    }
+    if(ancien_att <= 2*ancien_def && ancien_def <= ancien_att*3) {
+        valeur_flood = ze_Majoration(flood.getValue(), Math.floor(ancien_def*0.2));
+        cell = line.insertCell(1);
+        cell.className = 'TDC_attaquant';
+        if(valeur_flood == -2) {
+            valeur_flood = ancien_def*0.2;
+        }
+        cell.innerHTML = ze_Nombre(ancien_att + valeur_flood);
+        cell = line.insertCell(2);
+        cell.innerHTML =  ze_Nombre(ancien_def - valeur_flood);
+    }
+    else {
+        cell = line.insertCell(1);
+        cell.className = 'TDC_attaquant';
+        cell.innerHTML = ze_Nombre(ancien_att);
+        cell = line.insertCell(2);
+        cell.innerHTML =  ze_Nombre(ancien_def);
+    }
+    cell = line.insertCell(3);
+    this.setPlace(cell);
+    cell = line.insertCell(4);
+    this.setModificationLinks(cell);
+};
+
+ZzzelpFloodsPlayer.prototype.setPlace = function(cell) {
+    var lieu = document.createElement('span');
+    lieu.innerHTML = 'TDC';
+    lieu.className = 'lieu';
+    lieu.onclick = this.changePlace;
+    cell.appendChild(lieu);
+};
+
+ZzzelpFloodsPlayer.prototype.changePlace = function(event) {
+    var lieu = event.target.innerHTML,
+        index = ZzzelpFloodsPlayer.places.indexOf(lieu);
+    if(index == 2) {
+        event.target.innerHTML = 'TDC';
+    }
+    else {
+        event.target.innerHTML = ZzzelpFloodsPlayer.places[index + 1];
+    }
+};
+
+ZzzelpFloodsPlayer.prototype.setModificationLinks = function(cell) {
+    var img = document.createElement('img'),
+        zone_liens = document.createElement('div');
+
+    cell.className = 'menu_options';
+    zone_liens.className = 'liste_options';
+    img.src = ZzzelpScript.url + 'Images/quitter.png';
+
+    for(var k=0; k<ZzzelpFloodsPlayer.modificationLinks.length; k++) {
+        var link = ZzzelpFloodsPlayer.modificationLinks[k],
+            zone_lien = document.createElement('div');
+
+        zone_lien.title = link.title;
+        zone_lien.className = 'zone_lien_option';
+        zone_lien.dataset.action = link.action;
+        zone_lien.onclick = this.applyOptionLine.bind(this);
+
+        img_lien = document.createElement('img');
+        img_lien.src = ZzzelpScript.url + '/Images/' + link.lien_image;
+
+        zone_liens.appendChild(zone_lien);
+        zone_lien.appendChild(img_lien);
+    }
+    cell.appendChild(img);
+    cell.appendChild(zone_liens);
+};
+
+ZzzelpFloodsPlayer.prototype.applyOptionLine = function(event) {
+    var element = event.target.closest('div'),
+        action = element.dataset.action,
+        place;
+    if(action == 'supprimer') {
+        this.remove(element);
+    }
+    else if(action == 'modifier') {
+        var line = element.closest('tr'),
+            classe = line.className;
+        this.mode = 'inconnu';
+        line.className = 'ligne_preparation';
+        if(classe == 'ligne_sonde') {
+            var sonde = {
+                unite : ZzzelpArmy.TAGs.indexOf(line.querySelector('#unite_sonde').innerHTML),
+                valeur : parseInt(line.querySelector('#nombre_sonde').innerHTML.replace(/ /g, '')),
+                },
+                lieu = ZzzelpFloodsPlayer.places.indexOf(line.querySelector('.lieu').innerHTML);
+            place = line.rowIndex;
+            ze_Supprimer_element(line);
+            this.insertSondePreparation(lieu, sonde, place);
+        }
+        else {
+            var valeur = line.cells[0].innerHTML.replace(/ /g, '');
+            place = line.rowIndex;
+            ze_Supprimer_element(line);
+            this.insertFloodPreparation(valeur, place);
+        }
+    }
+    this.instance.compute();
+};
+
+ZzzelpFloodsPlayer.prototype.applyChoiceNewLine = function() {
+    var valeur = event.target.closest('div').dataset.mode;
+    if(valeur == 'manuel') {
+        this.insertFloodPreparation(0, -1);
+    }
+    else if(valeur == 'sonde') {
+        var lieu, sonde;
+        if(this.table.querySelectorAll('.ligne_sonde').length === 0) {
+            lieu = 1;
+            sonde = this.instance.sondes[0];
+        }
+        else {
+            lieu = 2;
+            sonde = this.instance.sondes[1];
+        }
+        this.insertSondePreparation(lieu, sonde, -1);
+    }
+};
+
+ZzzelpFloodsPlayer.prototype.insertFloodPreparation = function(valeur, place) {
+    this.mode = 'inconnu';
+    var line = this.table.insertRow(place),
+        cell = line.insertCell(0);
+    line.className = 'ligne_preparation';
+    cell.setAttribute('colspan', '3');
+    var entree = document.createElement('input');
+    entree.type = 'text';
+    entree.placeholder = 'entrer la valeur du flood';
+    entree.value = (valeur === 0) ? '' : ze_Nombre(valeur);
+    cell.appendChild(entree);
+    entree.onkeyup = function onkeyup(event) {
+        ze_Ajout_espaces(this);
+        return false;
+    };
+    var validation = document.createElement('img');
+    validation.src = ZzzelpScript.url + '/Images/valider.png';
+    validation.onclick = function onclick(event) {
+        this.validateManualFlood(line);
+        return false;
+    }.bind(this);
+    validation.className = 'preparation_libre';
+    cell.appendChild(validation);
+    cell = line.insertCell(1);
+    this.setPlace(cell);
+    cell = line.insertCell(2);
+    this.setModificationLinks(cell);
+};
+
+ZzzelpFloodsPlayer.prototype.validateManualFlood = function(line) {
+    var valeur = parseInt(line.querySelector('input').value.replace(/ /g,"")),
+        index = line.rowIndex;
+    this.remove(line);
+    var flood = new ZzzelpFloodsAttack(valeur, false, false);
+    this.addLine(flood, index);
+    this.instance.compute();
+};
+
+ZzzelpFloodsPlayer.prototype.insertSondePreparation = function(lieu, sonde, place) {
+    this.mode = 'inconnu';
+    var ligne = this.table.insertRow(place),
+        cell = ligne.insertCell(0);
+    ligne.className = 'ligne_preparation';
+    var input = document.createElement('input');
+    ligne.className = 'ligne_preparation';
+    cell.setAttribute('colspan', '3');
+    input.type = 'text';
+    input.onkeyup = function onkeyup(event) {
+        ze_Ajout_espaces(this);
+        return false;
+    };
+    input.value = ze_Nombre(sonde.valeur);
+    ligne.cells[0].appendChild(input);
+    var choix = document.createElement('select');
+    ligne.cells[0].appendChild(choix);
+    for(var i=0;i<ZzzelpArmy.TAGs.length;i++) {
+        var option = document.createElement('option');
+        option.value = i;
+        option.innerHTML = ZzzelpArmy.TAGs[i];
+        choix.appendChild(option);
+    }
+    var validation = document.createElement('img');
+    validation.src = ZzzelpScript.url + 'Images/valider.png';
+    cell = ligne.insertCell(1);
+    this.setPlace(cell);
+    cell = ligne.insertCell(2);
+    this.setModificationLinks(cell);       
+    ligne.querySelector('.lieu').innerHTML = ZzzelpFloodsPlayer.places[lieu];
+    validation.onclick = function onclick(event) {
+        var index = ligne.rowIndex,
+            lieu = ZzzelpFloodsPlayer.places.indexOf(ligne.querySelector('.lieu').innerHTML),
+            sonde = {
+                unite : choix.value,
+                valeur : parseInt(input.value.replace(/ /g, ''))
+            };
+        this.validateSonde(index, lieu, sonde, true);
+        return false;
+    }.bind(this);
+    validation.className = 'preparation_libre';
+    ligne.cells[0].appendChild(validation);
+    choix.value = sonde.unite;
+};
+
+ZzzelpFloodsPlayer.prototype.remove = function(element) {
+    ze_Supprimer_element(element.closest('tr'));
+    this.mode = 'inconnu';
+    this.instance.compute();
+};
+
+ZzzelpFloodsPlayer.prototype.toURL = function() {
+    if(this.table.rows.length > 2) {
+        var URL = '',
+            lines = this.table.rows,
+            nombre, unite, valeur, lieu;
+        for(var i=2; i<lines.length; i++) {
+            if(lines[i].className == 'ligne_sonde') {
+                nombre = ze_Base_10_36(parseInt(lines[i].querySelector('#nombre_sonde').innerHTML.replace(/ /g, '')));
+                unite = ze_Base_10_36(ZzzelpArmy.TAGs.indexOf(lines[i].querySelector('#unite_sonde').innerHTML));
+                lieu = parseInt(ZzzelpFloodsPlayer.places.indexOf(lines[i].querySelector('.lieu').innerHTML)) + 1;
+                URL += ((URL === '')? '' : ';') + '1' + nombre + ',' + unite + ',' + lieu;
+            }
+            else if(lines[i].dataset.type != 'hors_opti') {
+                valeur = ((lines[i].dataset.type  == 'armee_complete') ? '-1' : ze_Base_10_36(lines[i].querySelector('td').innerHTML.replace(/ /g, '')));
+                lieu = parseInt(ZzzelpFloodsPlayer.places.indexOf(lines[i].querySelector('.lieu').innerHTML)) + 1;
+                URL += ((URL === '')? '' : ';') + '0' + valeur + ',' + lieu;
+            }
+        }
+        if(URL !== '') {
+            URL += ';' + ze_Base_10_36(this.data.ID) + ';' + ze_Base_10_36(this.data.temps) + ';' + this.pseudo;
+        }
+        else {
+            URL = null;
+        }
+        return URL;
+    }
+    return null;
+};
+
+var ZzzelpFloodsOptimization = function(TDC_attaquant, TDC_cible, capacity, full_army_mode, margin) {
+
+    this.setTDCAttaquant(TDC_attaquant);
+    this.setTDCCible(TDC_cible);
+    this.setCapacity(capacity);
+    this.setMargin(margin);
+    this.setFullArmyMode(full_army_mode);
+    this.floods = {};
+    this.saveParameters();
+    this.main();
+
+};
+
+ZzzelpFloodsOptimization.prototype.get = function(k) {
+    return this.floods[k];
+};
+
+ZzzelpFloodsOptimization.prototype.getFloods = function() {
+    return this.floods;
+};
+
+ZzzelpFloodsOptimization.prototype.getTDCAttaquant = function() {
+    return this.TDC_attaquant;
+};
+
+ZzzelpFloodsOptimization.prototype.setTDCAttaquant = function(newTDCAttaquant) {
+    this.TDC_attaquant = newTDCAttaquant;
+};
+
+ZzzelpFloodsOptimization.prototype.increaseTDCAttaquant = function(taking) {
+    this.TDC_attaquant += taking;
+};
+
+ZzzelpFloodsOptimization.prototype.getTDCCible = function() {
+    return this.TDC_cible;
+};
+
+ZzzelpFloodsOptimization.prototype.setTDCCible = function(newTDCCible) {
+    this.TDC_cible = newTDCCible;
+};
+
+ZzzelpFloodsOptimization.prototype.decreaseTDCCible = function(taking) {
+    this.TDC_cible -= taking;
+};
+
+ZzzelpFloodsOptimization.prototype.getCapacity = function() {
+    return this.capacity;
+};
+
+ZzzelpFloodsOptimization.prototype.setCapacity = function(newCapacity) {
+    this.capacity = newCapacity;
+};
+
+ZzzelpFloodsOptimization.prototype.decreaseCapacity = function(taking) {
+    this.capacity -= taking;
+};
+
+ZzzelpFloodsOptimization.prototype.getMargin = function() {
+    return this.margin;
+};
+
+ZzzelpFloodsOptimization.prototype.setMargin = function(newMargin) {
+    this.margin = newMargin;
+};
+
+ZzzelpFloodsOptimization.prototype.decreaseMargin = function(taking) {
+    this.margin -= taking;
+};
+
+ZzzelpFloodsOptimization.prototype.setFullArmyMode = function(newFullArmyMode) {
+    this.full_army_mode = newFullArmyMode;
+};
+
+ZzzelpFloodsOptimization.prototype.getFullArmyMode = function() {
+    return this.full_army_mode;
+};
+
+ZzzelpFloodsOptimization.prototype.isEmpty = function() {
+    return (this.getLength() === 0);
+};
+
+ZzzelpFloodsOptimization.prototype.getLength = function() {
+    var length = 0;
+    for(var el in this.getFloods()) {
+        length++;
+    }
+    return length;
+};
+
+ZzzelpFloodsOptimization.prototype.saveParameters = function() {
+    this.backup = {
+        TDC_attaquant : this.getTDCAttaquant(),
+        TDC_cible : this.getTDCCible(),
+        full_army_mode : this.getFullArmyMode(),
+    };
+};
+
+ZzzelpFloodsOptimization.prototype.main = function() {
+    if(this.getTDCAttaquant() <= 2*this.getTDCCible() && this.getTDCCible() <= this.getTDCAttaquant()*3) {
+        if (this.getMargin() == -1) {
+            this.computeWithoutMargin();
+        }
+        else if (this.getMargin() > 0) {
+            this.computeWithMargin();
+        }
+    }
+};
+
+ZzzelpFloodsOptimization.prototype.computeWithoutMargin = function() {
+    while (this.getTDCAttaquant() < Math.floor(this.getTDCCible()*1.4) && this.getCapacity() >= this.getTDCCible()*0.2) {
+        if(this.isEmpty() && this.getFullArmyMode() == 'armee_debut') {
+            this.add(-2);
+        }
+        else {
+            this.add(Math.floor(this.getTDCCible() * 0.2));
+        }
+    }
+    this.setMargin(Math.floor((this.getTDCCible()*2 - this.getTDCAttaquant())/3));
+    if (this.getCapacity() >= this.getMargin()) {
+        if(this.isEmpty() && this.getFullArmyMode() == 'armee_debut') {
+            this.add(-2);
+        }
+        else {
+            this.add(this.getMargin());
+            if(this.getFullArmyMode() == 'armee_fin') {
+                this.add(-2);
+            }
+            else if (this.getCapacity() >= this.getTDCCible()*0.2) {
+                this.add(Math.floor(this.getTDCCible() * 0.2));
+            }
+            else {
+                this.add(this.getCapacity());
+            }
+        }
+    }
+    else if (this.getCapacity() > 0) {
+        this.add(this.getCapacity());
+    }
+};
+
+ZzzelpFloodsOptimization.prototype.computeWithMargin = function() {
+    while (this.getMargin() > this.getTDCCible()*0.2 && this.getTDCAttaquant() < Math.floor(this.getTDCCible()*1.4) && this.getCapacity() >= this.getTDCCible()*0.2) {
+        this.add(Math.floor(this.getTDCCible() * 0.2));
+    }
+    if (this.getMargin() > this.getTDCCible()*0.36) {
+        this.fix();
+    }
+    else if (this.getMargin() <= this.getTDCCible()*0.2 && this.getCapacity() >= this.getMargin()) {
+        this.add(this.getMargin());
+    }
+    else if (this.getMargin() > this.getTDCCible()*0.2 && this.getCapacity() >= this.getMargin()) {
+        marge_2 = Math.floor((this.getTDCCible()*2-this.getTDCAttaquant())/3);
+        this.add(marge_2);
+        this.add(this.getMargin());
+    }
+    else if (this.getCapacity() > 0) {
+        this.add(this.getCapacity());
+    }
+};
+
+ZzzelpFloodsOptimization.prototype.fix = function() {
+    var b = this.backup,
+        temp = ZzzelpFloodsOptimization(b.TDC_attaquant, b.TDC_cible, b.capacity, b.full_army_mode, -1);
+    for(var el in temp) {
+        this[el] = temp[el];
+    }
+};
+
+ZzzelpFloodsOptimization.prototype.add = function(value) {
+    var full_army = false;
+    if(value == -2) {
+        full_army = true;
+        value = Math.floor(this.getTDCCible() * 0.2);
+    }
+    this.decreaseTDCCible(value);
+    this.increaseTDCAttaquant(value);
+    this.decreaseCapacity(value);
+    this.decreaseMargin(value);
+    this.floods[this.getLength()] = new ZzzelpFloodsAttack(value, full_army, false);
+};
+
+ZzzelpFloodsOptimization.create = function(floods) {
+    var optimisation = new ZzzelpFloodsOptimization(0, 1);
+    for(var element in floods) {
+        var flood = floods[element];
+        optimisation.floods[element] = new ZzzelpFloodsAttack(flood.value, flood.full_army, flood.manual);
+    }
+    return optimisation;
+};
 function ZzzelpScript() {
 
 	var zzzelp = this;
 
 	this.version = {
-		str : '3.2.4',
-		int : 3.24
+		str : '3.2.5',
+		int : 3.25
 	};
 	this.debug_mode = false;
 
 	this.page_loader = {
-		Armee : function() {
-			if(~url.indexOf('&zmf')) {
-				new ZzzelpScriptMultiflood();
-			}
-			else if(~url.indexOf('?icz')) {
-				var armee = ZzzelpScriptArmee.getArmee(document, 0);
-				document.location.href = url_zzzelp + '/chasses/preparation?serveur=' + ze_serveur + '&armee=[' + armee.unites + ']';
-			}
-			else if(~url.indexOf('?lg')) {
-				new ZzzelpScriptAideGhost(zzzelp);
-			}
-			else if(~document.location.href.indexOf('&lf') || ~document.location.href.indexOf('&lz')) {
-				LancementZzzelpflood();
-			}
-			else if(~url.indexOf('&ar')) {
-				ze_Aide_Relance(true);
-			}
-			else {
-				var forbidden = 0;
-				forbidden += ~url.indexOf('?lg') ? 1 : 0;
-				forbidden += ~url.indexOf('?icz') ? 1 : 0;
-				forbidden += ~url.indexOf('&zf') ? 1 : 0;
-				forbidden += ~url.indexOf('&lf') ? 1 : 0;
-				forbidden += ~url.indexOf('&lz') ? 1 : 0;
-				forbidden += ~url.indexOf('&paz') ? 1 : 0;
-				forbidden += ~url.indexOf('&zmf') ? 1 : 0;
-				if(ZzzelpScript.parameters('parametres', ['perso', 'perso_page_armee']) && forbidden === 0) {
-					new ZzzelpScriptPageArmee(zzzelp);
-				}
-				if(ComptePlus && ZzzelpScript.parameters('parametres', ['synchronisation', 'synchro_armee'])) {
-					ZzzelpScriptArmee.getArmeeReine(ze_MAJ_armee);
-				}
-			}
+
+		AcquerirTerrain : function() {
+			new ZzzelpScriptChasses();
 		},
 
 		alliance : function() {
@@ -9595,18 +9852,42 @@ function ZzzelpScript() {
 			}
 			else if (~url.indexOf('forum_menu')) {
 				new ZzzelpScriptForum();
-				var ID_sujet = ze_Analyser_URL('ID_sujet');
-				if (ID_sujet) {
-					xajax_callGetTopic(parseInt(ID_sujet));
-				}
-				if(ZzzelpScript.parameters('parametres', ['perso', 'perso_smileys'])) {
-					ze_Amelioration_FI();
-				}
 			}
 		},
 
-		AcquerirTerrain : function() {
-			new ZzzelpScriptChasses();
+		Armee : function() {
+			if(~url.indexOf('&zmf')) {
+				new ZzzelpScriptMultiflood();
+			}
+			else if(~url.indexOf('?icz')) {
+				var armee = ZzzelpArmy.getArmee(document, 0);
+				document.location.href = ZzzelpScript.url + 'chasses/preparation?serveur=' + ze_serveur + '&armee=[' + armee.unites + ']';
+			}
+			else if(~url.indexOf('?lg')) {
+				new ZzzelpScriptAideGhost(zzzelp);
+			}
+			else if(~document.location.href.indexOf('&lf') || ~document.location.href.indexOf('&lz')) {
+				new ZzzelpFloodsLauncher();
+			}
+			else if(~url.indexOf('&ar')) {
+				ze_Aide_Relance(true);
+			}
+			else {
+				var forbidden = 0;
+				forbidden += ~url.indexOf('?lg') ? 1 : 0;
+				forbidden += ~url.indexOf('?icz') ? 1 : 0;
+				forbidden += ~url.indexOf('&zf') ? 1 : 0;
+				forbidden += ~url.indexOf('&lf') ? 1 : 0;
+				forbidden += ~url.indexOf('&lz') ? 1 : 0;
+				forbidden += ~url.indexOf('&paz') ? 1 : 0;
+				forbidden += ~url.indexOf('&zmf') ? 1 : 0;
+				if(ZzzelpScript.parameters('parametres', ['perso', 'perso_page_armee']) && forbidden === 0) {
+					new ZzzelpScriptPageArmee(zzzelp);
+				}
+				if(ComptePlus && ZzzelpScript.parameters('parametres', ['synchronisation', 'synchro_armee'])) {
+					ZzzelpArmy.getArmeeReine(ze_MAJ_armee);
+				}
+			}
 		},
 
 		chat : function() {
@@ -9689,7 +9970,7 @@ function ZzzelpScript() {
 				ze_Amelioration_colonies();
 			}
 			if(joueur) {
-				ZzzelpScriptArmee.getArmeeAjax(ze_Initialisation_Zzzelpfloods_profil);
+				ZzzelpArmy.getArmeeAjax(ZzzelpScriptMultiflood.prepareProfile);
 				if(typeof ze_Ajout_raccourci_modal_profil != 'undefined') {
 					ze_Ajout_raccourci_modal_profil();
 				}				
@@ -9742,7 +10023,7 @@ function ZzzelpScript() {
 		}
 		else {
 			localStorage.setItem('Maj_Parametres_Zzzelp' + ze_serveur, time_fzzz());
-			new ZzzelpScriptAjax({ method : 'GET', domain : 'zzzelp', url : 'parametres_script?', force : mode },
+			new ZzzelpAjax({ method : 'GET', domain : 'zzzelp', url : 'parametres_script?', force : mode },
 				{ success : function(valeurs) {
 					localStorage['zzzelp_parametres_' + ze_serveur] = JSON.stringify(valeurs);
 					ze_getTimeZone();
@@ -9806,7 +10087,7 @@ function ZzzelpScript() {
 		entete_menu.setAttribute('class', 'entete_menu_zzzelp');
 		barre.setAttribute('class', 'barre_entete_zzzelp');
 		barre.target = '_BLANK';
-		barre.href = url_zzzelp;
+		barre.href = ZzzelpScript.url;
 		barre.innerHTML = 'Zzzelp';
 		entete_menu.appendChild(barre);
 		actuel.appendChild(entete_menu);
@@ -9856,8 +10137,8 @@ function ZzzelpScript() {
 
 	this.init = function() {
 		if(Connecte) {
-			zzzelp.insertSyleSheet(url_zzzelp + 'Style/zzzelpUI.css');
-			zzzelp.insertSyleSheet(url_zzzelp + 'Style/fonts.css');
+			zzzelp.insertSyleSheet(ZzzelpScript.url + 'Style/zzzelpUI.css');
+			zzzelp.insertSyleSheet(ZzzelpScript.url + 'Style/fonts.css');
 			zzzelp.getParameters(false);
 		}
 	};
@@ -9896,6 +10177,7 @@ ZzzelpScript.auth = function() {
 	return ze_readCookie('zzzelp_etat_auth_' + ze_serveur);		
 };
 
+ZzzelpScript.url = 'http://test.zzzelp.fr/';
 
 
 
@@ -9904,8 +10186,7 @@ ZzzelpScript.auth = function() {
 
 
 if(typeof document.querySelector('#pseudo') != 'undefined' && ~url.indexOf('fourmizzz.fr/')) {
-	var url_zzzelp = 'http://zzzelp.fr/',
-		coordonnees_souris = {
+	var coordonnees_souris = {
 			x: 0,
 			y: 0
 		},

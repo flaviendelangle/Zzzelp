@@ -6,13 +6,13 @@ function Recuperation_armees() {
 		for(var j=0; j<14; j++) {
 			unites.push(parseInt(document.querySelector('#unite_' + i + '_' + j).value.replace(/ /g,"")));
 		}
-		armees[i === 0 ? 'attaquant' : 'defenseur'] = new ZzzelpScriptArmee(unites, {
+		armees[i === 0 ? 'attaquant' : 'defenseur'] = new ZzzelpArmy(unites, {
 			armes : parseInt(document.querySelector('#armes_' + i).value),
 			bouclier : parseInt(document.querySelector('#bouclier_' + i).value),	
 			lieu : 0	
 		});
 	}
-	armees.attaquant.cochenille = parseInt(document.querySelector('#cochenille_0').value);
+	armees.attaquant.niveaux.cochenille = parseInt(document.querySelector('#cochenille_0').value);
 	for(i=0;i<3;i++) {
 		if(document.querySelector('#actif_lieu_' + lieux[i]).checked) {
 			armees.defenseur.niveaux.lieu = i;
@@ -50,17 +50,19 @@ function Calcul_XP(serveur) {
 function Analyse_resultats(donnees) {
 	if(donnees.erreur === '') {
 		document.querySelector('#zone_RC').innerHTML = '<br><a href="#" class="button button-flat-primary bouton" onClick="prompt(\'Lien du RC : \',\'' + url_site + donnees.url + '\')">Partager</a><br><br>' + donnees.RC;
-		localStorage.setItem(donnees_simulateur_combat, JSON.stringify(donnees));
+		localStorage.setItem('donnees_simulateur_combat', JSON.stringify(donnees));
 		Insertion_donnees();
 		document.querySelector('#armee_avant').innerHTML = 'Avant le combat';
 		document.querySelector('#armee_apres').innerHTML = 'Après le combat';
 		document.querySelector('#armee_avant').onclick = function onclick(event) {
-			document.querySelector('#tableau_combat').dataset.mode = 'avant';Insertion_donnees();
+			document.querySelector('#tableau_combat').dataset.mode = 'avant';
+			Insertion_donnees();
 			MAJ_stats_armees('');
 		};
 		document.querySelector('#armee_apres').onclick = function onclick(event) {
 			document.querySelector('#tableau_combat').dataset.mode = 'après';
-			Insertion_donnees();MAJ_stats_armees('');
+			Insertion_donnees();
+			MAJ_stats_armees('');
 		};
 		MAJ_stats_armees('');
 	}
@@ -78,7 +80,7 @@ function Inverser_armees() {
 
 function Insertion_donnees(armees) {
 	if(typeof armees == "undefined") {
-		var donnees = JSON.parse(localStorage.getItem(donnees_simulateur_combat));
+		var donnees = JSON.parse(localStorage.getItem('donnees_simulateur_combat'));
 		if(document.querySelector('#tableau_combat').dataset.mode == 'après') {
 			armees = new Array(donnees.armee_att_apres, donnees.armee_def_apres);
 		}
@@ -130,7 +132,7 @@ function Chargement_armee(n) {
 	var joueurs = ['attaquant', 'defenseur'],
 		releve = document.querySelector('#releve_' + n).value;
 	if(releve !== "") {
-		var armee = ZzzelpScriptArmee.analyse(releve);
+		var armee = ZzzelpArmy.analyse(releve);
 		for(var i=0;i<14;i++) {
 			document.querySelector('#unite_' + n + '_' + i).value = ze_Nombre(armee.unites[i]);
 		}	

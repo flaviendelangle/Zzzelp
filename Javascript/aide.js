@@ -28,7 +28,7 @@ function Menu_debuter_Zzzelp() {
 
 function Desactiver_menu_debuter_Zzzelp() {
 	var xdr = ze_getXDomainRequest();
-	xdr.open('GET', url_zzzelp + 'aide_debutant?mode=desactiver_aide');
+	xdr.open('GET', ZzzelpScript.url + 'aide_debutant?mode=desactiver_aide');
     xdr.send(null);
 	$('#popup_debuter_zzzelp').popUpWindow({
 			action: "close",

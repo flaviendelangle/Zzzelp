@@ -1,5 +1,5 @@
  <!DOCTYPE html>
-<html lang="en" class="no-js">
+<html lang="fr">
 	<head>
 		<?=HTMLGenerique::get_header(); ?>
 		<style>
@@ -93,7 +93,6 @@
 		</div>
 		<script src="/Javascript/cbpHorizontalMenu.min.js"></script>
 		<script src="/Javascript/StatistiquesArmee.js"></script>
-		<script src="/ZzzelpScript/Armee.js"></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script src="http://code.highcharts.com/stock/highstock.js"></script>
 		<link rel="stylesheet" type="text/css" href="/Style/animate.css" />

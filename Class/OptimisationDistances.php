@@ -216,7 +216,7 @@ class OptimisationDistances {
 			}
 			$couple = explode('/', $duo);
 			if ($this->convois_restants[$couple[0]] > 0 AND $this->convois_restants[$couple[1]] < 0) {
-				if ($this->convois_restants[$couple[0]] > -$convois_restants[$couple[1]]) {
+				if ($this->convois_restants[$couple[0]] > -$this->convois_restants[$couple[1]]) {
 					$convoi = -$this->convois_restants[$couple[1]] ;
 				}
 				else {
@@ -227,8 +227,8 @@ class OptimisationDistances {
 				$total_distance += $convoi*$distance;
 				$total_ressources += $convoi;
 				$convois[$couple[0]][$couple[1]] = $convoi;
-			if ($proche) {
-				$total_ressources_proches += $convoi;
+				if ($proche) {
+					$total_ressources_proches += $convoi;
 				}
 			}
 		}
