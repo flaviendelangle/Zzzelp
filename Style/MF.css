@@ -1,0 +1,435 @@
+.zone_multiflood {
+	padding : 75px 0;
+}
+
+.zone_multiflood table {
+	margin : 50px auto;
+	border : 0px !important;
+}
+
+.zone_multiflood .tableau_alliances_MF {
+	margin-top : 0 !important;
+}
+
+
+.zone_multiflood table td {
+	border: 1px solid #999;
+	height : 3.2em;
+	background: inherit;
+}
+
+.zone_multiflood table td {
+	border-left : 0px;
+}
+
+.zone_multiflood table td {
+	border-right : 0px;
+}
+
+.zone_multiflood table tr:last-child td {
+	border-bottom : 0px;
+}
+
+
+
+.zone_multiflood .tableau_alliances_MF td:nth-of-type(1) {
+	width : 6.5em;
+}
+
+.zone_multiflood .tableau_alliances_MF td:nth-of-type(2) {
+	width : 11em;
+}
+
+.zone_multiflood .tableau_alliances_MF td:nth-of-type(3) {
+	width : 3.5em;
+}
+
+.zone_multiflood .tableau_alliances_MF td:nth-of-type(4) {
+	width : 3em;
+}
+
+.zone_multiflood .tableau_options_MF tr:nth-of-type(1), .zone_multiflood .tableau_options_RC tr:nth-of-type(1) {
+	cursor : pointer;
+}
+
+.zone_multiflood .tableau_options_MF td:nth-of-type(1), .zone_multiflood .tableau_options_RC td:nth-of-type(1) {
+	width : 12em;
+}
+
+.zone_multiflood .tableau_options_MF td:nth-of-type(2), .zone_multiflood .tableau_options_RC td:nth-of-type(2) {
+	width : 12em;
+}
+
+.zone_multiflood .tableau_options_MF th[colspan="2"], .zone_multiflood .tableau_options_RC th[colspan="2"] {
+	width : 24em !important;
+}
+
+
+.zone_multiflood .tableau_MF td:nth-of-type(1) {
+	width : 4em;
+	padding: 0;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(2) {
+	width : 10em;
+	white-space: nowrap;
+	padding: 0;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(3) {
+	width : 6em;
+	padding: 0;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(4) {
+	overflow: hidden;
+	white-space: nowrap;
+	width : 15em;
+	max-width : 15em;
+	padding: 0;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(6), .zone_multiflood .tableau_MF td:nth-of-type(7) {
+	width : 5em;
+	text-align : center;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(5), .zone_multiflood .tableau_MF td:nth-of-type(8), .zone_multiflood .tableau_MF td:nth-of-type(9) {
+	width : 10.7em;
+	text-align: center !important;
+}
+
+.zone_multiflood .tableau_MF th:nth-of-type(5), .zone_multiflood .tableau_MF th:nth-of-type(8), .zone_multiflood .tableau_MF th:nth-of-type(9){
+	text-align: left
+}
+
+/*
+	Largeurs pour le mode chasse
+*/
+
+.zone_multiflood .tableau_MF[data-mode="chasse"] td:nth-of-type(10) {
+	width : 15em;
+	padding : 0;
+}
+
+.zone_multiflood .tableau_MF[data-mode="chasse"] td:nth-of-type(11) {
+	width : 4em;
+	padding : 0;
+}
+
+/*
+	Largeurs pour le mode guerre
+*/
+
+.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(10) {
+	width : 4em;
+	padding : 0;
+}
+
+.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(11) {
+	width : 15em;
+	padding : 0;
+}
+
+.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(12), .zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(13) {
+	width : 4em;
+	padding : 0;
+}
+
+.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(10) .entete_liste_unites {
+	height : 3.2em;
+	width : inherit;
+}
+
+.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(10) .entete_liste_unites img {
+	float : initial;
+}
+
+.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(10) .liste_unites {
+  margin-top: calc(-2.5em + -10px);
+  margin-top: -moz-calc(-2.5em + -10px);
+  margin-top: -webkit-calc(-2.5em + -10px);
+  margin-left: 0;
+}
+
+.zone_multiflood table tr .liste_unites {
+	background: inherit;
+	width : calc(15em + 3px);
+}
+
+
+
+
+.zone_multiflood table tr:nth-of-type(1) td[data-triable*="1"] {
+	font-weight : bold;
+	cursor : pointer;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(6)[data-distance*="proche"] {
+	color : #008000;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(6)[data-distance*="moyen"] {
+	color : #000000;
+}
+
+.zone_multiflood .tableau_MF td:nth-of-type(6)[data-distance*="loin"] {
+	color : #FF0000;
+}
+
+.zone_multiflood .tableau_MF tr[data-chargeur*="true"] {
+	background : #AFEEEE;
+}
+
+.zone_multiflood input[type*="checkbox"], .zone_multiflood .tableau_options_MF input[type*="text"] {
+	display : block;
+	margin : auto;
+	float : center;
+}
+
+.zone_multiflood .tableau_MF tr:nth-of-type(1) th span:not(.option_cocher_MF):not(.entete_option_cocher_MF):last-child {
+	display : none;
+}
+
+.zone_multiflood .TDC_complet {
+	float : left;
+	height : 2.2em;
+	line-height : 2.2em;
+}
+
+.zone_multiflood .variation_TDC {
+	float : right;
+}
+
+.zone_multiflood table img {
+	width : 1.8em;
+}
+
+.zone_multiflood #colonne_validation .menu_cocher {
+	width : 15em;
+	margin-top : calc(-2em - 2px);
+	margin-left : calc(-11em - 2px);
+	position: absolute;
+	z-index: 99;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding : 10px 20px;
+	display : none;
+}
+
+.menu_cocher .entete_option_cocher_MF {
+	float : left;
+}
+
+.menu_cocher input[type*="checkbox"] {
+	float : right;
+	margin-top : 0.8em;
+}
+
+.option_cocher_MF {
+	display : block;
+	height : 3em;
+}
+
+.zone_multiflood #colonne_validation:hover .menu_cocher {
+	display : block;
+}
+
+.zone_multiflood .menu_variations {
+	visibility : hidden;
+	opacity:0;
+	padding : 0;
+	position: absolute;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	cursor:pointer;
+	width : 16em;
+	padding : 0 1em;
+	margin-left : calc(-2px - 9em);
+	margin-top : calc(-1px + -2.85em);
+	background : #87CEFA;
+	box-shadow: 0 12px 20px 0 rgba(0, 0, 0, 0.6), 0 4px 4px 0 rgba(0, 0, 0, 0.4);
+    transition:visibility 0s ease-out 0.5s,opacity 0.5s ease-out;
+}
+
+.zone_multiflood .TDC_varie:hover .menu_variations {
+	visibility : visible;
+	opacity:1;
+	transition-delay:0s;
+}
+
+.zone_multiflood .ligne_variation {
+	height : 2em;
+	line-height : 2em;
+}
+
+.zone_multiflood .ligne_variation .span_1 {
+	display : inline-block;
+	width : 7em;
+}
+
+.zone_multiflood .ligne_variation .span_2 {
+	display : inline-block;
+	width : 4em;
+}
+
+.zone_multiflood .ligne_variation .span_3 {
+	display : inline-block;
+	width : 3em;
+}
+
+.zone_multiflood .ligne_total_chasses {
+	text-align : center;
+	font-size : 0.9em;
+	font-style : italic;
+	margin-bottom : 25px;
+	margin-top : -10px;
+}
+
+.zone_lien {
+	text-align : center;
+}
+
+.zone_lien a {
+	margin-top : 50px;
+}
+
+/* Elements cachés */
+.chasse_raccourci, .TDC_raccourci, .armee_raccourci {
+	display : none;
+}
+
+@media (max-width: 88em),(max-device-width: 88em) {
+	.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(1), .zone_multiflood .tableau_MF[data-mode="guerre"] th:nth-of-type(1), .zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(9), .zone_multiflood .tableau_MF[data-mode="guerre"] th:nth-of-type(9) {
+		display : none;
+	}
+}
+
+@media (max-width: 79.5em),(max-device-width: 79.5em) { 	
+	.zone_multiflood .tableau_MF td:nth-of-type(6), .zone_multiflood .tableau_MF th:nth-of-type(6), .zone_multiflood .chasse_complet {
+		display : none;
+	}
+	
+	.chasse_raccourci {
+		display : inline;
+	}
+
+	/*
+		Mode chasse
+	*/
+	.zone_multiflood .tableau_MF[data-mode="chasse"] td:nth-of-type(10), .zone_multiflood .tableau_MF[data-mode="chasse"] th:nth-of-type(10) {
+		width : 11.5em;
+	}
+}
+
+@media (max-width: 73em),(max-device-width: 73em) { 
+	.zone_multiflood .tableau_MF td:nth-of-type(4), .zone_multiflood .tableau_MF th:nth-of-type(4) {
+		width : 9em;
+		max-width : 9em;
+	}
+
+	.zone_multiflood .tableau_MF td:nth-of-type(1), .zone_multiflood .tableau_MF th:nth-of-type(1) {
+		display: none;
+	}
+
+	.zone_multiflood .tableau_MF td:nth-of-type(2) {
+		padding : 10px;
+	}
+}
+
+@media (max-width: 68em),(max-device-width: 68em) { 
+	.tableau_MF[data-mode="guerre"] .TDC_complet {
+		display : none;
+	}
+
+	.tableau_MF[data-mode="guerre"] .TDC_raccourci {
+		display : inline !important;
+	}
+
+	.armee_complet {
+		display: none;
+	}
+
+	.armee_raccourci {
+		display: inline !important;
+	}
+
+	.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(11) {
+		width : 7em;
+	}
+
+	.zone_multiflood table tr .liste_unites {
+		width : calc(9em + 3px);
+	}
+}
+
+@media (max-width: 65em),(max-device-width: 65em) { 
+	.tableau_MF[data-mode="chasse"] .TDC_complet, .zone_multiflood .tableau_MF tr:nth-of-type(1) th span:not(.option_cocher_MF):not(.entete_option_cocher_MF):first-child {
+		display : none;
+	}
+
+	.tableau_MF[data-mode="chasse"] .TDC_raccourci, .zone_multiflood .tableau_MF tr:nth-of-type(1) th span:not(.option_cocher_MF):not(.entete_option_cocher_MF):last-child {
+		display : inline !important;
+	}
+	
+	.zone_multiflood .tableau_MF td:nth-of-type(5), .zone_multiflood .tableau_MF td:nth-of-type(8), .zone_multiflood .tableau_MF td:nth-of-type(9), .zone_multiflood .tableau_MF th:nth-of-type(5), .zone_multiflood .tableau_MF th:nth-of-type(8), .zone_multiflood .tableau_MF th:nth-of-type(9) {
+		width : 6.5em;
+	}
+}
+
+@media (max-width: 55em),(max-device-width: 55em) { 
+	.zone_multiflood .tableau_MF td:nth-of-type(3), .zone_multiflood .tableau_MF th:nth-of-type(3) {
+		display : none;
+	}
+	
+	.zone_multiflood .tableau_MF td:nth-of-type(2), .zone_multiflood .tableau_MF th:nth-of-type(2) {
+		width : 6em;
+	}
+
+	/*
+		Mode chasse
+	*/
+	.zone_multiflood .tableau_MF[data-mode="chasse"] td:nth-of-type(10), .zone_multiflood .tableau_MF[data-mode="chasse"] th:nth-of-type(10) {
+		width : 6em;
+		text-align : center;
+	}
+}
+
+@media (max-width: 45em),(max-device-width: 45em) { 
+	.zone_multiflood .tableau_MF td:nth-of-type(9), .zone_multiflood .tableau_MF th:nth-of-type(9) {
+		display : none;
+	}
+
+	.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(8), .zone_multiflood .tableau_MF[data-mode="guerre"] th:nth-of-type(8) {
+		display : none;
+	}
+}
+
+@media (max-width: 40.5em),(max-device-width: 40.5em) { 
+	.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(4), .zone_multiflood .tableau_MF[data-mode="guerre"] th:nth-of-type(4), .zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(7), .zone_multiflood .tableau_MF[data-mode="guerre"] th:nth-of-type(7) {
+		display : none;
+	}
+}
+	
+@media (max-width: 35.5em),(max-device-width: 35.5em) { 
+	.tableau_MF td:nth-of-type(4), .zone_multiflood .tableau_MF td:nth-of-type(5), .tableau_MF th:nth-of-type(4), .zone_multiflood .tableau_MF th:nth-of-type(5) {
+		display : none;
+	}
+}
+
+@media (max-width: 23.5em),(max-device-width: 23.5em) { 
+	.zone_multiflood .tableau_MF[data-mode="guerre"] td:nth-of-type(10), .zone_multiflood .tableau_MF[data-mode="guerre"] th:nth-of-type(10) {
+		display : none;
+	}
+}
+
+
+div.flood_annule span:before {
+    content: " ";
+    margin-top: 1em;
+    left: 5%;
+    border-bottom: 1px solid #111;
+    width: 90%%;
+    position : absolute;
+}
+

@@ -1,0 +1,19 @@
+{ 
+	"manifest_version" : 2, 
+	"name" : "ZzzelpScript", 
+	"description" : "Extension du site Zzzelp, outils pour Fourmizzz", 
+	"icons" : { "48" : "icone_zzzelp.png" }, 
+	"homepage_url" : "http://www.zzzelp.fr", 
+	"version" : "2.401", 
+	"browser_action" : { 
+		"default_icon" : "icone_zzzelp.png" 
+	}, 
+	"content_scripts" : [{ 
+		"matches" : ["http://*.fourmizzz.fr/*"], 
+		"css" : [], 
+		"js" : ["main.js"] 
+	}], 
+	"permissions": [ 
+		"tabs", "http://*.fourmizzz.fr/*" 
+	] 
+} 

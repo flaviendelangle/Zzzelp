@@ -1,0 +1,76 @@
+html{
+    background-color: rgba(0,0,0,0.1);
+}
+                  
+body{     
+    padding : 15px 0px 15px 15px;
+  overflow-y : scroll;
+}
+                  
+.code_example {
+    width: 80%;
+    margin: 0 auto;
+    padding : 15px;
+    border : 1px solid rgba(0,0,0,0.3);
+    background : white;
+    border-radius: 5px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    margin-bottom : 20px;
+    min-height: 50px;
+}
+
+nav{    
+    padding : 0px 10px 10px 10px;
+    border : 1px solid rgba(0,0,0,0.3);
+    background : white;
+    border-radius: 5px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    width: 250px;
+    float : left; 
+    position : fixed;
+}
+
+.entete_menu {
+    cursor : pointer;
+    font-weight: bold;
+    line-height: 2em;
+}
+                                    
+pre{
+    display: none;    margin: 0 auto;
+    margin-top : 20px;
+                      width: 90%;
+}
+                  
+.code_example pre {
+    padding: 10px;
+    overflow-x: auto;
+}
+
+#droite {
+    float : right;
+    width: 85%;
+}
+
+ 
+.bouton{
+     border : 2px solid rgba(0,0,0,0.45) ;
+     background : transparent ;
+     box-shadow : none ;
+     color : rgba(0,0,0,0.45) ;
+     border-radius : 4px ;
+     text-decoration : none ;
+     padding : 5px 10px;
+     cursor:pointer;
+}
+                  
+.bouton:hover{
+     border : 2px solid rgba(0,0,0,0.75);
+     color : rgba(0,0,0,0.75);
+}              
+                 
+@media (max-width: 1025px){
+    #droite{float:none; width : 100%; margin-top : 20px}
+    #gauche {float:none;position : Inherit;width: 90%;margin: 0 auto;}
+}                 
+                  
