@@ -46,8 +46,7 @@ function Initialisation_admin(mode) {
 		modes = {
 			validations : { fonction : Onglet_validations, ajax : true },
 			utilisateurs : { fonction : Onglet_utilisateurs, ajax : false },
-			nettoyage : { fonction : Onglet_nettoyage, ajax : false },
-			releves : { fonction : Onglet_releves, ajax : true }
+			nettoyage : { fonction : Onglet_nettoyage, ajax : false }
 				};
 	if(modes[mode].ajax) {
 		xdr.onload = function() {
@@ -164,111 +163,6 @@ function Onglet_nettoyage() {
 	Lancement_nettoyage();
 }
 
-function Onglet_releves(valeurs) {
-	console.log(valeurs);
-	var entete_CA = Creer_zone(3, 'zone_invisible'),
-		entete_FI = Creer_zone(3, 'zone_invisible'),
-		entete_MP = Creer_zone(3, 'zone_invisible'),
-		zone_CA = Creer_zone(1, 'zone_invisible'),
-		zone_FI = Creer_zone(1, 'zone_invisible'),
-		zone_MP = Creer_zone(1, 'zone_invisible'),
-		bouton_CA = document.createElement('div'),
-		bouton_FI = document.createElement('div'),
-		bouton_MP = document.createElement('div');
-	bouton_CA.id = "ancre_principale";
-	bouton_FI.id = "ancre_principale";
-	bouton_MP.id = "ancre_principale";
-	bouton_CA.className = 'ancre';
-	bouton_FI.className = 'ancre';
-	bouton_MP.className = 'ancre';
-	bouton_CA.onclick = function onclick(event) {
-		zone_CA.style.display = '';
-		zone_FI.style.display = 'none';
-		zone_MP.style.display = 'none';
-	}
-	bouton_FI.onclick = function onclick(event) {
-		zone_CA.style.display = 'none';
-		zone_FI.style.display = '';
-		zone_MP.style.display = 'none';
-	}
-	bouton_MP.onclick = function onclick(event) {
-		zone_CA.style.display = 'none';
-		zone_FI.style.display = 'none';
-		zone_MP.style.display = '';
-	}
-	bouton_CA.innerHTML = 'Relevés CA';
-	bouton_FI.innerHTML = 'Relevés FI';
-	bouton_MP.innerHTML = 'Relevés MP';
-	entete_CA.appendChild(bouton_CA);
-	entete_FI.appendChild(bouton_FI);
-	entete_MP.appendChild(bouton_MP);
-
-	zone_CA.setAttribute('style', 'display:none');
-	zone_MP.setAttribute('style', 'display:none');
-
-	for(var i=0; i<valeurs.CA.length; i++) {
-		var releve = valeurs.CA[i],
-			zone = document.createElement('div'),
-			entete = document.createElement('div'),
-			contenu = document.createElement('div');
-		zone.className = 'zone_contenu';
-		zone.setAttribute('style', 'box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.65); border: 1px solid rgba(0, 0, 0, 0.40);padding:15px;margin: 30px 15px;');
-		entete.innerHTML = '<b>' + releve.alliance + ' (' + releve.serveur + ') - '  + ze_Generation_date_v1(releve.date_synchro) + '</b>';
-		contenu.innerHTML = releve.contenu.replace(/\n/g, '<br>');
-		contenu.setAttribute('style', 'display:none');
-		entete.onclick = function onclick(event) {this.nextSibling.style.display = (this.nextSibling.style.display == 'none' ? '' : 'none');}
-		zone.appendChild(entete);
-		zone.appendChild(contenu);
-		zone_CA.appendChild(zone);
-	}
-
-	for(var i=0; i<valeurs.FI.length; i++) {
-		try {
-			var releve = valeurs.FI[i],
-				zone = document.createElement('div'),
-				entete = document.createElement('div'),
-				contenu = document.createElement('div'),
-				thread = JSON.parse(releve.contenu);
-			zone.className = 'zone_contenu';
-			zone.setAttribute('style', 'box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.65); border: 1px solid rgba(0, 0, 0, 0.40);padding:15px;margin: 30px 15px;');
-			entete.innerHTML = '<b>' + releve.alliance + ' (' + releve.serveur + ') - '  + ze_Generation_date_v1(releve.date_synchro) + ' - ' + thread.titre + ' (' + thread.categorie + ')</b>';
-			contenu.setAttribute('style', 'display:none');
-
-			for(var j=0; j<thread.messages.length; j++) {
-				var message = thread.messages[j],
-					cadre = document.createElement('div');
-				cadre.innerHTML = '<b>' + message.auteur + ' - ' + message.date + '</b></br>' + message.contenu.replace(/<img src="images\/(.*?)">/g, '<img src="http://s1.fourmizzz.fr/images/$1">') + '<br><br><hr>';
-				cadre.setAttribute('style', 'margin : 25px');
-				contenu.appendChild(cadre);
-			}
-		}
-		catch(e) {
-			console.log(releve);
-		}
-
-		entete.onclick = function onclick(event) {this.nextSibling.style.display = (this.nextSibling.style.display == 'none' ? '' : 'none');}
-		zone.appendChild(entete);
-		zone.appendChild(contenu);
-		zone_FI.appendChild(zone);
-	}
-
-	for(var i=0; i<valeurs.MP.length; i++) {
-		var releve = valeurs.MP[i],
-			zone = document.createElement('div'),
-			entete = document.createElement('div'),
-			contenu = document.createElement('div');
-		zone.className = 'zone_contenu';
-		zone.setAttribute('style', 'box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.65); border: 1px solid rgba(0, 0, 0, 0.40);padding:15px;margin: 30px 15px;');
-		entete.innerHTML = '<b>' + releve.alliance + ' (' + releve.serveur + ') - '  + ze_Generation_date_v1(releve.date_synchro) + '</b>';
-		contenu.innerHTML = ze_BBcode_to_HTML(releve.contenu)
-		contenu.setAttribute('style', 'display:none');
-		entete.onclick = function onclick(event) {this.nextSibling.style.display = (this.nextSibling.style.display == 'none' ? '' : 'none');}
-		zone.appendChild(entete);
-		zone.appendChild(contenu);
-		zone_MP.appendChild(zone);
-	}
-}
- 
 function Lancement_nettoyage() {
 	if(document.querySelectorAll('.ligne_cadre_structure[data-fait="0"]').length > 0) {
 		var ligne = document.querySelector('.ligne_cadre_structure[data-fait="0"]'),
