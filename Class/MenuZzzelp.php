@@ -90,7 +90,7 @@ class MenuZzzelp {
 			$menu_GESTIONALLIANCE = '<li class="sous_menu_zzzelp" data-categorie="gestion_alliance"><span>Gestion alliances</span><div class="detail_menu"><div class="contenu_detail_menu"> '.$menu_GESTIONALLIANCE.'</div></div></li>';
 		}
 
-		if($this->instance->pseudo == 'delangle') {
+		if($this->instance->pseudo == Zzzelp::$pseudo_admin) {
 			$menu_ADMIN = '<div>
 								<h4>Administration</h4>
 								<ul>

@@ -35,7 +35,7 @@ class Login {
 					$this->add_LogConnexion($pseudo, false);
 					$message = "Données inexactes";
 				}
-				elseif(Zzzelp::$url_site != 'http://test.zzzelp.fr/' || in_array($resultat['pseudo'], array('delangle', 'nicolas35', 'Benichou', 'Blondin'))) {
+				elseif(Zzzelp::$url_site != 'http://test.zzzelp.fr/' || in_array($resultat['pseudo'], array(Zzzelp::$pseudo_admin, 'nicolas35', 'Benichou', 'Blondin'))) {
 				 	$_SESSION['ID'] = $resultat['ID'];
 					$_SESSION['pseudo'] = $resultat['pseudo'];
 					$this->add_LogConnexion($pseudo, true);

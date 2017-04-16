@@ -54,20 +54,20 @@ class Securite {
 	public static function Droits_modules($module, $pseudo, $serveur) {
 		$droits_modules = array(
 			'interface_prive' => array(
-				's1' => array('delangle'),
-				's2' => array('delangle'),
-				's3' => array('delangle'),
-				's4' => array('delangle'),
-				'test' => array('delangle'),
-				'w1' => array('delangle'),
+				's1' => array(Zzzelp::$pseudo_admin),
+				's2' => array(Zzzelp::$pseudo_admin),
+				's3' => array(Zzzelp::$pseudo_admin),
+				's4' => array(Zzzelp::$pseudo_admin),
+				'test' => array(Zzzelp::$pseudo_admin),
+				'w1' => array(Zzzelp::$pseudo_admin),
 			),
 			'traceur' => array(
-				's1' => array('delangle'),
-				's2' => array('delangle'),
-				's3' => array('delangle'),
-				's4' => array('delangle'),
-				'test' => array('delangle'),
-				'w1' => array('delangle'),
+				's1' => array(Zzzelp::$pseudo_admin),
+				's2' => array(Zzzelp::$pseudo_admin),
+				's3' => array(Zzzelp::$pseudo_admin),
+				's4' => array(Zzzelp::$pseudo_admin),
+				'test' => array(Zzzelp::$pseudo_admin),
+				'w1' => array(Zzzelp::$pseudo_admin),
 			)
 		);
 		if(!isset($droits_modules[$module][$serveur])) {

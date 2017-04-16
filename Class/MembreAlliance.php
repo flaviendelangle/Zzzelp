@@ -35,7 +35,7 @@ class MembreAlliance {
 	}
 
 	public function check_droit_outil($droit, $menu=false) {
-		if($_SESSION['pseudo'] == 'delangle' AND !$menu) {
+		if($_SESSION['pseudo'] == Zzzelp::$pseudo_admin AND !$menu) {
 			return true;
 		}
 		if($droit == 'chef') {

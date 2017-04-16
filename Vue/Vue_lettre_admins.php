@@ -144,7 +144,7 @@
 					Il est évidemment interdit de signer pour un autre joueur que vous même, les fausses participations de feront qu'affaiblir notre message.
 				</i>
 			</p>
-			<?php foreach($GLOBALS['serveurs'] as $serveur) {$pseudos = array('s1' => 'delangle', 's2' => 'vignarnaud', 's3' => 'delangle', 's4' => 'delangle', 'test' => 'delangle'); ?>
+			<?php foreach($GLOBALS['serveurs'] as $serveur) {$pseudos = array('s1' => Zzzelp::$pseudo_admin, 's2' => 'vignarnaud', 's3' => Zzzelp::$pseudo_admin, 's4' => Zzzelp::$pseudo_admin, 'test' => Zzzelp::$pseudo_admin); ?>
 			<div class="ligne_cadre_structure" style="line-height: 2em;">
 				<label for="pseudo_<?php echo $serveur ?>">Pseudo <?php echo $serveur ?> : </label>
 				<input autocomplete="off" style="float:right" id="pseudo_<?php echo $serveur ?>" data-serveur="<?php echo $serveur ?>" type="text" class="input_haut input_tableau" onkeyup="Autocomplete_pseudos('<?php echo $serveur ?>', this.value)"><br>
