@@ -25,3 +25,12 @@ find . -type f -exec sed -i 's#zzzelp.fr#ADRESSE#g' {} \;
 * Apache HTTPD avec l'url rewriting activé et AllowOverride à ALL
 * Désactiver le directory listing
 * MySQL / MariaDB
+
+# Vérifications
+
+* Vous pouvez rechercher récursivement dans le repo pour vérifier qu'il n'y a pas de coquilles :
+```shell
+grep -rnw . -e "delangle"
+grep -rnw . -e "zzzelp.fr"
+grep -rnw . -e "http://"
+```
