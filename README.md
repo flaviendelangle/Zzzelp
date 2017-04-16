@@ -1,7 +1,7 @@
 # Zzzelp
 Archive for the Zzzelp Website
 
-# Notice d'install non exhaustive
+# Notice d'install rapide
 
 * Clonez le projet dans un repo privé
 * Modifiez Class\Zzzelp::$sel_hash par une suite de caractères aléatoires
