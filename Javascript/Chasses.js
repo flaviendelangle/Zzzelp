@@ -1,3 +1,22 @@
+var 		unites = {
+			noms_singulier : new Array("Jeune Soldate Naine", "Soldate Naine", "Naine d’Elite", "Jeune Soldate", "Soldate", "Concierge", "Concierge d’élite", "Artilleuse", "Artilleuse d’élite", "Soldate d’élite", "Tank", "Tank d’élite", "Tueuse",  "Tueuse d’élite"),
+			noms_pluriel : new Array("Jeunes Soldates Naines", "Soldates Naines", "Naines d’Elites", "Jeunes Soldates", "Soldates", "Concierges", "Concierges d’élites", "Artilleuses", "Artilleuses d’élites", "Soldates d’élites", "Tanks", "Tanks d’élites", "Tueuses",  "Tueuses d’élites"),
+			ex_noms_singulier : new Array("Jeune Soldate Naine", "Soldate Naine", "Naine d'Elite", "Jeune Soldate", "Soldate", "Concierge", "Concierge d'élite", "Artilleuse", "Artilleuse d'élite", "Soldate d'élite", "Tank", "Tank d'élite", "Tueuse",  "Tueuse d'élite"),
+			ex_noms_pluriel : new Array("Jeunes Soldates Naines", "Soldates Naines", "Naines d'Elites", "Jeunes Soldates", "Soldates", "Concierges", "Concierges d'élites", "Artilleuses", "Artilleuses d'élites", "Soldates d'élites", "Tanks", "Tanks d'élites", "Tueuses",  "Tueuses d'élites"),
+			TAGs : new Array('JSN', 'SN', 'NE', 'JS', 'S', 'C', 'CE', 'A', 'AE', 'SE', 'Tk', 'TkE', 'T', 'TE'),
+			ordre : new Array('unite1', 'unite2', 'unite3', 'unite4', 'unite5', 'unite6', 'unite14', 'unite7', 'unite8', 'unite9', 'unite10', 'unite13', 'unite11', 'unite12'),
+			attaque : new Array(3,5,7,10,15,1,1,30,35,24,55,80,50,55), 
+			vie : new Array(8,10,13,16,20,30,40,10,12,27,35,50,50,55), 
+			defense : new Array(2,4,6,9,14,25,35,15,18,23,1,1,50,55),
+			HOF : new Array(300,450,570,740,1000,1410,1410,1440,1520,1450,1860,1860,2740,2740),
+			ID : new Array(1,2,3,4,5,6,14,7,8,9,10,13,11,12)
+				};
+		unites_chasses = {
+			noms_singulier : new Array('Petite araignée', 'Araignée', 'Chenille', 'Criquet', 'Guèpe', 'Cigale', 'Dionée', 'Abeille', 'Hanneton', 'Scarabée', 'Lezard', 'Mante religieuse', 'Souris', 'Mulot', 'Alouette', 'Rat', 'Tamanoir'),
+			noms_pluriel : new Array('Petites araignées', 'Araignées', 'Chenilles', 'Criquets', 'Guèpes', 'Cigales', 'Dionées', 'Abeilles', 'Hannetons', 'Scarabées', 'Lezards', 'Mantes religieuses', 'Souris', 'Mulots', 'Alouettes', 'Rats', 'Tamanoirs')
+		};
+
+
 function Affichage_options_avancees(classe) {
 	var options = document.querySelectorAll('.' + classe);
 	for(var i=0; i<options.length; i++) {
