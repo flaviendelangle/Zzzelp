@@ -1,7 +1,7 @@
 # Zzzelp
 Archive for the Zzzelp Website
 
-# Notice d'install rapide
+# Notice d'adaptation rapide du code
 
 * Clonez le projet dans un repo privé
 * Modifiez Class\Zzzelp::$sel_hash par une suite de caractères aléatoires
@@ -18,3 +18,10 @@ find . -type f  -exec sed -i "s#delangle#PSEUDO#g" {} \;
 find . -type f -exec sed -i 's#http://zzzelp.fr#http://ADRESSE#g' {} \;
 find . -type f -exec sed -i 's#zzzelp.fr#ADRESSE#g' {} \;
 ```
+
+# Paramétrage serveur
+
+* PHP (cgi ou fpm) >= 5.4 (testé sous 5.4 FPM et 5.5 FPM)
+* Apache HTTPD avec l'url rewriting activé et AllowOverride à ALL
+* Désactiver le directory listing
+* MySQL / MariaDB
