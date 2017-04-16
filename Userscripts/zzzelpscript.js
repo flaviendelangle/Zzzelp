@@ -48,7 +48,7 @@ if(document.location.href.indexOf('fourmizzz.fr') < 0 || Connecte) {
 			gTDC = parseInt(document.querySelector('#quantite_tdc').innerHTML),
 			gouvrieres = document.querySelector('#nb_ouvrieres').innerHTML,
 			gmateriaux = document.querySelector('#nb_materiaux').innerHTML,
-			gadmin = ((gpseudo == 'vignarnaud' && ze_serveur == 's2') || (gpseudo == 'delangle' && in_array(ze_serveur, ['s1', 's3', 's4']))),
+			gadmin = ((gpseudo == 'delangle' && ze_serveur == 's2') || (gpseudo == 'delangle' && in_array(ze_serveur, ['s1', 's3', 's4']))),
 			ComptePlus =  document.querySelectorAll('#ligne_ponte').length ? true : false;
 		
 	}
@@ -60,7 +60,7 @@ if(document.location.href.indexOf('fourmizzz.fr') < 0 || Connecte) {
 			noms_pluriel : new Array('Petites araignées', 'Araignées', 'Chenilles', 'Criquets', 'Guèpes', 'Cigales', 'Dionées', 'Abeilles', 'Hannetons', 'Scarabées', 'Lezards', 'Mantes religieuses', 'Souris', 'Mulots', 'Alouettes', 'Rats', 'Tamanoirs')
 		},
 		caracteres = new Array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'),
-		admin_zzzelp = {s1 : 'delangle', s2 : 'vignarnaud', s3 : 'delangle', s4 : 'delangle', test : 'delangle', w1 : 'delangle'};
+		admin_zzzelp = {s1 : 'delangle', s2 : 'delangle', s3 : 'delangle', s4 : 'delangle', test : 'delangle', w1 : 'delangle'};
 }
 
 
