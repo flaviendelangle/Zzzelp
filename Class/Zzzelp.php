@@ -26,7 +26,7 @@ class Zzzelp {
 					 'Traceur' => array('nom' => 'BDDTraceur', 'utilisateur' => 'zzzelptraceur')	 
 				);
 		try {
-			$bdd = new PDO('mysql:host=localhost;dbname='.$BDD[$nom_bdd]['nom'], $BDD[$nom_bdd]['utilisateur'], 'rg923v1tu650', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+			$bdd = new PDO('mysql:host=localhost;dbname='.$BDD[$nom_bdd]['nom'], $BDD[$nom_bdd]['utilisateur'], 'MOTDEPASSE', array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
 			$bdd->exec("SET CHARACTER SET utf8");
 		}
 		catch (Exception $e) {
