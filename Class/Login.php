@@ -24,7 +24,7 @@ class Login {
 		$password = trim($_POST['password']);
 		if($pseudo !="" AND $password !="") {
 			if($this->check_antibruteforce($pseudo, Zzzelp::$IP)) {
-				$passhache = sha1($_POST['password']);
+				$passhache = sha1($_POST['password'] .Zzzelp::$sel_hash);
 				$bdd =  Zzzelp::Connexion_BDD('Donnees_site');
 				$requete = $bdd->prepare('SELECT COUNT(*) AS nombre, ID, pseudo FROM membres WHERE pseudo = :pseudo AND password = :password');
 				$requete->bindValue(':pseudo', $pseudo, PDO::PARAM_STR);
@@ -77,7 +77,7 @@ class Login {
 				$mdp = Securite::Generateur_mdp();
 				$mail = $_POST['mail'];
 				$requete = $bdd->prepare('UPDATE membres SET password = :password WHERE pseudo = :pseudo');
-				$requete->bindValue(':password', sha1($mdp), PDO::PARAM_STR);
+				$requete->bindValue(':password', sha1($mdp .Zzzelp::$sel_hash), PDO::PARAM_STR);
 				$requete->bindValue(':pseudo', $pseudo, PDO::PARAM_STR);
 				$requete->execute();
 				$this->send_loginmail($mdp, $pseudo, $mail);
@@ -136,7 +136,7 @@ class Login {
 					$requete = $bdd->prepare('INSERT INTO membres (pseudo,email,password,date_inscription,ordre_packs) VALUES(:pseudo,:email,:password,NOW(),:ordre_packs)');
 					$requete->bindValue(':pseudo', $pseudo, PDO::PARAM_STR);
 					$requete->bindValue(':email', $mail, PDO::PARAM_STR);
-					$requete->bindValue(':password', sha1(htmlentities($_POST['password'])), PDO::PARAM_STR);
+					$requete->bindValue(':password', sha1(htmlentities($_POST['password']) .Zzzelp::$sel_hash), PDO::PARAM_STR);
 					$requete->bindValue(':ordre_packs', '["Z1","Z2"]', PDO::PARAM_STR);
 					$requete->execute();
 					return 'Inscription réussie\nVous pouvez maintenant vous connecter';
