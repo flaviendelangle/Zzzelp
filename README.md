@@ -12,7 +12,7 @@ find . -type f  -exec sed -i "s#delangle#PSEUDO#g" {} \;
 * Ca va aussi modifier Zzzelp::$pseudo_admin au passage
 * Importez les fichiers SQL de la branche dev dans une DB
 * Modifiez le tableau $BDD ligne 16 dans Class\Zzzelp.php avec vos infos
-* Ne pas oublier ligne 29 le MOTDEPASSE
+* Ne pas oublier ligne 40 le MOTDEPASSE, et éventuellement l'adresse de votre serveur de DB
 * Assez fastidieux : modifiez les url codées en dur (ADRESSE est l'url de votre site)
 ```shell
 find . -type f -exec sed -i 's#http://zzzelp.fr#http://ADRESSE#g' {} \;
