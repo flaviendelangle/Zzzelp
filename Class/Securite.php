@@ -6,6 +6,7 @@ class Securite {
 		Génère un token aléatoire de distance par défaut 6
 		Utilisé pour l'authentification de ZzzelpScript
 	*/
+	
 	public static function newToken($longueur=6){
 		$token = "";
 		$possible = "01234567890123456789abcdefghijklmnopqrtuvwxyz";
@@ -27,9 +28,9 @@ class Securite {
 	/*
 		Génère un mot de passe pour réinitialiser celui de Zzzelp
 	*/
-	public static function Generateur_mdp($longueur=8) {
+	public static function Generateur_mdp($longueur=15) {
 		$mdp = "";
-		$possible = "2346789bcdfghjkmnpqrtvwxyzBCDFGHJKLMNPQRTVWXYZ";
+		$possible = "01234567890123456789abcdefghijklmnopqrtuvwxyzABCDEFGHIJKLMNOPQRTUVWXYZ";
 		$longueurMax = strlen($possible);
 		if ($longueur > $longueurMax) {
 			$longueur = $longueurMax;
@@ -53,20 +54,20 @@ class Securite {
 	public static function Droits_modules($module, $pseudo, $serveur) {
 		$droits_modules = array(
 			'interface_prive' => array(
-				's1' => array('delangle', 'nicolas35', 'era92', 'BOF13', 'silas88'),
-				's2' => array('vignarnaud', 'Spirou', 'era92'),
-				's3' => array('delangle', 'Mogg29'),
-				's4' => array('delangle', 'Ceredwen', 'ankou', 'Timberwolf', 'HunabKu', 'silas88'),
-				'test' => array('delangle'),
-				'w1' => array('delangle'),
+				's1' => array(Zzzelp::$pseudo_admin),
+				's2' => array(Zzzelp::$pseudo_admin),
+				's3' => array(Zzzelp::$pseudo_admin),
+				's4' => array(Zzzelp::$pseudo_admin),
+				'test' => array(Zzzelp::$pseudo_admin),
+				'w1' => array(Zzzelp::$pseudo_admin),
 			),
 			'traceur' => array(
-				's1' => array('delangle', 'nicolas35', 'era92', 'BOF13', 'silas88'),
-				's2' => array('vignarnaud', 'Spirou', 'era92'),
-				's3' => array('delangle'),
-				's4' => array('delangle'),
-				'test' => array('delangle'),
-				'w1' => array('delangle'),
+				's1' => array(Zzzelp::$pseudo_admin),
+				's2' => array(Zzzelp::$pseudo_admin),
+				's3' => array(Zzzelp::$pseudo_admin),
+				's4' => array(Zzzelp::$pseudo_admin),
+				'test' => array(Zzzelp::$pseudo_admin),
+				'w1' => array(Zzzelp::$pseudo_admin),
 			)
 		);
 		if(!isset($droits_modules[$module][$serveur])) {

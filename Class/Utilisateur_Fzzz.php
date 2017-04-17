@@ -387,16 +387,16 @@ class Utilisateur_Fzzz {
 	*/
 	public function get_RightsZzzelp() {
 		$joueurs_prive = array(
-				's1' 	=> array('delangle', 'nicolas35', 'era92', 'BOF13', 'silas88', 'gawain'),
-				's2' 	=> array('vignarnaud', 'Spirou', 'era92'),
-				's3' 	=> array('delangle', 'Mogg29'),
-				's4' 	=> array('delangle', 'Ceredwen', 'ankou', 'Timberwolf', 'HunabKu', 'silas88'),
-				'test' 	=> array('delangle'),
-				'w1' 	=> array('delangle'),
+				's1' 	=> array(Zzzelp::$pseudo_admin),
+				's2' 	=> array(Zzzelp::$pseudo_admin),
+				's3' 	=> array(Zzzelp::$pseudo_admin),
+				's4' 	=> array(Zzzelp::$pseudo_admin),
+				'test' 	=> array(Zzzelp::$pseudo_admin),
+				'w1' 	=> array(Zzzelp::$pseudo_admin),
 			);
 		$alliances_semi_prive = array(
-				's1'	=> array('ZOO', 'CDF', 'FP', '-NBW-'),
-				's2'	=> array('FCGB'),
+				's1'	=> array(),
+				's2'	=> array(),
 				's3'	=> array(),
 				's4'	=> array(),
 				'test'	=> array(),
@@ -412,7 +412,7 @@ class Utilisateur_Fzzz {
 		if(in_array($this->pseudo, $joueurs_prive[$this->serveur])) {
 			$this->droitsZzzelp = 2;
 		}
-		if(($this->pseudo == 'delangle' AND $this->serveur != 's2') OR ($this->pseudo == 'vignarnaud' AND $this->serveur == 's2')) {
+		if($this->pseudo == Zzzelp::$pseudo_admin AND $this->serveur != 's2') {
 			$this->droitsZzzelp = 3;
 		}
 	}

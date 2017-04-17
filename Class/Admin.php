@@ -16,7 +16,7 @@ class Admin {
 	}
 
 	public function check_auth() {
-		return ($this->instance->pseudo == 'delangle');
+		return ($this->instance->pseudo == Zzzelp::$pseudo_admin);
 	}
 
 	public function load() {
@@ -344,7 +344,7 @@ class Admin {
 	}
 
 	public static function erreur($element) {
-		if($_SESSION['pseudo'] == 'delangle') {
+		if($_SESSION['pseudo'] == Zzzelp::$pseudo_admin) {
 			var_dump($element);
 		}
 	}

@@ -290,7 +290,7 @@ class InitialisationZzzelp {
 		Fonction principale permettant d'executer le code lié à chaque page
 	*/
 	public function load() {
-		if(self::$pages[Zzzelp::$page]['disponible'] || $this->pseudo == 'delangle') {
+		if(self::$pages[Zzzelp::$page]['disponible'] || $this->pseudo == Zzzelp::$pseudo_admin) {
 			if(Zzzelp::$page == 'admin') {
 				$admin = new Admin(false, $this);
 				if($admin->check_auth()) {

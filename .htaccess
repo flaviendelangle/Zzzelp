@@ -1,30 +1,15 @@
-<FilesMatch "\.(ttf|otf|eot|woff)$">
-  <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "*"
-  </IfModule>
-</FilesMatch>
+#<FilesMatch "\.(ttf|otf|eot|woff)$">
+  #<IfModule mod_headers.c>
+    #Header set Access-Control-Allow-Origin "*"
+  #</IfModule>
+#</FilesMatch>
 
-IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+#IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
 
-<Limit GET POST>
-order deny,allow
-deny from all
-allow from all
-</Limit>
-<Limit PUT DELETE>
-order deny,allow
-deny from all
-</Limit>
-AuthName zzzelp.fr
-AuthUserFile /home/zzzelpfr/public_html/_vti_pvt/service.pwd
-AuthGroupFile /home/zzzelpfr/public_html/_vti_pvt/service.grp
-
-php_value session.gc_maxlifetime 172800
-php_flag display_errors on
+#php_value session.gc_maxlifetime 172800
+#php_flag display_errors on
 
 RewriteEngine On    # Turn on the rewriting engine
-
-#RewriteRule    ^Userscripts/zzzelpscript.js$  index.php?page=generate_zzzelpscript  [L]     
 
 RewriteRule    ^Style/([^/]+)$	Style/$1	[L]	  	
 RewriteRule    ^Javascript/([^/]+)$	Javascript/$1	[L]	
@@ -33,10 +18,9 @@ RewriteRule    ^ZzzelpScript/([^/]+)$	ZzzelpScript/$1	[L]
 RewriteRule    ^Images/([^/]+)$	Images/$1	[L]	  	
 RewriteRule    ^Userscripts/([^/]+)$	Userscripts/$1	[L]
 RewriteRule    ^Fichiers/([^/]+)$	Fichiers/$1	[L]
-RewriteRule    ^Examples/([^/]+)$	Examples/$1	[L]	  	
-RewriteRule    ^Nwoaar/([^/]+)$	Nwoaar/$1	[L]	  	
+RewriteRule    ^Examples/([^/]+)$	Examples/$1	[L]
 
-
+RewriteRule	   api/(.*)$ 	api/api.php?request=$1 [L,QSA,NC]
 RewriteRule    ^([^/]+)$	index.php?page=$1	[L,QSA]
 RewriteRule    ^([^/]+)/$	index.php?page=$1	[L,QSA]	
 RewriteRule    ^([^/]+)/([^/]+)$	index.php?page=$1&onglet=$2	[L,QSA]
